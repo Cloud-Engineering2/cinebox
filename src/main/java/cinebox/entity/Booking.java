@@ -43,7 +43,7 @@ public class Booking extends BaseTimeEntity {
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private BookingStatus status;
+	private BookingStatus status; // 예매상태 
 
 	@OneToMany(mappedBy = "booking")
 	private List<BookingSeat> bookingSeats = new ArrayList<>();
