@@ -38,4 +38,9 @@ public class Seat extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "seat")
 	private List<BookingSeat> bookingSeats = new ArrayList<>();
+	
+	public Seat(Auditorium auditorium, String seatNumber) {
+		this.auditorium = auditorium;
+		this.seatNumber = seatNumber;
+	}
 }

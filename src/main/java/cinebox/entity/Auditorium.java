@@ -3,6 +3,7 @@ package cinebox.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,7 +33,7 @@ public class Auditorium extends BaseTimeEntity {
 
 	private int capacity;
 
-	@OneToMany(mappedBy = "auditorium")
+	@OneToMany(mappedBy = "auditorium", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Seat> seats = new ArrayList<>();
 
 	@OneToMany(mappedBy = "auditorium")
