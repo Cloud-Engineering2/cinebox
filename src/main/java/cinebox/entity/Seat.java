@@ -33,13 +33,11 @@ public class Seat extends BaseTimeEntity {
 	@JoinColumn(name = "auditorium_id", nullable = false)
 	private Auditorium auditorium;
 
-	@ManyToOne
-    @JoinColumn(name = "screen_id", nullable = false)
-    private Screen screen;  // Screen 엔티티와의 관계 추가
-	
 	@Column(nullable = false)
 	private String seatNumber;
 
 	@OneToMany(mappedBy = "seat")
 	private List<BookingSeat> bookingSeats = new ArrayList<>();
+	
+	
 }

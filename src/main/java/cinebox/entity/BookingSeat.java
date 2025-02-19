@@ -44,4 +44,9 @@ public class BookingSeat extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private BookingStatus status; // 예매 상태 필드 추가
 	
+	
+	 public String getSeatNumber() {
+	        return seat.getSeatNumber();  // Seat 객체에서 seatNumber를 가져오는 방식
+	    }
+	
 }

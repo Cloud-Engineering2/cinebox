@@ -1,10 +1,9 @@
-package cinebox.dto;
+package cinebox.dto.response;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import cinebox.entity.Seat;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,10 +16,10 @@ public class ScreenResponseTest {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private BigDecimal price;
-    private List<SeatDTO> availableSeats; // 예매 가능한 좌석
+    private List<SeatResponseDTO> availableSeats; // 예매 가능한 좌석
 
     // 생성자
-    public ScreenResponseTest(Long screenId, LocalDateTime startTime, LocalDateTime endTime, BigDecimal price,List<SeatDTO> availableSeats) {
+    public ScreenResponseTest(Long screenId, LocalDateTime startTime, LocalDateTime endTime, BigDecimal price,List<SeatResponseDTO> availableSeats) {
         this.screenId = screenId;
         this.startTime = startTime;
         this.endTime = endTime;
