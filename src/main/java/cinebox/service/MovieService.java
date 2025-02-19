@@ -10,7 +10,7 @@ public interface MovieService {
 	MovieResponse registerMovie(MovieRequest request);
 	
 	// read
-	List<MovieResponse> getAllMovies(String sortBy);
+	List<MovieResponse> getAllMovies(String sortBy, String searchText);
 	
 	MovieResponse getMovie(Long movie_id);
 }

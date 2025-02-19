@@ -32,8 +32,10 @@ public class MovieController {
 	// TODO: 사용자 권한에 따른 조회 범위 구분 (ADMIN을 제외한 권한은 UPCOMING과 SHOWING 만 조회)
 	// 모든 영화 조회
 	@GetMapping
-	public ResponseEntity<List<MovieResponse>> getAllMovies(@RequestParam(name = "sort", required = false) String sortBy) {
-		return ResponseEntity.ok(movieService.getAllMovies(sortBy));
+	public ResponseEntity<List<MovieResponse>> getAllMovies(
+			@RequestParam(name = "sort", required = false) String sortBy,
+			@RequestParam(name = "search", required = false) String searchText) {
+		return ResponseEntity.ok(movieService.getAllMovies(sortBy, searchText));
 	}
 	
 	//TODO: 사용자 권한에 따른 조회 범위 구분 (ADMIN을 제외한 권한은 UNRELEASED에 대한 조회 불가

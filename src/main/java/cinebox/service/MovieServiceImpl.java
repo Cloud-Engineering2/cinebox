@@ -31,9 +31,17 @@ public class MovieServiceImpl implements MovieService {
 	}
 
 	@Override
-	public List<MovieResponse> getAllMovies(String sortBy) {
-		List<Movie> movies = movieRepository.findAll();
+	public List<MovieResponse> getAllMovies(String sortBy, String searchText) {
+		List<Movie> movies;
 		
+		// 검색
+		if (searchText != null && !searchText.isEmpty()) {
+			movies = movieRepository.findByTitleContaining(searchText);
+		} else {
+			movies = movieRepository.findAll();
+		}
+		
+		// 정렬
 		if ("title".equals(sortBy)) {
 			movies.sort(Comparator.comparing(Movie::getTitle));
 		}
