@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/macos,java,eclipse,intellij,maven
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,java,eclipse,intellij,maven
 
+*.properties
+
 ### Eclipse ###
 .metadata
 bin/
