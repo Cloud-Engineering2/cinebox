@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,5 +33,11 @@ public class MovieController {
 	@GetMapping
 	public ResponseEntity<List<MovieResponse>> getAllMovies() {
 		return ResponseEntity.ok(movieService.getAllMovies());
+	}
+	
+	//TODO: 사용자 권한에 따른 조회 범위 구분 (ADMIN을 제외한 권한은 UNRELEASED에 대한 조회 불가
+	@GetMapping("/{movie_id}")
+	public ResponseEntity<MovieResponse> getMovie(@PathVariable("movie_id") Long movie_id) {
+		return ResponseEntity.ok(movieService.getMovie(movie_id));
 	}
 }

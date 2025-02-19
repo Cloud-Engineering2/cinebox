@@ -11,4 +11,6 @@ public interface MovieService {
 	
 	// read
 	List<MovieResponse> getAllMovies();
+	
+	MovieResponse getMovie(Long movie_id);
 }

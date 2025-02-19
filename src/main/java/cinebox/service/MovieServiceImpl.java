@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import cinebox.common.exception.movie.DuplicatedMovieException;
+import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
 import cinebox.entity.Movie;
@@ -32,6 +33,13 @@ public class MovieServiceImpl implements MovieService {
 	public List<MovieResponse> getAllMovies() {
 		List<Movie> movies = movieRepository.findAll();
 		return movies.stream().map(MovieResponse::from).collect(Collectors.toList());
+	}
+
+	@Override
+	public MovieResponse getMovie(Long movie_id) {
+		Movie movie = movieRepository.findById(movie_id)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		return MovieResponse.from(movie);
 	}
 
 }
