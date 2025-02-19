@@ -1,5 +1,6 @@
 package cinebox.service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,8 +31,12 @@ public class MovieServiceImpl implements MovieService {
 	}
 
 	@Override
-	public List<MovieResponse> getAllMovies() {
+	public List<MovieResponse> getAllMovies(String sortBy) {
 		List<Movie> movies = movieRepository.findAll();
+		
+		if ("title".equals(sortBy)) {
+			movies.sort(Comparator.comparing(Movie::getTitle));
+		}
 		return movies.stream().map(MovieResponse::from).collect(Collectors.toList());
 	}
 

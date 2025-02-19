@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.MovieRequest;
@@ -31,8 +32,8 @@ public class MovieController {
 	// TODO: 사용자 권한에 따른 조회 범위 구분 (ADMIN을 제외한 권한은 UPCOMING과 SHOWING 만 조회)
 	// 모든 영화 조회
 	@GetMapping
-	public ResponseEntity<List<MovieResponse>> getAllMovies() {
-		return ResponseEntity.ok(movieService.getAllMovies());
+	public ResponseEntity<List<MovieResponse>> getAllMovies(@RequestParam(name = "sort", required = false) String sortBy) {
+		return ResponseEntity.ok(movieService.getAllMovies(sortBy));
 	}
 	
 	//TODO: 사용자 권한에 따른 조회 범위 구분 (ADMIN을 제외한 권한은 UNRELEASED에 대한 조회 불가
