@@ -28,24 +28,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Payment extends BaseTimeEntity {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "payment_id")
-    private Long paymentId;
+	private Long paymentId;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
-    private Booking booking;
+	@ManyToOne
+	@JoinColumn(name = "booking_id", nullable = false)
+	private Booking booking;
 
-    private BigDecimal amount;
+	private BigDecimal amount;
 
-    private PaymentMethod method;
+	private PaymentMethod method;
 
-    @Enumerated(EnumType.STRING)
-    private PaymentStatus status;
+	@Enumerated(EnumType.STRING)
+	private PaymentStatus status;
 
-    @Column(name = "paid_at")
-    private LocalDateTime paidAt;
-    
-    @Column(name = "canceled_at")
-    private LocalDateTime canceledAt;
+	@Column(name = "paid_at")
+	private LocalDateTime paidAt;
+
+	@Column(name = "canceled_at")
+	private LocalDateTime canceledAt;
 }

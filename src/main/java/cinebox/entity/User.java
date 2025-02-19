@@ -25,27 +25,27 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BaseTimeEntity{
+public class User extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "user_id")
 	private Long userId;
-	
+
 	@Column(nullable = false, unique = true)
 	private String identifier;
-	
+
 	@Column(nullable = false, unique = true)
 	private String email;
 
 	@Column(nullable = false)
-    private String password;
+	private String password;
 
-    @Column(nullable = false)
-    private String name;
-    
+	@Column(nullable = false)
+	private String name;
+
 	@Column(nullable = false, unique = true)
 	private String phone;
-	
+
 	private Integer age;
 
 	@Enumerated(EnumType.STRING)
@@ -54,10 +54,10 @@ public class User extends BaseTimeEntity{
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Role role;
-	
+
 	@OneToMany(mappedBy = "user")
 	private List<Booking> bookings = new ArrayList<>();
-	
+
 	@OneToMany(mappedBy = "user")
 	private List<Review> reviews = new ArrayList<>();
 }

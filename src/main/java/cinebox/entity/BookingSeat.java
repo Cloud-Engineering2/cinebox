@@ -11,21 +11,21 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "booking_seat")
-public class BookingSeat {
+public class BookingSeat extends BaseTimeEntity {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "booking_seat_id")
-    private Long bookingSeatId;
+	private Long bookingSeatId;
 
-    @ManyToOne
-    @JoinColumn(name = "booking_id", nullable = false)
-    private Booking booking;
+	@ManyToOne
+	@JoinColumn(name = "booking_id", nullable = false)
+	private Booking booking;
 
-    @ManyToOne
-    @JoinColumn(name = "screen_id", nullable = false)
-    private Screen screen;
+	@ManyToOne
+	@JoinColumn(name = "screen_id", nullable = false)
+	private Screen screen;
 
-    @ManyToOne
-    @JoinColumn(name = "seat_id", nullable = false)
-    private Seat seat;
+	@ManyToOne
+	@JoinColumn(name = "seat_id", nullable = false)
+	private Seat seat;
 }

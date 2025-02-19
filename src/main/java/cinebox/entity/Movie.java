@@ -27,36 +27,36 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Movie extends BaseTimeEntity {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "movie_id")
-    private Long movieId;
+	private Long movieId;
 
-    @Column(nullable = false)
-    private String title;
+	@Column(nullable = false)
+	private String title;
 
-    // 줄거리 (description)
-    private String plot;
-    
-    private String director;
-    private String actor;
-    private String genre;
+	// 줄거리 (description)
+	private String plot;
 
-    private String posterImageUrl;
+	private String director;
+	private String actor;
+	private String genre;
 
-    private LocalDate releaseDate;
+	private String posterImageUrl;
 
-    private Integer runTime;
-    
-    private String rating_grade;
+	private LocalDate releaseDate;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private MovieStatus status;
-    
-    @OneToMany(mappedBy = "movie")
-    private List<Screen> screens = new ArrayList<>();
+	private Integer runTime;
 
-    // 한 영화에 여러 리뷰(Review)가 있을 수 있음 (1:N)
-    @OneToMany(mappedBy = "movie")
-    private List<Review> reviews = new ArrayList<>();
+	private String rating_grade;
+
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private MovieStatus status;
+
+	@OneToMany(mappedBy = "movie")
+	private List<Screen> screens = new ArrayList<>();
+
+	// 한 영화에 여러 리뷰(Review)가 있을 수 있음 (1:N)
+	@OneToMany(mappedBy = "movie")
+	private List<Review> reviews = new ArrayList<>();
 }

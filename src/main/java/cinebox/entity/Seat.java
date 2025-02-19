@@ -23,19 +23,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Seat {
+public class Seat extends BaseTimeEntity {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "seat_id")
-    private Long seatId;
+	private Long seatId;
 
-    @ManyToOne
-    @JoinColumn(name = "auditorium_id", nullable = false)
-    private Auditorium auditorium;
+	@ManyToOne
+	@JoinColumn(name = "auditorium_id", nullable = false)
+	private Auditorium auditorium;
 
-    @Column(nullable = false)
-    private String seatNumber;
+	@Column(nullable = false)
+	private String seatNumber;
 
-    @OneToMany(mappedBy = "seat")
-    private List<BookingSeat> bookingSeats = new ArrayList<>();
+	@OneToMany(mappedBy = "seat")
+	private List<BookingSeat> bookingSeats = new ArrayList<>();
 }

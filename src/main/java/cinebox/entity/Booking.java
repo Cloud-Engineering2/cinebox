@@ -30,24 +30,24 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Booking extends BaseTimeEntity {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "booking_id")
-    private Long bookingId;
+	private Long bookingId;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    private LocalDateTime bookingDate;
-    private BigDecimal totalPrice;
+	private LocalDateTime bookingDate;
+	private BigDecimal totalPrice;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private BookingStatus status;
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private BookingStatus status;
 
-    @OneToMany(mappedBy = "booking")
-    private List<BookingSeat> bookingSeats = new ArrayList<>();
+	@OneToMany(mappedBy = "booking")
+	private List<BookingSeat> bookingSeats = new ArrayList<>();
 
-    @OneToMany(mappedBy = "booking")
-    private List<Payment> payments = new ArrayList<>();
+	@OneToMany(mappedBy = "booking")
+	private List<Payment> payments = new ArrayList<>();
 }

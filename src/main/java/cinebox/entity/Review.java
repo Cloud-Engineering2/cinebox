@@ -21,19 +21,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Review extends BaseTimeEntity {
 	@Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "review_id")
-    private Long reviewId;
+	private Long reviewId;
 
-    @ManyToOne
-    @JoinColumn(name = "movie_id", nullable = false)
-    private Movie movie;
+	@ManyToOne
+	@JoinColumn(name = "movie_id", nullable = false)
+	private Movie movie;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    private int rating;
+	private int rating;
 
-    private String content;
+	private String content;
 }
