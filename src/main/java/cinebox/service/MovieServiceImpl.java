@@ -55,4 +55,15 @@ public class MovieServiceImpl implements MovieService {
 		return MovieResponse.from(movie);
 	}
 
+	@Override
+	public MovieResponse updateMovie(Long movie_id, MovieRequest request) {
+		Movie movie = movieRepository.findById(movie_id)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		movie.updateMovie(request, null);
+		Movie savedMovie = movieRepository.save(movie);
+		
+		return MovieResponse.from(savedMovie);
+	}
+
 }

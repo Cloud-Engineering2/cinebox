@@ -43,4 +43,12 @@ public class MovieController {
 	public ResponseEntity<MovieResponse> getMovie(@PathVariable("movie_id") Long movie_id) {
 		return ResponseEntity.ok(movieService.getMovie(movie_id));
 	}
+	
+	//TODO: 사용자 권한에 따른 접근 제한 + s3 연동하여 이미지 처리
+	@PutMapping("/{movie_id}")
+	public ResponseEntity<MovieResponse> updateMovie(
+			@PathVariable("movie_id") Long movie_id,
+			@RequestBody MovieRequest request) {
+		return ResponseEntity.ok(movieService.updateMovie(movie_id, request));
+	}
 }

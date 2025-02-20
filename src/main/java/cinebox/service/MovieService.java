@@ -13,4 +13,7 @@ public interface MovieService {
 	List<MovieResponse> getAllMovies(String sortBy, String searchText);
 	
 	MovieResponse getMovie(Long movie_id);
+	
+	// update
+	MovieResponse updateMovie(Long movie_id, MovieRequest request);
 }

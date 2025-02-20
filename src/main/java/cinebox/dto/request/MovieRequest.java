@@ -11,6 +11,7 @@ public record MovieRequest(
 		LocalDate releaseDate,
 		Integer runtime,
 		String ratingGrade
+		MovieStatus status
 ) {
 
 }
