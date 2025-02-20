@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
-import cinebox.dto.UserDTO;
+import cinebox.dto.request.UserRequest;
+import cinebox.dto.response.UserResponse;
 import cinebox.service.UserService;
 
 @RestController
@@ -22,46 +23,26 @@ public class UserController {
 	private final UserService userService;
 	
 	@GetMapping()
-	public ResponseEntity<Object> getAllUser() {
-
-		try {
-			List<UserDTO> users = userService.getAllUser();
-			return ResponseEntity.ok().body(users);
-		} catch (Exception ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		}
+	public ResponseEntity<List<UserResponse>> getAllUser() {
+		List<UserResponse> users = userService.getAllUser();
+		return ResponseEntity.ok().body(users);
 	}
 	
 	@GetMapping("/{userId}")
-	public ResponseEntity<Object> getUser(@PathVariable("userId") Long userId) {
-
-		try {
-			UserDTO user = userService.getUserById(userId);
-			return ResponseEntity.ok().body(user);
-		} catch (Exception ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		}
+	public ResponseEntity<UserResponse> getUser(@PathVariable("userId") Long userId) {
+		UserResponse user = userService.getUserById(userId);
+		return ResponseEntity.ok().body(user);
 	}
 	
 	@PutMapping()
-	public ResponseEntity<Object> updateUser(@RequestBody UserDTO userDTO) {
-
-		try {
-			userService.updateUser(userDTO);
-			return ResponseEntity.ok().body("Success Update");
-		} catch (Exception ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		}
+	public ResponseEntity<String> updateUser(@RequestBody UserRequest user) {
+		userService.updateUser(user);
+		return ResponseEntity.ok().body("Success Update");
 	}
 	
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<Object> deleteUser(@PathVariable("userId") Long userId) {
-
-		try {
-			userService.deleteUser(userId);
-			return ResponseEntity.ok().body("Success Delete User");
-		} catch (Exception ex) {
-			return ResponseEntity.badRequest().body(ex.getMessage());
-		}
+	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId) {
+		userService.deleteUser(userId);
+		return ResponseEntity.ok().body("Success Delete");
 	}
 }

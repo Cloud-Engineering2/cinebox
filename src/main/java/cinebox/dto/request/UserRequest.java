@@ -1,6 +1,4 @@
-package cinebox.dto;
-
-import java.time.LocalDateTime;
+package cinebox.dto.request;
 
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
@@ -12,9 +10,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserDTO {
+@NoArgsConstructor
+public class UserRequest {
     private Long userId;
     private String identifier;
     private String password;
@@ -24,11 +22,9 @@ public class UserDTO {
     private Integer age;
     private Gender gender;
     private Role role = Role.USER;
-    private LocalDateTime created_at;
-    private LocalDateTime updated_at;
 
-	public static UserDTO from(User user) {
-        return new UserDTO(
+	public static UserRequest from(User user) {
+        return new UserRequest(
                 user.getUserId(),
                 user.getIdentifier(),
                 user.getPassword(),
@@ -37,10 +33,7 @@ public class UserDTO {
                 user.getPhone(),
                 user.getAge(),
                 user.getGender(),
-                user.getRole(),
-                null,
-                null
+                user.getRole()
         );
 	}
-
 }

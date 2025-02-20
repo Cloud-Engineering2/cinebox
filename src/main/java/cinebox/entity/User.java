@@ -5,7 +5,7 @@ import java.util.List;
 
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
-import cinebox.dto.UserDTO;
+import cinebox.dto.request.UserRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -74,7 +74,7 @@ public class User extends BaseTimeEntity {
 		this.role = role;
 	}
 
-	public static User of(UserDTO userDTO) {
+	public static User of(UserRequest userDTO) {
         return new User(
         		userDTO.getUserId(),
         		userDTO.getIdentifier(),
@@ -87,6 +87,6 @@ public class User extends BaseTimeEntity {
         		userDTO.getRole(),
         		null,
         		null
-        		);
+    		);
 	}
 }
