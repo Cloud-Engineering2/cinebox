@@ -21,20 +21,6 @@ public class BookingController {
 
 	private final BookingService bookingService;
 
-
-	
-	// 등록된시간 노출
-//	@GetMapping("/api/movies/{movieId}/showtimes")
-//	public ResponseEntity<List<ScreenResponse>> getShowtimes(@PathVariable Long movieId) {
-//	    try {
-//	        log.info("MovieID: {}", movieId);
-//	        List<ScreenResponse> screenResponses = bookingService.getShowtimes(movieId);
-//	        return ResponseEntity.ok(screenResponses);
-//	    } catch (Exception e) {
-//	        log.error("Error occurred while fetching showtimes for movieId {}: {}", movieId, e.getMessage());
-//	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//	    }
-//	}
 	
 	// 예매 가능한 상영시간 조회
 	@GetMapping("/{movieId}/showtimes")
