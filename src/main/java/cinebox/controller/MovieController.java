@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,5 +54,12 @@ public class MovieController {
 			@PathVariable("movie_id") Long movie_id,
 			@RequestBody MovieRequest request) {
 		return ResponseEntity.ok(movieService.updateMovie(movie_id, request));
+	}
+	
+	// TODO: 사용자 권한에 따른 접근 제한 추가
+	@DeleteMapping("/{movie_id}")
+	public ResponseEntity<Void> deleteMovie(@PathVariable("movie_id") Long movie_id) {
+		movieService.deleteMovie(movie_id);
+		return ResponseEntity.noContent().build();
 	}
 }

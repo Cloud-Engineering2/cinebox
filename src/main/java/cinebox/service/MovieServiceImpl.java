@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import cinebox.common.exception.movie.DuplicatedMovieException;
+import cinebox.common.exception.movie.MovieDeleteFailedException;
 import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
@@ -64,6 +65,19 @@ public class MovieServiceImpl implements MovieService {
 		Movie savedMovie = movieRepository.save(movie);
 		
 		return MovieResponse.from(savedMovie);
+	}
+
+	// 영화 삭제
+	@Override
+	public void deleteMovie(Long movie_id) {
+		Movie movie = movieRepository.findById(movie_id)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		try {
+			movieRepository.delete(movie);
+		} catch (Exception e) {
+			throw MovieDeleteFailedException.EXCEPTION;
+		}
 	}
 
 }
