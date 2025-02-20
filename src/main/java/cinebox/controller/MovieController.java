@@ -3,9 +3,11 @@ package cinebox.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
+import cinebox.dto.validation.CreateGroup;
 import cinebox.service.MovieService;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +28,7 @@ public class MovieController {
 	// TODO: s3 연동 및 MultiPart 적용
 	// 영화 등록
 	@PostMapping
-	public ResponseEntity<MovieResponse> registerMovie(@RequestBody MovieRequest request) {
+	public ResponseEntity<MovieResponse> registerMovie(@RequestBody @Validated(CreateGroup.class) MovieRequest request) {
 		return ResponseEntity.ok(movieService.registerMovie(request));
 	}
 	
