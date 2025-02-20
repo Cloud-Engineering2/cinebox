@@ -44,25 +44,25 @@ public class MovieController {
 	
 	//TODO: 사용자 권한에 따른 조회 범위 구분 (ADMIN을 제외한 권한은 UNRELEASED에 대한 조회 불가
 	// 특정 영화 조회
-	@GetMapping("/{movie_id}")
-	public ResponseEntity<MovieResponse> getMovie(@PathVariable("movie_id") Long movie_id) {
-		return ResponseEntity.ok(movieService.getMovie(movie_id));
+	@GetMapping("/{movieId}")
+	public ResponseEntity<MovieResponse> getMovie(@PathVariable("movieId") Long movieId) {
+		return ResponseEntity.ok(movieService.getMovie(movieId));
 	}
 	
 	//TODO: 사용자 권한에 따른 접근 제한 + s3 연동하여 이미지 처리
 	// 영화 정보 수정
-	@PutMapping("/{movie_id}")
+	@PutMapping("/{movieId}")
 	public ResponseEntity<MovieResponse> updateMovie(
-			@PathVariable("movie_id") Long movie_id,
+			@PathVariable("movieId") Long movieId,
 			@RequestBody MovieRequest request) {
-		return ResponseEntity.ok(movieService.updateMovie(movie_id, request));
+		return ResponseEntity.ok(movieService.updateMovie(movieId, request));
 	}
 	
 	// TODO: 사용자 권한에 따른 접근 제한 추가
 	// 영화 삭제
-	@DeleteMapping("/{movie_id}")
-	public ResponseEntity<Void> deleteMovie(@PathVariable("movie_id") Long movie_id) {
-		movieService.deleteMovie(movie_id);
+	@DeleteMapping("/{movieId}")
+	public ResponseEntity<Void> deleteMovie(@PathVariable("movieId") Long movieId) {
+		movieService.deleteMovie(movieId);
 		return ResponseEntity.noContent().build();
 	}
 }

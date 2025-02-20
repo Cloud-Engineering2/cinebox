@@ -53,16 +53,16 @@ public class MovieServiceImpl implements MovieService {
 
 	// 특정 영화 조회
 	@Override
-	public MovieResponse getMovie(Long movie_id) {
-		Movie movie = movieRepository.findById(movie_id)
+	public MovieResponse getMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		return MovieResponse.from(movie);
 	}
 
 	// 영화 정보 수정
 	@Override
-	public MovieResponse updateMovie(Long movie_id, MovieRequest request) {
-		Movie movie = movieRepository.findById(movie_id)
+	public MovieResponse updateMovie(Long movieId, MovieRequest request) {
+		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		
 		movie.updateMovie(request, null);
@@ -73,8 +73,8 @@ public class MovieServiceImpl implements MovieService {
 
 	// 영화 삭제
 	@Override
-	public void deleteMovie(Long movie_id) {
-		Movie movie = movieRepository.findById(movie_id)
+	public void deleteMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		
 		try {

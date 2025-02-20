@@ -15,13 +15,13 @@ public interface MovieService {
 	List<MovieResponse> getAllMovies(String sortBy, String searchText);
 	
 	// 특정 영화 조회
-	MovieResponse getMovie(Long movie_id);
+	MovieResponse getMovie(Long movieId);
 	
 	// update
 	// 영화 정보 수정
-	MovieResponse updateMovie(Long movie_id, MovieRequest request);
+	MovieResponse updateMovie(Long movieId, MovieRequest request);
 
 	// delete
 	// 영화 삭제
-	void deleteMovie(Long movie_id);
+	void deleteMovie(Long movieId);
 }
