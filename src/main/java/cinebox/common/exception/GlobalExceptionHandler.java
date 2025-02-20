@@ -24,6 +24,9 @@ public class GlobalExceptionHandler {
 		return new ResponseEntity<>(errorResponse, e.getStatus());
 	}
 	
+	/*
+	 * @Valid 어노테이션 예외 처리
+	 */
 	@ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(
             MethodArgumentNotValidException e, WebRequest request) {

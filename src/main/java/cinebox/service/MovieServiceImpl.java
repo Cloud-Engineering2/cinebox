@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class MovieServiceImpl implements MovieService {
 	private final MovieRepository movieRepository;
 	
+	// 영화 등록(생성)
 	@Override
 	public MovieResponse registerMovie(MovieRequest request) {
 		if (movieRepository.existsByTitleAndReleaseDate(request.title(), request.releaseDate())) {
@@ -31,6 +32,7 @@ public class MovieServiceImpl implements MovieService {
 		return MovieResponse.from(newMovie);
 	}
 
+	// 영화 목록 조회 (정렬, 검색)
 	@Override
 	public List<MovieResponse> getAllMovies(String sortBy, String searchText) {
 		List<Movie> movies;
@@ -49,6 +51,7 @@ public class MovieServiceImpl implements MovieService {
 		return movies.stream().map(MovieResponse::from).collect(Collectors.toList());
 	}
 
+	// 특정 영화 조회
 	@Override
 	public MovieResponse getMovie(Long movie_id) {
 		Movie movie = movieRepository.findById(movie_id)
@@ -56,6 +59,7 @@ public class MovieServiceImpl implements MovieService {
 		return MovieResponse.from(movie);
 	}
 
+	// 영화 정보 수정
 	@Override
 	public MovieResponse updateMovie(Long movie_id, MovieRequest request) {
 		Movie movie = movieRepository.findById(movie_id)
