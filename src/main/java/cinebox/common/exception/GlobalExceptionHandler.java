@@ -2,7 +2,9 @@ package cinebox.common.exception;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -52,4 +54,16 @@ public class GlobalExceptionHandler {
         );
         return new ResponseEntity<>(errorResponse, ExceptionMessage.VALIDATION_ERROR.getStatus());
     }
+	
+	@ExceptionHandler(AccessDeniedException.class)
+	public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException e, WebRequest request) {
+	    logger.warn("AccessDeniedException: {}", e.getMessage());
+	    
+	    ErrorResponse errorResponse = ErrorResponse.from(
+	            HttpStatus.FORBIDDEN.value(),
+	            ExceptionMessage.ACCESS_DENIED_USER.getTitle(),
+	            ExceptionMessage.ACCESS_DENIED_USER.getMessage()
+	    );
+	    return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+	}
 }
