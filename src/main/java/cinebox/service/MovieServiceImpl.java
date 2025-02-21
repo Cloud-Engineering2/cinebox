@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 import cinebox.common.exception.movie.DuplicatedMovieException;
+import cinebox.common.exception.movie.MovieDeleteFailedException;
 import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 public class MovieServiceImpl implements MovieService {
 	private final MovieRepository movieRepository;
 	
+	// 영화 등록(생성)
 	@Override
 	public MovieResponse registerMovie(MovieRequest request) {
 		if (movieRepository.existsByTitleAndReleaseDate(request.title(), request.releaseDate())) {
@@ -30,6 +32,7 @@ public class MovieServiceImpl implements MovieService {
 		return MovieResponse.from(newMovie);
 	}
 
+	// 영화 목록 조회 (정렬, 검색)
 	@Override
 	public List<MovieResponse> getAllMovies(String sortBy, String searchText) {
 		List<Movie> movies;
@@ -48,11 +51,37 @@ public class MovieServiceImpl implements MovieService {
 		return movies.stream().map(MovieResponse::from).collect(Collectors.toList());
 	}
 
+	// 특정 영화 조회
 	@Override
-	public MovieResponse getMovie(Long movie_id) {
-		Movie movie = movieRepository.findById(movie_id)
+	public MovieResponse getMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		return MovieResponse.from(movie);
+	}
+
+	// 영화 정보 수정
+	@Override
+	public MovieResponse updateMovie(Long movieId, MovieRequest request) {
+		Movie movie = movieRepository.findById(movieId)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		movie.updateMovie(request, null);
+		Movie savedMovie = movieRepository.save(movie);
+		
+		return MovieResponse.from(savedMovie);
+	}
+
+	// 영화 삭제
+	@Override
+	public void deleteMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		try {
+			movieRepository.delete(movie);
+		} catch (Exception e) {
+			throw MovieDeleteFailedException.EXCEPTION;
+		}
 	}
 
 }
