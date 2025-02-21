@@ -19,6 +19,7 @@ import cinebox.dto.response.UserResponse;
 import cinebox.entity.User;
 import cinebox.repository.UserRepository;
 import cinebox.security.JwtTokenProvider;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -68,7 +69,10 @@ public class UserService {
         return UserResponse.from(user);
     }
 
-	public User updateUser(UserRequest userRequest) {
+	public User updateUser(UserRequest userRequest, HttpServletRequest request) {
+		String token = jwtTokenProvider.getToken(request);
+		jwtTokenProvider.isUserMatchedWithToken(userRequest.getIdentifier(), token);
+		
         if(userRepository.existsByUserId(userRequest.getUserId())) {
         	User updateUser = User.of(userRequest);
         	User user = userRepository.save(updateUser);
@@ -78,8 +82,11 @@ public class UserService {
         }
 	}
 
-	public void deleteUser(Long userId) {
-		//본인 인지 확인을 한 후에 
+	public void deleteUser(Long userId, HttpServletRequest request) {
+		String token = jwtTokenProvider.getToken(request);
+		UserResponse user = getUserById(userId);
+		jwtTokenProvider.isUserMatchedWithToken(user.getIdentifier(), token);
+
         if (userRepository.existsByUserId(userId)) {
         	userRepository.deleteById(userId);
         }

@@ -39,21 +39,14 @@ public class UserController {
 	}
 	
 	@PutMapping
-	public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, HttpServletRequest request) {
-		String token = jwtTokenProvider.getToken(request);
-		jwtTokenProvider.isUserMatchedWithToken(userRequest.getIdentifier(), token);
-    	
-	    User updatedUser = userService.updateUser(userRequest);
+	public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, HttpServletRequest request) {    	
+	    User updatedUser = userService.updateUser(userRequest, request);
     	return ResponseEntity.ok().body(updatedUser);	 
 	}
 	
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId, HttpServletRequest request) {
-		String token = jwtTokenProvider.getToken(request);
-		UserResponse user = userService.getUserById(userId);
-		jwtTokenProvider.isUserMatchedWithToken(user.getIdentifier(), token);
-		
-		userService.deleteUser(userId);
+	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId, HttpServletRequest request) {		
+		userService.deleteUser(userId, request);
 		return ResponseEntity.ok().body("Success Delete");
 	}
 }
