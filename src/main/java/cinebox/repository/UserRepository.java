@@ -9,6 +9,5 @@ import cinebox.entity.User;
 public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByUserId(Long userId);
 	boolean existsByIdentifier(String identifier);
-	User findByUserId(Long userId);
 	User findByIdentifier(String identifier);
 }

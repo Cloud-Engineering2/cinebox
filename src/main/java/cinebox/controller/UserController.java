@@ -11,18 +11,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
 import cinebox.dto.request.UserRequest;
 import cinebox.dto.response.UserResponse;
+import cinebox.entity.User;
+import cinebox.security.JwtTokenProvider;
 import cinebox.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping(path = "/api/users")
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
+	private final JwtTokenProvider jwtTokenProvider;
 	
-	@GetMapping()
+	@GetMapping
 	public ResponseEntity<List<UserResponse>> getAllUser() {
 		List<UserResponse> users = userService.getAllUser();
 		return ResponseEntity.ok().body(users);
@@ -34,14 +38,21 @@ public class UserController {
 		return ResponseEntity.ok().body(user);
 	}
 	
-	@PutMapping()
-	public ResponseEntity<String> updateUser(@RequestBody UserRequest user) {
-		userService.updateUser(user);
-		return ResponseEntity.ok().body("Success Update");
+	@PutMapping
+	public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, HttpServletRequest request) {
+		String token = jwtTokenProvider.getToken(request);
+		jwtTokenProvider.isUserMatchedWithToken(userRequest.getIdentifier(), token);
+    	
+	    User updatedUser = userService.updateUser(userRequest);
+    	return ResponseEntity.ok().body(updatedUser);	 
 	}
 	
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId) {
+	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId, HttpServletRequest request) {
+		String token = jwtTokenProvider.getToken(request);
+		UserResponse user = userService.getUserById(userId);
+		jwtTokenProvider.isUserMatchedWithToken(user.getIdentifier(), token);
+		
 		userService.deleteUser(userId);
 		return ResponseEntity.ok().body("Success Delete");
 	}

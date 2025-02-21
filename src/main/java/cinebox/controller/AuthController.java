@@ -7,13 +7,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import lombok.RequiredArgsConstructor;
 import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.UserRequest;
 import cinebox.dto.response.AuthResponse;
 import cinebox.dto.response.UserResponse;
 import cinebox.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/auth")

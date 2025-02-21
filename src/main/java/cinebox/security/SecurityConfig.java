@@ -22,7 +22,7 @@ import lombok.RequiredArgsConstructor;
 public class SecurityConfig {
 	private final JwtTokenProvider jwtTokenProvider;
     private final CorsFilter corsFilter;
-
+    
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -42,7 +42,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
         		.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                		.requestMatchers("/api/auth/**").permitAll()
+                		.anyRequest().authenticated()
                 ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
             return http.build();
     }
