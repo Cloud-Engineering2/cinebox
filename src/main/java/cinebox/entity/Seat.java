@@ -3,6 +3,8 @@ package cinebox.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -38,6 +40,7 @@ public class Seat extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "seat")
 	private List<BookingSeat> bookingSeats = new ArrayList<>();
+	
 	
 	public Seat(Auditorium auditorium, String seatNumber) {
 		this.auditorium = auditorium;
