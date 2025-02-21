@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.dto.response.SeatResponse;
 import cinebox.dto.response.ShowtimeWithSeatsResponse;
 import cinebox.entity.Screen;
@@ -30,6 +31,10 @@ public class BookingService {
     public List<ShowtimeWithSeatsResponse> getShowtimesWithSeats(Long movieId) {
         List<Screen> screens = screenRepository.findByMovie_MovieId(movieId);
 
+        if (screens.isEmpty()) {
+            throw NotFoundMovieException.EXCEPTION;  // 예: 영화에 해당하는 상영회차가 없다면 예외 처리
+        }
+        
         return screens.stream()
                 .map(screen -> {
                     // 해당 상영회차의 예매 가능 좌석 조회
