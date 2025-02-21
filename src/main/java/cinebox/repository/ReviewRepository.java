@@ -10,8 +10,6 @@ import cinebox.entity.Review;
 @Repository
 public interface ReviewRepository extends JpaRepository<Review, Long>{
 
-	boolean existsByReviewId(Long reviewId);
-
 	List<Review> getReviewsByMovieMovieId(Long movieId);
 
 	Review getReviewsByReviewId(Long reviewId);

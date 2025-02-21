@@ -37,13 +37,14 @@ public class ReviewController {
 		return ResponseEntity.ok().body(reviews);
 	}
 	
+	//TODO: ADMIN 확인
 	@PutMapping("/{reviewId}")
 	public ResponseEntity<String> updateReview (@PathVariable(name = "reviewId") Long reviewId, @RequestBody ReviewRequest reviewRequest, HttpServletRequest request) {		
 		reviewRequest.setReviewId(reviewId);
 		reviewService.updateReview(reviewRequest, request);
 		return ResponseEntity.ok().body("Success Update");
 	}
-	
+	//TODO: ADMIN 확인
 	@DeleteMapping("/{reviewId}")
 	public ResponseEntity<String> deleteReview (@PathVariable(name = "reviewId") Long reviewId, HttpServletRequest request) {		
 		reviewService.deleteReview(reviewId, request);

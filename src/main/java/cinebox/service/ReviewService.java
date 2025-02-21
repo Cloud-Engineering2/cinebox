@@ -5,6 +5,9 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
+import cinebox.common.exception.movie.NotFoundMovieException;
+import cinebox.common.exception.review.NotFoundReviewException;
+import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 import cinebox.dto.response.UserResponse;
@@ -29,8 +32,8 @@ public class ReviewService {
 	private final ReviewRepository reviewRepository;
 
 	public ReviewResponse insertReview(ReviewRequest reviewRequest) {
-		Movie movie = movieRepository.getReferenceById(reviewRequest.getMovieId());
-		User user = userRepository.getReferenceById(reviewRequest.getUserId());
+		Movie movie = movieRepository.findById(reviewRequest.getMovieId()).orElseThrow(()-> NotFoundMovieException.EXCEPTION);
+		User user = userRepository.findById(reviewRequest.getUserId()).orElseThrow(()-> NotFoundUserException.EXCEPTION);
 		Review newReview = Review.of(movie, user, reviewRequest);
 		
 		reviewRepository.save(newReview);
@@ -38,12 +41,13 @@ public class ReviewService {
 	}
 
 	public List<ReviewResponse> selectReviewByMovieId(Long movieId) {
-		List<ReviewResponse> reviews = reviewRepository.getReviewsByMovieMovieId(movieId).stream().map(ReviewResponse::from).collect(Collectors.toList());
-		return reviews;
+		Movie movie = movieRepository.findById(movieId).orElseThrow(()-> NotFoundMovieException.EXCEPTION);
+		List<Review> reviews = movie.getReviews();
+		return reviews.stream().map(ReviewResponse::from).collect(Collectors.toList());
 	}
 	
 	public Review selectReviewByReviewId(Long reviewId) {
-		return reviewRepository.getReviewsByReviewId(reviewId);
+		return reviewRepository.findById(reviewId).orElseThrow(()-> NotFoundReviewException.EXCEPTION);
 	}
 
 	public void updateReview(ReviewRequest reviewRequest, HttpServletRequest request) {
@@ -52,13 +56,11 @@ public class ReviewService {
 		UserResponse reviewer = userService.getUserById(review.getUser().getUserId());
 		jwtTokenProvider.isUserMatchedWithToken(reviewer.getIdentifier(), token);
 		
-        if(reviewRepository.existsByReviewId(reviewRequest.getReviewId())) {
-    		Movie movie = movieRepository.getReferenceById(reviewRequest.getMovieId());
-    		User user = userRepository.getReferenceById(reviewRequest.getUserId());
-    		
-        	Review updatedReview = Review.of(movie, user, reviewRequest);
-        	reviewRepository.save(updatedReview);
-        }
+		Movie movie = movieRepository.findById(reviewRequest.getMovieId()).orElseThrow(()-> NotFoundMovieException.EXCEPTION);
+		User user = userRepository.findById(reviewRequest.getUserId()).orElseThrow(()-> NotFoundUserException.EXCEPTION);
+		
+    	Review updatedReview = Review.of(movie, user, reviewRequest);
+    	reviewRepository.save(updatedReview);
 	}
 	
 	public void deleteReview(Long reviewId, HttpServletRequest request) {
@@ -67,8 +69,6 @@ public class ReviewService {
 		UserResponse reviewer = userService.getUserById(review.getUser().getUserId());
 		jwtTokenProvider.isUserMatchedWithToken(reviewer.getIdentifier(), token);
 		
-        if (reviewRepository.existsByReviewId(reviewId)) {
-        	reviewRepository.deleteById(reviewId);
-        }
+		reviewRepository.deleteById(reviewId);
 	}
 }
