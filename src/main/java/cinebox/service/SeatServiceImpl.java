@@ -5,21 +5,19 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
-import cinebox.common.exception.auditorium.NotFoundAuditoriumException;
 import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.dto.response.SeatResponse;
-import cinebox.entity.Auditorium;
 import cinebox.entity.Screen;
 import cinebox.entity.Seat;
-import cinebox.repository.AuditoriumRepository;
 import cinebox.repository.ScreenRepository;
+import cinebox.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
 	private final ScreenRepository screenRepository;
-	private final AuditoriumRepository auditoriumRepository;
+	private final SeatRepository seatRepository;
 
 	// 좌석 조회
 	@Override
@@ -28,9 +26,10 @@ public class SeatServiceImpl implements SeatService {
 				.orElseThrow(() -> NotFoundScreenException.EXCEPTION);
 		
 		Long auditoriumId = screen.getAuditorium().getAuditoriumId();
-		Auditorium auditorium = auditoriumRepository.findById(auditoriumId)
-				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
-		List<Seat> seats = auditorium.getSeats();
+//		Auditorium auditorium = auditoriumRepository.findById(auditoriumId)
+//				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
+//		List<Seat> seats = auditorium.getSeats();
+		List<Seat> seats = seatRepository.findByAuditorium_AuditoriumId(auditoriumId);
 
 		return seats.stream().map(seat -> {
 			boolean reserved = seat.getBookingSeats().stream()
