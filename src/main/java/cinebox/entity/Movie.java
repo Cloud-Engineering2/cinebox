@@ -91,4 +91,8 @@ public class Movie extends BaseTimeEntity {
 		this.ratingGrade = request.ratingGrade() != null ? request.ratingGrade() : this.ratingGrade;
 		this.status = request.status() != null ? request.status() : this.status;
 	}
+	
+	public void updateMovieStatus(MovieStatus status) {
+		this.status = status;
+	}
 }
