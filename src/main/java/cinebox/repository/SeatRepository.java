@@ -14,4 +14,5 @@ public interface SeatRepository extends JpaRepository<Seat, Long> {
 	
 	List<Seat> findByAuditorium(Auditorium auditorium);
 	
+	List<Seat> findByAuditorium_AuditoriumId(Long auditoriumId);
 }
