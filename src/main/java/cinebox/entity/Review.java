@@ -1,5 +1,6 @@
 package cinebox.entity;
 
+import cinebox.dto.request.ReviewRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,4 +37,14 @@ public class Review extends BaseTimeEntity {
 	private int rating;
 
 	private String content;
+
+	public static Review of(Movie movie, User user, ReviewRequest reviewRequest ) {
+		return new Review (
+				reviewRequest.getReviewId(),
+				movie,
+				user,
+				reviewRequest.getRating(),
+				reviewRequest.getContent()
+				);
+	}
 }
