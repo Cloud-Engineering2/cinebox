@@ -6,6 +6,7 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,6 +17,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import cinebox.common.enums.Role;
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.repository.UserRepository;
@@ -67,10 +69,16 @@ public class JwtTokenProvider {
     }
     
     public void isUserMatchedWithToken (String identifier, String token) {
-        UserDetails userDetails = (UserDetails)getAuthentication(token).getPrincipal();
+    	Authentication authentication = getAuthentication(token);
+        UserDetails userDetails = (UserDetails)authentication.getPrincipal();
+        String role = authentication.getAuthorities().stream()
+	        	    .findFirst()
+	        	    .map(GrantedAuthority::getAuthority)
+	        	    .orElse(null);
 
-        if (!validateToken(token) || !userDetails.getUsername().equals(identifier)) {
-        	throw NoAuthorizedUserException.EXCEPTION;
+        // 토큰이 유효하지 않거나 && role이 user이면서 identifier이 토큰의 username과 다른 경우
+        if (!validateToken(token) || (Role.USER.name().equals(role) && !userDetails.getUsername().equals(identifier))) {
+            throw NoAuthorizedUserException.EXCEPTION;
         }
     }
 }
