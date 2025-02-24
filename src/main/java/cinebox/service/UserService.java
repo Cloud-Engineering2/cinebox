@@ -76,7 +76,7 @@ public class UserService {
 		User tokenUser = jwtTokenProvider.isUserMatchedWithToken(userRequest.getIdentifier(), token);
 		
 		// admin이 아닌 경우에는 Role 변경 안되게 수정하기
-		boolean isRoleChangeByUser = (tokenUser.getRole().equals(Role.USER) && userRequest.getRole().equals(Role.ADMIN));
+		boolean isRoleChangeByUser = (tokenUser.getRole().equals(Role.USER) && !userRequest.getRole().equals(Role.USER));
 		if(isRoleChangeByUser) {
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
