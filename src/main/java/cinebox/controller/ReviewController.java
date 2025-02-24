@@ -38,15 +38,15 @@ public class ReviewController {
 	}
 	
 	@PutMapping("/{reviewId}")
-	public ResponseEntity<String> updateReview (@PathVariable(name = "reviewId") Long reviewId, @RequestBody ReviewRequest reviewRequest, HttpServletRequest request) {		
+	public ResponseEntity<String> updateReview (@PathVariable(name = "reviewId") Long reviewId, @RequestBody ReviewRequest reviewRequest) {		
 		reviewRequest.setReviewId(reviewId);
-		reviewService.updateReview(reviewRequest, request);
+		reviewService.updateReview(reviewRequest);
 		return ResponseEntity.ok().body("Success Update");
 	}
 
 	@DeleteMapping("/{reviewId}")
-	public ResponseEntity<String> deleteReview (@PathVariable(name = "reviewId") Long reviewId, HttpServletRequest request) {		
-		reviewService.deleteReview(reviewId, request);
+	public ResponseEntity<String> deleteReview (@PathVariable(name = "reviewId") Long reviewId) {		
+		reviewService.deleteReview(reviewId);
 		return ResponseEntity.ok().body("Success Delete");
 	}
 }

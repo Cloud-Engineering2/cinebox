@@ -6,19 +6,16 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import cinebox.common.enums.Role;
-import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -57,6 +54,11 @@ public class JwtTokenProvider {
         }
     }
     
+    public Claim getClaim (String token, String Claim) {
+    	DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
+    	return decodedJWT.getClaim(Claim);
+    }
+    
     public Authentication getAuthentication(String token) {
     	DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
 
@@ -64,23 +66,8 @@ public class JwtTokenProvider {
         cinebox.entity.User user = userRepository.findById(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
         String role = decodedJWT.getClaim("role").asString();
         
-        User userDetails = new User(user.getIdentifier(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role)));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        PrincipalDetails principalDetails = new PrincipalDetails(user);
+        return new UsernamePasswordAuthenticationToken(principalDetails, "", principalDetails.getAuthorities());
     }
     
-    public cinebox.entity.User isUserMatchedWithToken (String identifier, String token) {
-    	Authentication authentication = getAuthentication(token);
-        UserDetails userDetails = (UserDetails)authentication.getPrincipal();
-        String role = authentication.getAuthorities().stream()
-	        	    .findFirst()
-	        	    .map(GrantedAuthority::getAuthority)
-	        	    .orElse(null);
-
-        // 토큰이 유효하지 않거나 && role이 user이면서 identifier이 토큰의 username과 다른 경우
-        if (!validateToken(token) || (role.contains(Role.USER.name().toString()) && !userDetails.getUsername().equals(identifier))) {
-            throw NoAuthorizedUserException.EXCEPTION;
-        }
-        
-        return new cinebox.entity.User(userDetails.getUsername(), userDetails.getPassword(), Role.valueOf(role));
-    }
 }
