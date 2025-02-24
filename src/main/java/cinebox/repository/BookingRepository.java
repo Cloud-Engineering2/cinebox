@@ -5,7 +5,8 @@ import org.springframework.stereotype.Repository;
 
 import cinebox.entity.Booking;
 
+
 @Repository
-public interface BookingRepository extends JpaRepository<Booking, Long>{
+public interface BookingRepository extends JpaRepository<Booking, Long> {
 
 }
