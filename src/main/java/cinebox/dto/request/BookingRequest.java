@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BookingRequest {
-
 	
     private Long screenId;
     private List<String> seatIds; // 좌석번호 (예: ["A1", "A2", "B1"])
