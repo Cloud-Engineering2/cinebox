@@ -37,6 +37,7 @@ public class BookingService {
     private final ScreenRepository screenRepository;
     private final UserRepository userRepository;
     private final SeatRepository seatRepository;
+    private final PaymentService paymentService;
 
     @Transactional
     public BookingResponse bookSeats(BookingRequest request) {
@@ -92,9 +93,9 @@ public class BookingService {
         int totalSeats = request.getSeatNumbers().size();
         BigDecimal totalPrice = screen.getPrice().multiply(new BigDecimal(totalSeats));
         savedBooking.setTotalPrice(totalPrice);
-
-        // 응답 객체 생성
-        return new BookingResponse(
+        
+        // 예매 상태는 PENDING 상태로 두고 응답을 반환
+        BookingResponse bookingResponse = new BookingResponse(
                 savedBooking.getBookingId(),
                 savedBooking.getBookingDate(),
                 request.getScreenId(),
@@ -104,7 +105,12 @@ public class BookingService {
                 "예매 성공",
                 screenName
         );
-    }
 
-    
+       
+        // 결제 처리 (paymentMethod 추가)
+        //paymentService.processPayment(savedBooking.getBookingId(), savedBooking.getTotalPrice(), "CARD"); // 결제 방법을 여기에 넣어주세요.
+ 
+        return bookingResponse;
+        
+    }
 }
