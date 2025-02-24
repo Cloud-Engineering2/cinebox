@@ -61,7 +61,6 @@ public class Movie extends BaseTimeEntity {
 	@OneToMany(mappedBy = "movie")
 	private List<Screen> screens = new ArrayList<>();
 
-	// 한 영화에 여러 리뷰(Review)가 있을 수 있음 (1:N)
 	@OneToMany(mappedBy = "movie")
 	private List<Review> reviews = new ArrayList<>();
 	
@@ -76,7 +75,20 @@ public class Movie extends BaseTimeEntity {
 				.releaseDate(request.releaseDate())
 				.runTime(request.runtime())
 				.ratingGrade(request.ratingGrade())
-				.status(MovieStatus.UNRELEASED)
+				.status(request.status() != null ? request.status() : MovieStatus.UNRELEASED)
 				.build();
+	}
+	
+	public void updateMovie(MovieRequest request, String newPosterImageUrl) {
+		this.title = request.title() != null ? request.title() : this.title;
+		this.plot = request.plot() != null ? request.plot() : this.plot;
+		this.director = request.director() != null ? request.director() : this.director;
+		this.actor = request.actors() != null ? request.actors() : this.actor;
+		this.genre = request.genre() != null ? request.genre() : this.genre;
+		this.posterImageUrl = newPosterImageUrl != null ? newPosterImageUrl : this.posterImageUrl;
+		this.releaseDate = request.releaseDate() != null ? request.releaseDate() : this.releaseDate;
+		this.runTime = request.runtime() != null ? request.runtime() : this.runTime;
+		this.ratingGrade = request.ratingGrade() != null ? request.ratingGrade() : this.ratingGrade;
+		this.status = request.status() != null ? request.status() : this.status;
 	}
 }

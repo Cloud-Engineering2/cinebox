@@ -4,10 +4,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import cinebox.common.enums.MovieStatus;
 import cinebox.common.exception.movie.DuplicatedMovieException;
+import cinebox.common.exception.movie.MovieDeleteFailedException;
 import cinebox.common.exception.movie.NotFoundMovieException;
+import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
 import cinebox.entity.Movie;
@@ -19,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 public class MovieServiceImpl implements MovieService {
 	private final MovieRepository movieRepository;
 	
+	// 영화 등록(생성)
 	@Override
 	public MovieResponse registerMovie(MovieRequest request) {
 		if (movieRepository.existsByTitleAndReleaseDate(request.title(), request.releaseDate())) {
@@ -30,6 +36,7 @@ public class MovieServiceImpl implements MovieService {
 		return MovieResponse.from(newMovie);
 	}
 
+	// 영화 목록 조회 (정렬, 검색)
 	@Override
 	public List<MovieResponse> getAllMovies(String sortBy, String searchText) {
 		List<Movie> movies;
@@ -41,6 +48,13 @@ public class MovieServiceImpl implements MovieService {
 			movies = movieRepository.findAll();
 		}
 		
+		// ADMIN User가 아닌 경우 상영예정 및 상영중인 영화만 조회 가능
+		if (!isAdmin()) {
+	        movies = movies.stream()
+	                .filter(movie -> movie.getStatus() == MovieStatus.UPCOMING || movie.getStatus() == MovieStatus.SHOWING)
+	                .collect(Collectors.toList());
+	    }
+		
 		// 정렬
 		if ("title".equals(sortBy)) {
 			movies.sort(Comparator.comparing(Movie::getTitle));
@@ -48,11 +62,48 @@ public class MovieServiceImpl implements MovieService {
 		return movies.stream().map(MovieResponse::from).collect(Collectors.toList());
 	}
 
+	// 특정 영화 조회
 	@Override
-	public MovieResponse getMovie(Long movie_id) {
-		Movie movie = movieRepository.findById(movie_id)
+	public MovieResponse getMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		// ADMIN User가 아닌 경우, 비공개 영화 조회 불가
+		if (!isAdmin() && movie.getStatus() == MovieStatus.UNRELEASED) {
+			throw NotFoundMovieException.EXCEPTION;
+		}
 		return MovieResponse.from(movie);
 	}
 
+	// 영화 정보 수정
+	@Override
+	public MovieResponse updateMovie(Long movieId, MovieRequest request) {
+		Movie movie = movieRepository.findById(movieId)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		movie.updateMovie(request, null);
+		Movie savedMovie = movieRepository.save(movie);
+		
+		return MovieResponse.from(savedMovie);
+	}
+
+	// 영화 삭제
+	@Override
+	public void deleteMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		try {
+			movieRepository.delete(movie);
+		} catch (Exception e) {
+			throw MovieDeleteFailedException.EXCEPTION;
+		}
+	}
+
+	// 사용자 권한 확인
+	private boolean isAdmin() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    return authentication.getAuthorities().stream()
+	    		.anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+	}
 }
