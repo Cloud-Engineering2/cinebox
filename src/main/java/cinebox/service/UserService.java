@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import cinebox.common.enums.Role;
 import cinebox.common.exception.user.DuplicateUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.request.AuthRequest;
@@ -71,9 +72,12 @@ public class UserService {
 
 	public User updateUser(UserRequest userRequest, HttpServletRequest request) {
 		String token = jwtTokenProvider.getToken(request);
-		jwtTokenProvider.isUserMatchedWithToken(userRequest.getIdentifier(), token);
+		User tokenUser = jwtTokenProvider.isUserMatchedWithToken(userRequest.getIdentifier(), token);
 		
-        if(userRepository.existsByUserId(userRequest.getUserId())) {
+		// admin이 아닌 경우에는 Role 변경 안되게 수정하기
+		boolean isRoleChangeByUser = (tokenUser.getRole().equals(Role.USER) && userRequest.getRole().equals(Role.ADMIN));
+		
+        if(!isRoleChangeByUser && userRepository.existsByUserId(userRequest.getUserId())) {
         	User updateUser = User.of(userRequest);
         	User user = userRepository.save(updateUser);
         	return user;

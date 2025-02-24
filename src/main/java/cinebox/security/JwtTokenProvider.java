@@ -68,7 +68,7 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
     
-    public void isUserMatchedWithToken (String identifier, String token) {
+    public cinebox.entity.User isUserMatchedWithToken (String identifier, String token) {
     	Authentication authentication = getAuthentication(token);
         UserDetails userDetails = (UserDetails)authentication.getPrincipal();
         String role = authentication.getAuthorities().stream()
@@ -80,5 +80,7 @@ public class JwtTokenProvider {
         if (!validateToken(token) || (role.contains(Role.USER.name().toString()) && !userDetails.getUsername().equals(identifier))) {
             throw NoAuthorizedUserException.EXCEPTION;
         }
+        
+        return new cinebox.entity.User(userDetails.getUsername(), userDetails.getPassword(), Role.valueOf(role));
     }
 }
