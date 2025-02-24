@@ -23,7 +23,7 @@ public enum ExceptionMessage {
 	NOT_FOUND_REVIEW("유효하지 않은 ReviewId 입니다.", HttpStatus.NOT_FOUND, "Not Found ReviewId"),
 	
 	// validation error
-	VALIDATION_ERROR("빈 값을 허용하지 않습니다.", HttpStatus.BAD_REQUEST, "Validation Error");
+	VALIDATION_ERROR("빈 값을 허용하지 않습니다.", HttpStatus.BAD_REQUEST, "Validation Error"),
 	
 	// auditorium
 	NOT_FOUND_AUDITORIUM("유효하지 않은 AuditoriumId 입니다.", HttpStatus.NOT_FOUND, "Not Found AuditoriumId"),

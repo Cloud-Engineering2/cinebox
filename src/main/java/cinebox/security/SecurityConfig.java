@@ -45,7 +45,6 @@ public class SecurityConfig {
         		.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                 		.requestMatchers("/api/auth/**").permitAll()
-                		.requestMatchers("/admin").hasRole("ADMIN")  // role이 ADMIN인 경우만 접근 가능
                 		.anyRequest().authenticated()
                 ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
             return http.build();

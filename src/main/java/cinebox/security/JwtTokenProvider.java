@@ -77,7 +77,7 @@ public class JwtTokenProvider {
 	        	    .orElse(null);
 
         // 토큰이 유효하지 않거나 && role이 user이면서 identifier이 토큰의 username과 다른 경우
-        if (!validateToken(token) || (Role.USER.name().equals(role) && !userDetails.getUsername().equals(identifier))) {
+        if (!validateToken(token) || (role.contains(Role.USER.name().toString()) && !userDetails.getUsername().equals(identifier))) {
             throw NoAuthorizedUserException.EXCEPTION;
         }
     }
