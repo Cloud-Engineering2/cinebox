@@ -21,7 +21,7 @@ public enum ExceptionMessage {
 	// booking- seat
 	NOT_FOUND_SEAT("유효하지 않은 SeatId 입니다.", HttpStatus.NOT_FOUND, "Not Found SeatId"),
 	SEAT_ALREADY_BOOKED("이미 예약된 좌석입니다.", HttpStatus.BAD_REQUEST, "Seat Already Booked");
-
+	
 
 	
 	private final String message;
