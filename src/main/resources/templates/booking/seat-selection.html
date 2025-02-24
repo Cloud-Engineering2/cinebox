@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 예매 - 좌석 선택</title>
+</head>
+<body>
+    <h1>영화 예매</h1>
+
+    <h3>좌석 선택</h3>
+    <div id="availableSeats">
+        <!-- 좌석 정보가 여기에 동적으로 추가됩니다 -->
+    </div>
+
+    <button onclick="confirmSelection()">확인</button>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieId = urlParams.get('movieId'); // URL에서 movieId 파라미터를 추출
+        const screenId = urlParams.get('screenId'); // URL에서 screenId 파라미터를 추출
+
+        if (!movieId || !screenId) {
+            alert('잘못된 요청입니다. movieId와 screenId를 확인하세요.');
+        }
+
+        // 페이지 로딩 시 해당 movieId와 screenId에 대한 예매 가능한 좌석을 API로부터 가져오기
+        window.onload = function() {
+            if (!movieId || !screenId) {
+                alert('잘못된 요청입니다. movieId와 screenId를 확인하세요.');
+                return;
+            }
+            
+            // 예매 가능한 좌석 API 호출
+            fetch(`/api/movies/${movieId}/showtimes/${screenId}/seats`)
+                .then(response => response.json())
+                .then(data => {
+                    const availableSeatsDiv = document.getElementById('availableSeats');
+                    availableSeatsDiv.innerHTML = '';  // 기존 내용 초기화
+
+                    data.forEach(seat => {
+                        const seatDiv = document.createElement('div');
+                        seatDiv.textContent = `${seat.seatNumber}`;
+                        seatDiv.dataset.seatId = seat.seatId;
+                        seatDiv.onclick = function() {
+                            this.classList.toggle('selected');
+                        };
+                        availableSeatsDiv.appendChild(seatDiv);
+                    });
+                })
+                .catch(error => console.error('Error fetching available seats:', error));
+        };
+
+        // 선택한 좌석을 확인하는 함수
+        function confirmSelection() {
+            const selectedSeats = [];
+            const seatDivs = document.querySelectorAll('#availableSeats div.selected');
+            seatDivs.forEach(seatDiv => {
+                selectedSeats.push(seatDiv.dataset.seatId);
+            });
+
+            if (selectedSeats.length > 0) {
+                // 예매 페이지로 이동하거나 선택한 좌석 정보를 다음 단계로 전달
+                console.log('선택된 좌석 ID들:', selectedSeats);
+                // 예를 들어, 서버로 데이터 전송하거나 예약 완료 페이지로 이동
+            } else {
+                alert('좌석을 선택해주세요.');
+            }
+        }
+    </script>
+</body>
+</html>

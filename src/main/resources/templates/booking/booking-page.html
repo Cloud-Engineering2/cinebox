@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영화 예매 - 상영시간 선택</title>
+</head>
+<body>
+    <h1>영화 예매</h1>
+
+    <h3>상영시간 선택</h3>
+    <select id="screenSelect" onchange="getAvailableSeats()">
+        <option value="">상영시간 선택</option>
+        <!-- 상영시간 옵션이 여기에 동적으로 추가됩니다 -->
+    </select>
+    
+      <div id="seatContainer">
+        <!-- 좌석이 여기에 동적으로 표시됩니다 -->
+    </div>
+
+    <button onclick="nextStep()">다음</button>
+
+    <script>
+        const movieId = 1; // 예시로 하드코딩된 영화 ID
+
+        // 페이지 로딩 시 상영시간을 API로부터 가져오기
+        window.onload = function() {
+            fetch(`/api/movies/${movieId}/showtimes`)
+                .then(response => response.json())
+                .then(data => {
+                    const screenSelect = document.getElementById('screenSelect');
+                    data.forEach(screen => {
+                        const option = document.createElement('option');
+                        option.value = screen.screenId;
+                        option.textContent = `${screen.startTime} ~ ${screen.endTime}`;
+                        screenSelect.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching showtimes:', error));
+        };
+
+     // 상영시간을 선택하면 좌석 정보를 가져오는 함수
+        function getAvailableSeats() {
+            const screenId = document.getElementById('screenSelect').value;
+            if (!screenId) return;
+
+            // 상영시간 선택 후 좌석 데이터 불러오기
+            fetch(`/api/movies/${movieId}/showtimes/${screenId}/seats`)
+                .then(response => response.json())
+                .then(data => {
+                    // 좌석 데이터를 이용해 화면에 표시
+                    displaySeats(data);
+                })
+                .catch(error => console.error('Error fetching available seats:', error));
+        }
+        
+        
+        // 좌석을 화면에 표시하는 함수
+        function displaySeats(seats) {
+            const seatContainer = document.getElementById('seatContainer');
+            seatContainer.innerHTML = ''; // 기존 좌석을 비우고 새로 표시
+
+            // 좌석을 목록 형태로 표시
+            seats.forEach(seat => {
+                const seatElement = document.createElement('div');
+                seatElement.textContent = `좌석: ${seat.seatNumber}`;
+                seatContainer.appendChild(seatElement);
+            });
+        }
+
+     
+        // "다음" 버튼 클릭 시 선택한 상영시간을 전달하여 좌석 선택 페이지로 이동
+        function nextStep() {
+            const screenId = document.getElementById('screenSelect').value;
+            if (!screenId) {
+                alert('상영시간을 선택해주세요.');
+                return;
+            }
+
+         	// URL이 제대로 생성되는지 확인
+            console.log(`/seat-selection?screenId=${screenId}`);
+            
+            // 좌석 선택 페이지로 이동 (screenId를 URL에 포함시켜서 전달)
+            window.location.href = `/seat-selection?movieId=${movieId}&screenId=${screenId}`;
+        }
+    </script>
+
+  
+</body>
+</html>

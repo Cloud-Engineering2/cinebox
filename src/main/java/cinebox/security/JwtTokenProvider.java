@@ -64,7 +64,7 @@ public class JwtTokenProvider {
         cinebox.entity.User user = userRepository.findById(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
         String role = decodedJWT.getClaim("role").asString();
         
-        User userDetails = new User(user.getIdentifier(), "", Collections.singleton(new SimpleGrantedAuthority(role)));
+        User userDetails = new User(user.getIdentifier(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role)));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
     
