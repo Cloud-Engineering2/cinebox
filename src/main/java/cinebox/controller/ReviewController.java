@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 import cinebox.service.ReviewService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController

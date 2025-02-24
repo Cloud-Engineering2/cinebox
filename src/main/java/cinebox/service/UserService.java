@@ -23,7 +23,6 @@ import cinebox.entity.User;
 import cinebox.repository.UserRepository;
 import cinebox.security.JwtTokenProvider;
 import cinebox.security.PrincipalDetails;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -78,11 +77,11 @@ public class UserService {
 		PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
 		Long currentUserId = userDetails.getUser().getUserId();
 		Role currentUserRole = userDetails.getUser().getRole();
-		User requestId = userRepository.findById(requestUserId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
+		User requestUser = userRepository.findById(requestUserId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
 		
 		boolean isUser = !(currentUserRole.equals(Role.ADMIN));
 		boolean isMatchedUser = (requestUserId == currentUserId);
-		boolean isRoleChangeByUser = (requestId.getRole().equals(Role.USER) && !userRequest.getRole().equals(Role.USER));
+		boolean isRoleChangeByUser = (requestUser.getRole().equals(Role.USER) && !userRequest.getRole().equals(Role.USER));
 		
 		// User 레벨의 사용자가 Role이 User가 아닌 다른 역할로 업데이트를 하려는 경우
 		if(isUser && (!isMatchedUser || isRoleChangeByUser)) {
@@ -97,14 +96,14 @@ public class UserService {
         
     	User updateUser = User.builder()
 						.userId(requestUserId)
-						.identifier(userRequest.getIdentifier() != null ? userRequest.getIdentifier() : requestId.getIdentifier())
-						.email(userRequest.getEmail() != null ? userRequest.getEmail() : requestId.getEmail())
-						.password(userRequest.getPassword() != null ? userRequest.getPassword() : requestId.getPassword())
-						.name(userRequest.getName() != null ? userRequest.getName() : requestId.getName())
-						.phone(userRequest.getPhone() != null ? userRequest.getPhone() : requestId.getPhone())
-						.age(userRequest.getAge() != null ? userRequest.getAge() : requestId.getAge())
-						.gender(userRequest.getGender() != null ? userRequest.getGender() : requestId.getGender())
-						.role(userRequest.getRole() != null ? userRequest.getRole() : requestId.getRole())
+						.identifier(userRequest.getIdentifier() != null ? userRequest.getIdentifier() : requestUser.getIdentifier())
+						.email(userRequest.getEmail() != null ? userRequest.getEmail() : requestUser.getEmail())
+						.password(userRequest.getPassword() != null ? userRequest.getPassword() : requestUser.getPassword())
+						.name(userRequest.getName() != null ? userRequest.getName() : requestUser.getName())
+						.phone(userRequest.getPhone() != null ? userRequest.getPhone() : requestUser.getPhone())
+						.age(userRequest.getAge() != null ? userRequest.getAge() : requestUser.getAge())
+						.gender(userRequest.getGender() != null ? userRequest.getGender() : requestUser.getGender())
+						.role(userRequest.getRole() != null ? userRequest.getRole() : requestUser.getRole())
 						.build();
     	User user = userRepository.save(updateUser);
     	return user;

@@ -13,31 +13,28 @@ import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
-import cinebox.dto.response.UserResponse;
 import cinebox.entity.Movie;
 import cinebox.entity.Review;
 import cinebox.entity.User;
 import cinebox.repository.MovieRepository;
 import cinebox.repository.ReviewRepository;
 import cinebox.repository.UserRepository;
-import cinebox.security.JwtTokenProvider;
 import cinebox.security.PrincipalDetails;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-	private final UserService userService;
-	private final JwtTokenProvider jwtTokenProvider;
-	
 	private final UserRepository userRepository;
 	private final MovieRepository movieRepository;
 	private final ReviewRepository reviewRepository;
 
 	public ReviewResponse insertReview(ReviewRequest reviewRequest) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+		User user = userDetails.getUser();
+		
 		Movie movie = movieRepository.findById(reviewRequest.getMovieId()).orElseThrow(()-> NotFoundMovieException.EXCEPTION);
-		User user = userRepository.findById(reviewRequest.getUserId()).orElseThrow(()-> NotFoundUserException.EXCEPTION);
 		Review newReview = Review.of(movie, user, reviewRequest);
 		
 		reviewRepository.save(newReview);
@@ -60,7 +57,8 @@ public class ReviewService {
 		Long requestUserId = userDetails.getUser().getUserId();
 		Review review = selectReviewByReviewId(reviewRequest.getReviewId());
 		
-		if(requestUserId.equals(review.getUser().getUserId())) {
+		if(requestUserId.equals
+				(review.getUser().getUserId())) {
 			Movie movie = movieRepository.findById(reviewRequest.getMovieId()).orElseThrow(()-> NotFoundMovieException.EXCEPTION);
 			User user = userRepository.findById(reviewRequest.getUserId()).orElseThrow(()-> NotFoundUserException.EXCEPTION);
 			

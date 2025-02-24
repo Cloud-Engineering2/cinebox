@@ -44,8 +44,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
         		.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/css/**", "/js/**").permitAll()
                 		.requestMatchers("/api/auth/**").permitAll()
-                		.requestMatchers("/admin").hasRole("ADMIN")  // role이 ADMIN인 경우만 접근 가능
+                        .requestMatchers("/page/**").permitAll()
+                        .requestMatchers("/page/admin").hasAuthority("ROLE_ADMIN")
                 		.anyRequest().authenticated()
                 ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
             return http.build();
