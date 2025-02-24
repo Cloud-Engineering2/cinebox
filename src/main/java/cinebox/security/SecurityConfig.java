@@ -44,7 +44,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
         		.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/css/**", "/js/**").permitAll()
                 		.requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/page/**").permitAll()
+                        .requestMatchers("/page/admin").hasAuthority("ROLE_ADMIN")
                 		.anyRequest().authenticated()
                 ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
             return http.build();

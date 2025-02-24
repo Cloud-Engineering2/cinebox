@@ -26,6 +26,9 @@ public enum ExceptionMessage {
 	NOT_FOUND_SEAT("유효하지 않은 SeatId 입니다.", HttpStatus.NOT_FOUND, "Not Found SeatId"),
 	SEAT_ALREADY_BOOKED("이미 예약된 좌석입니다.", HttpStatus.BAD_REQUEST, "Seat Already Booked"),
 	
+	// review
+	NOT_FOUND_REVIEW("유효하지 않은 ReviewId 입니다.", HttpStatus.NOT_FOUND, "Not Found ReviewId"),
+	
 	// validation error
 	VALIDATION_ERROR("빈 값을 허용하지 않습니다.", HttpStatus.BAD_REQUEST, "Validation Error"),
 	

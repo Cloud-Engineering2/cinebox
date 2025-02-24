@@ -21,12 +21,7 @@ public class PrincipalDetailsService implements UserDetailsService {
         }
     	User user = userRepository.findByIdentifier(username);
 
-        return new PrincipalDetails (
-        		new User(
-	        		user.getIdentifier(),
-	                user.getPassword(),
-	                user.getRole()
-        		));
+        return new PrincipalDetails (user);
     }
 
 }

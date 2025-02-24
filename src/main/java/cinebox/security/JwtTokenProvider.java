@@ -8,15 +8,14 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
-import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -55,6 +54,11 @@ public class JwtTokenProvider {
         }
     }
     
+    public Claim getClaim (String token, String Claim) {
+    	DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
+    	return decodedJWT.getClaim(Claim);
+    }
+    
     public Authentication getAuthentication(String token) {
     	DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
 
@@ -62,15 +66,8 @@ public class JwtTokenProvider {
         cinebox.entity.User user = userRepository.findById(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
         String role = decodedJWT.getClaim("role").asString();
         
-        User userDetails = new User(user.getIdentifier(), "", Collections.singleton(new SimpleGrantedAuthority("ROLE_" + role)));
-        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+        PrincipalDetails principalDetails = new PrincipalDetails(user);
+        return new UsernamePasswordAuthenticationToken(principalDetails, "", principalDetails.getAuthorities());
     }
     
-    public void isUserMatchedWithToken (String identifier, String token) {
-        UserDetails userDetails = (UserDetails)getAuthentication(token).getPrincipal();
-
-        if (!validateToken(token) || !userDetails.getUsername().equals(identifier)) {
-        	throw NoAuthorizedUserException.EXCEPTION;
-        }
-    }
 }
