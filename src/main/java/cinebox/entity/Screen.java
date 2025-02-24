@@ -50,15 +50,4 @@ public class Screen extends BaseTimeEntity {
 	private List<BookingSeat> bookingSeats = new ArrayList<>();
 	
 	
-//	@PrePersist
-//    public void prePersist() {
-//        if (this.startTime != null) {
-//            // 원하는 포맷으로 변환
-//            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-//            String formattedTime = this.startTime.format(formatter);
-//            
-//            // 포맷된 시간을 다시 LocalDateTime으로 변환해서 저장
-//            this.startTime = LocalDateTime.parse(formattedTime, formatter);
-//        }
-//    }
 }

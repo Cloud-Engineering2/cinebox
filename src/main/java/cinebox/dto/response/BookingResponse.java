@@ -18,7 +18,7 @@ public class BookingResponse {
 	 	private Long bookingId;
 	    private LocalDateTime bookingDate;
 	    private Long screenId;
-	    private List<String> seatIds;
+	    private List<String> seatNumbers;
 	    private String status;
 	    private BigDecimal totalPrice;  // 여기서 totalPrice를 추가
 	    private String message;
