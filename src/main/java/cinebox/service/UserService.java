@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import cinebox.common.enums.Role;
 import cinebox.common.exception.user.DuplicateUserException;
+import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.UserRequest;
@@ -76,8 +77,11 @@ public class UserService {
 		
 		// admin이 아닌 경우에는 Role 변경 안되게 수정하기
 		boolean isRoleChangeByUser = (tokenUser.getRole().equals(Role.USER) && userRequest.getRole().equals(Role.ADMIN));
+		if(isRoleChangeByUser) {
+			throw NoAuthorizedUserException.EXCEPTION;
+		}
 		
-        if(!isRoleChangeByUser && userRepository.existsByUserId(userRequest.getUserId())) {
+        if(userRepository.existsByUserId(userRequest.getUserId())) {
         	User updateUser = User.of(userRequest);
         	User user = userRepository.save(updateUser);
         	return user;
