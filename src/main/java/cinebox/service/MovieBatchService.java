@@ -63,7 +63,7 @@ public class MovieBatchService {
 		LocalDate today = LocalDate.now();
 		log.info("Starting updateMoviesToShowing for date: {}", today);
 		
-		List<Movie> movies = movieRepository.findByStatusAndReleaseDate(MovieStatus.UPCOMING, today);
+		List<Movie> movies = movieRepository.findByStatusAndReleaseDateBefore(MovieStatus.UPCOMING, today);
 		
 		if (movies != null && !movies.isEmpty()) {
 			movies.forEach(movie -> movie.updateMovieStatus(MovieStatus.SHOWING));
