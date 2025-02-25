@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import cinebox.dto.request.UserRequest;
 import cinebox.dto.response.UserResponse;
 import cinebox.entity.User;
-import cinebox.security.JwtTokenProvider;
 import cinebox.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
-	private final JwtTokenProvider jwtTokenProvider;
 	
 	@GetMapping
 	public ResponseEntity<List<UserResponse>> getAllUser() {
@@ -38,15 +36,15 @@ public class UserController {
 		return ResponseEntity.ok().body(user);
 	}
 	
-	@PutMapping
-	public ResponseEntity<?> updateUser(@RequestBody UserRequest userRequest, HttpServletRequest request) {    	
-	    User updatedUser = userService.updateUser(userRequest, request);
+	@PutMapping("/{userId}")
+	public ResponseEntity<?> updateUser(@PathVariable("userId") Long userId, @RequestBody UserRequest userRequest, HttpServletRequest request) {    	
+	    User updatedUser = userService.updateUser(userId, userRequest);
     	return ResponseEntity.ok().body(updatedUser);	 
 	}
 	
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId, HttpServletRequest request) {		
-		userService.deleteUser(userId, request);
+	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId) {		
+		userService.deleteUser(userId);
 		return ResponseEntity.ok().body("Success Delete");
 	}
 }
