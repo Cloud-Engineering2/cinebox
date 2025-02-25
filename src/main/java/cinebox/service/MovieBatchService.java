@@ -96,7 +96,7 @@ public class MovieBatchService {
 	}
 	
 	// 매년 12월 15일 01시에 다음 연도 영화 목록 조회 (fetchAndSaveMovies 와의 충돌을 피하기 위함)
-	@Scheduled(cron = "0 0 1 12 15 ?")
+	@Scheduled(cron = "0 0 1 15 12 ?")
 	public void fetchAndSaveMoviesNextYear() {
 		log.info("Starting movie batch job...");
 		
