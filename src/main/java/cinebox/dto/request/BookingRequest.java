@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 public class BookingRequest {
 	
     private Long screenId;
-    private List<String> seatNumbers; // 좌석번호 (예: ["A1", "A2", "B1"])
-    private Long userId;  // 예매하는 사용자 ID
+    private List<String> seatNumbers; // 좌석번호 (예: ["A1", "A2", "B1"]
     
 }

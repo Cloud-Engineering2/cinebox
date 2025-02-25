@@ -5,6 +5,9 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,11 +22,13 @@ import cinebox.entity.Booking;
 import cinebox.entity.BookingSeat;
 import cinebox.entity.Screen;
 import cinebox.entity.Seat;
+import cinebox.entity.User;
 import cinebox.repository.BookingRepository;
 import cinebox.repository.BookingSeatRepository;
 import cinebox.repository.ScreenRepository;
 import cinebox.repository.SeatRepository;
-import cinebox.repository.UserRepository;
+import cinebox.security.JwtTokenProvider;
+import cinebox.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,82 +40,106 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final BookingSeatRepository bookingSeatRepository;
     private final ScreenRepository screenRepository;
-    private final UserRepository userRepository;
     private final SeatRepository seatRepository;
     private final PaymentService paymentService;
+    private final UserService userService; 
+	private final JwtTokenProvider jwtTokenProvider;
+	private final AuthenticationManager authenticationManager;
 
-    @Transactional
-    public BookingResponse bookSeats(BookingRequest request) {
-        // 1. 상영회차 ID로 상영 정보 조회
-        Screen screen = screenRepository.findById(request.getScreenId())
-                .orElseThrow(() -> NotFoundScreenException.EXCEPTION);
+	
 
-        // 상영관 이름 가져오기
-        String screenName = screen.getAuditorium().getName();
-        
-        // 2. 이미 예약된 좌석 조회
-        List<String> bookedSeats = bookingSeatRepository.findByScreen_ScreenId(
-                request.getScreenId()
-        ).stream()
-                .map(bookingSeat -> bookingSeat.getSeat().getSeatNumber())
-                .collect(Collectors.toList());
+	
 
-        // 이미 예약된 좌석이 있는지 확인
-        List<String> requestedSeats = request.getSeatNumbers();
-        if (requestedSeats.stream().anyMatch(bookedSeats::contains)) {
-            // 이미 예약된 좌석이 있으면 예외를 던짐
-            throw new AlreadyBookedSeatsException("이미 예약된 좌석이 있습니다: " + requestedSeats);
-        }
-        
-        // 예매 진행 (Booking 및 BookingSeat 객체 생성)
-        Booking booking = Booking.builder()
-                .bookingDate(LocalDateTime.now())
-                .status(BookingStatus.PENDING)
-                .user(userRepository.findById(request.getUserId())
-                        .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다.")))
-                .build();
+	    @Transactional
+	    public BookingResponse bookSeats(BookingRequest request) {
+	        // 1. 상영회차 ID로 상영 정보 조회
+	        Screen screen = screenRepository.findById(request.getScreenId())
+	                .orElseThrow(() -> NotFoundScreenException.EXCEPTION);
 
-        Booking savedBooking = bookingRepository.save(booking);
+	        // 상영관 이름 가져오기
+	        String screenName = screen.getAuditorium().getName();
+	        
+	        // 2. 이미 예약된 좌석 조회
+	        List<String> bookedSeats = bookingSeatRepository.findByScreen_ScreenId(
+	                request.getScreenId()
+	        ).stream()
+	                .map(bookingSeat -> bookingSeat.getSeat().getSeatNumber())
+	                .collect(Collectors.toList());
 
-        // 예약된 좌석 저장
-        List<BookingSeat> bookingSeats = request.getSeatNumbers().stream()
-            .map(seatNumber -> {
-                // 좌석 조회
-                Seat seat = seatRepository.findBySeatNumberAndAuditorium_AuditoriumId(
-                        seatNumber,
-                        screen.getAuditorium().getAuditoriumId()
-                ).orElseThrow(() -> NotFoundSeatException.EXCEPTION);
+	        // 이미 예약된 좌석이 있는지 확인
+	        List<String> requestedSeats = request.getSeatNumbers();
+	        if (requestedSeats.stream().anyMatch(bookedSeats::contains)) {
+	            // 이미 예약된 좌석이 있으면 예외를 던짐
+	            throw new AlreadyBookedSeatsException("이미 예약된 좌석이 있습니다: " + requestedSeats);
+	        }
 
-                // DTO 생성 후 BookingSeat 변환
-                BookingSeatDTO bookingSeatDTO = new BookingSeatDTO(null, savedBooking, screen, seat);
-                return BookingSeat.fromDTO(bookingSeatDTO);
-            })
-            .collect(Collectors.toList());
+	        // 현재 로그인한 사용자 정보 가져오기
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	        PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
 
-        bookingSeatRepository.saveAll(bookingSeats);
+	        
+	        // 사용자 정보에서 User 객체 가져오기
+	        User currentUser = userDetails.getUser();
+	        if (currentUser == null) {
+	            throw new IllegalStateException("로그인된 사용자가 없습니다.");
+	        }
+	        
+	        // 사용자 이름로그로 출력
+	        String userName = userDetails.getUsername();
+	        log.info("현재 로그인한 사용자 이름 : {} ",userName);
 
-        // 총 가격 계산
-        int totalSeats = request.getSeatNumbers().size();
-        BigDecimal totalPrice = screen.getPrice().multiply(new BigDecimal(totalSeats));
-        savedBooking.setTotalPrice(totalPrice);
-        
-        // 예매 상태는 PENDING 상태로 두고 응답을 반환
-        BookingResponse bookingResponse = new BookingResponse(
-                savedBooking.getBookingId(),
-                savedBooking.getBookingDate(),
-                request.getScreenId(),
-                request.getSeatNumbers(),
-                savedBooking.getStatus().toString(),
-                totalPrice,
-                "예매 성공",
-                screenName
-        );
+	        // 예매 진행 (Booking 및 BookingSeat 객체 생성)
+	        Booking booking = Booking.builder()
+	                .bookingDate(LocalDateTime.now())
+	                .status(BookingStatus.PENDING)
+	                .user(currentUser)  // 로그인한 User 객체 연결
+	                .build();
+	        
+	        // Booking 저장
+	        Booking savedBooking = bookingRepository.save(booking);
 
-       
-        // 결제 처리 (paymentMethod 추가)
-        //paymentService.processPayment(savedBooking.getBookingId(), savedBooking.getTotalPrice(), "CARD"); // 결제 방법을 여기에 넣어주세요.
- 
-        return bookingResponse;
-        
-    }
-}
+	        // 예약된 좌석 저장
+	        List<BookingSeat> bookingSeats = request.getSeatNumbers().stream()
+	            .map(seatNumber -> {
+	                // 좌석 조회
+	                Seat seat = seatRepository.findBySeatNumberAndAuditorium_AuditoriumId(
+	                        seatNumber,
+	                        screen.getAuditorium().getAuditoriumId()
+	                ).orElseThrow(() -> NotFoundSeatException.EXCEPTION);
+
+	                // DTO 생성 후 BookingSeat 변환
+	                BookingSeatDTO bookingSeatDTO = new BookingSeatDTO(null, savedBooking, screen, seat);
+	                return BookingSeat.fromDTO(bookingSeatDTO);
+	            })
+	            .collect(Collectors.toList());
+
+	        // 예약된 좌석 정보 저장
+	        bookingSeatRepository.saveAll(bookingSeats);
+
+	        // 총 가격 계산
+	        int totalSeats = request.getSeatNumbers().size();
+	        BigDecimal totalPrice = screen.getPrice().multiply(new BigDecimal(totalSeats));
+	        savedBooking.setTotalPrice(totalPrice);
+
+	        // 예매 상태는 PENDING 상태로 두고 응답을 반환
+	        BookingResponse bookingResponse = new BookingResponse(
+	                savedBooking.getBookingId(),
+	                savedBooking.getBookingDate(),
+	                request.getScreenId(),
+	                request.getSeatNumbers(),
+	                savedBooking.getStatus().toString(),
+	                totalPrice,
+	                "예매 성공",
+	                screenName
+	        );
+
+	        return bookingResponse;
+	    }
+	    
+	}
+
+
+	
+
+
+
