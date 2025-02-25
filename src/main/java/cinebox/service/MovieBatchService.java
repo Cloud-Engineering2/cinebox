@@ -57,8 +57,8 @@ public class MovieBatchService {
 	@Value("${itemPerPage:3}")
 	private int itemPerPage;
 
-	// 매 0시 당일 개봉일인 영화 개봉 상태 변경 (UPCOMING -> SHOWING) 
-	@Scheduled(cron = "0 0 0 * * ?")
+	// 매일 0시 30분 당일에 개봉하는 영화 개봉 상태 변경 (UPCOMING -> SHOWING) 
+	@Scheduled(cron = "0 30 0 * * ?")
 	public void updateMoviesToShowing() {
 		LocalDate today = LocalDate.now();
 		log.info("Starting updateMoviesToShowing for date: {}", today);
