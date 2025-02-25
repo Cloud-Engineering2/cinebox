@@ -47,6 +47,53 @@ public class BookingService {
 	private final AuthenticationManager authenticationManager;
 
 	
+	public List<BookingResponse> getBookingsByUser() {
+	    // 현재 로그인한 사용자 정보 가져오기
+	    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	    String userName = null;
+	    
+	    if (authentication != null && authentication.getPrincipal() instanceof PrincipalDetails) {
+	        PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
+	        userName = userDetails.getUsername();  // 사용자 이름을 가져옵니다.
+	    } else {
+	        throw new IllegalStateException("로그인된 사용자가 없습니다.");
+	    }
+
+	    // 사용자 이름을 기준으로 예매 목록 조회
+	    List<Booking> bookings = bookingRepository.findByUser_Identifier(userName);
+
+	    // 예매 목록을 BookingResponse DTO로 변환하여 반환
+	    return bookings.stream()
+	        .map(booking -> {
+	            // 좌석 번호 리스트
+	            List<String> seatNumbers = booking.getBookingSeats().stream()
+	                .map(bookingSeat -> bookingSeat.getSeat().getSeatNumber())  // 모든 좌석 번호 가져오기
+	                .collect(Collectors.toList());
+
+	            // 첫 번째 예매에 해당하는 스크린 정보
+	            BookingSeat firstBookingSeat = booking.getBookingSeats().get(0);
+	            Screen screen = firstBookingSeat.getScreen();
+
+	            // ✅ 총 금액 계산 (좌석 수 × 상영 가격)
+                int totalSeats = booking.getBookingSeats().size();
+                BigDecimal totalPrice = screen.getPrice().multiply(BigDecimal.valueOf(totalSeats));
+
+                
+	            return new BookingResponse(
+	                booking.getBookingId(),
+	                booking.getBookingDate(),
+	                screen.getScreenId(),  // 스크린 아이디
+	                seatNumbers,           // 예매된 좌석 번호들
+	                booking.getStatus().toString(),
+	                totalPrice,
+	                screen.getAuditorium().getName()  // 상영관 이름
+	            );
+	        })
+	        .collect(Collectors.toList());
+	}
+
+
+
 
 	
 
