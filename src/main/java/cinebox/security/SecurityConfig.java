@@ -46,6 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**").permitAll()
                 		.requestMatchers("/api/auth/**","/api/bookings/**", "/api/payments").permitAll()
+                		.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/page/**").permitAll()
                         .requestMatchers("/page/admin").hasAuthority("ROLE_ADMIN")
                 		.anyRequest().authenticated()
