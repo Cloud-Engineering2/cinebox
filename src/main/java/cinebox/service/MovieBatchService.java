@@ -32,6 +32,7 @@ public class MovieBatchService {
 	private final MovieRepository movieRepository;
 	private final RestTemplate restTemplate = createRestTemplate();
 
+	// KMDB 응답형태가 HTML이므로 JSON, HTML 지원 RestTemplate 정의
 	private RestTemplate createRestTemplate() {
 		RestTemplate restTemplate = new RestTemplate();
 		MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
@@ -52,6 +53,7 @@ public class MovieBatchService {
 	@Value("${kmdb.api.url}")
 	private String kmdbApiUrl;
 	
+	// KOBIS 영화 목록 개수 설정 (1 ~ 100)
 	@Value("${itemPerPage:3}")
 	private int itemPerPage;
 
@@ -93,6 +95,7 @@ public class MovieBatchService {
 		log.info("Movie batch job completed. Saved {} movies.", movies.size());
 	}
 	
+	// KOBIS 영화목록 조회
 	private List<KobisMovieDto> fetchKobisMovieList(int openStartDt) {
 		String url = String.format("%s?key=%s&openStartDt=%d&itemPerPage=%d",
 				kobisApiUrl, kobisApiKey, openStartDt, itemPerPage);
@@ -106,26 +109,35 @@ public class MovieBatchService {
 		return response.movieListResult().movieList();
 	}
 	
+	// KMDB 영화 상세 조회
 	private KmdbResponse fetchKmdbResponse(String title, String releaseDts, String releaseDte) {
 		try {
 			String encodedTitle = URLEncoder.encode(title, StandardCharsets.UTF_8.toString());
 			String kmdbUrl = String.format("%s&title=%s&releaseDts=%s&releaseDte=%s&ServiceKey=%s",
 					kmdbApiUrl, encodedTitle, releaseDts, releaseDte, kmdbApiKey);
 			
-			log.info(kmdbUrl);
-			
 			return restTemplate.getForObject(URI.create(kmdbUrl), KmdbResponse.class);
 		} catch (UnsupportedEncodingException e) {
-			log.error("URL 인코딩 실패: {}", e.getMessage());
+			log.error("Failed URL encoding: {}", e.getMessage());
 			return null;
 		}
 	}
 	
+	// DTO -> Entity
 	private Movie convertToMovie(KobisMovieDto dto) {
 		String title = dto.movieNm();
 		String openDt = dto.openDt();
 		LocalDate releaseDate = LocalDate.parse(openDt, DateTimeFormatter.ofPattern("yyyyMMdd"));
 		
+		// 제목, 개봉일이 일치하고, 영화포스터가 존재하는 영화는 KMDB API 호출을 하지 않음
+		boolean exists = movieRepository.existsByTitleAndReleaseDateAndPosterImageUrlIsNotNull(title, releaseDate);
+	    if (exists) {
+	        log.info("Movie '{}' with release date {} already exists in DB. Skipping KMDB API call.", title, releaseDate);
+	        return null;
+	    }
+		
+	    // KMDB 영화 상세정보 검색(개봉일 기준)을 위한 파라미터
+	    // releaseDts ~ releaseDte 의 개봉일 영화 
 		String releaseDts = releaseDate.minusMonths(3).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 		String releaseDte = openDt;
 		
@@ -169,11 +181,14 @@ public class MovieBatchService {
 	    
 	    return data.result().get(0);
 	}
+	
+	// 영화 포스터 파싱
 	private String extractPosterImageUrl(KmdbResponse.Result result) {
 	    if (result == null || result.posters() == null || result.posters().isEmpty()) return null;
 	    return result.posters().split("\\|")[0];
 	}
 	
+	// 배우 목록 파싱
 	private String extractActorNames(KmdbResponse.Result result) {
 	    if (result == null || result.actors() == null || result.actors().actor().isEmpty()) return null;
 	    return result.actors().actor().stream()
@@ -181,6 +196,7 @@ public class MovieBatchService {
 	    		.collect(Collectors.joining(", "));
 	}
 	
+	// 영화 줄거리 파싱
 	private String extractPlotText(KmdbResponse.Result result) {
 	    if (result == null || result.plots() == null || result.plots().plot().isEmpty()) return null;
 	    return result.plots().plot().stream()
@@ -189,11 +205,13 @@ public class MovieBatchService {
         		.orElse(null);
     }
 	
+	// 영화 상영시간 파싱
 	private String extractRuntime(KmdbResponse.Result result) {
 	    if (result == null || result.runtime() == null || result.runtime().isEmpty()) return null;
 	    return result.runtime();
 	}
 	
+	// 영화 관람등급 파싱
 	private String extractRating(KmdbResponse.Result result) {
 	    if (result == null || result.rating() == null || result.rating().isEmpty()) return null;
 	    return result.rating();

@@ -16,4 +16,6 @@ public interface MovieRepository extends JpaRepository<Movie, Long> {
 	List<Movie> findByTitleContaining(String searchText);
 	
 	List<Movie> findByStatusAndReleaseDate(MovieStatus status, LocalDate releaseDate);
+
+	boolean existsByTitleAndReleaseDateAndPosterImageUrlIsNotNull(String title, LocalDate releaseDate);
 }
