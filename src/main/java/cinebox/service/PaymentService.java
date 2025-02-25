@@ -69,11 +69,14 @@ public class PaymentService {
         paymentRepository.save(payment);
         log.info("Payment saved with ID: {}", payment.getPaymentId());
 
+        
         // 예약 상태 업데이트 (결제 성공 시)
         booking.setStatus(BookingStatus.PAID);
         bookingRepository.save(booking);
         log.info("Booking status updated to PAID for booking ID: {}", booking.getBookingId());
 
+        
+        
         // PaymentResponse 객체 반환
         return new PaymentResponse(
                 booking.getBookingId(),
