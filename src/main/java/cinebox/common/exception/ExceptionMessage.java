@@ -38,8 +38,14 @@ public enum ExceptionMessage {
 
 	// booking
 	SEAT_NOT_FOUND("좌석을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found Seat"),
-	SCREEN_NOT_FOUND("상영 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found Screen for Booking");
-
+	SCREEN_NOT_FOUND("상영 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found Screen for Booking"),
+	NOT_FOUND_BOOKING("예매된 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found booking information"),
+	
+	//payment
+	SEAT_ALREADY_PAYMENT("이미 결제가 완료되었습니다", HttpStatus.BAD_REQUEST,"Payment has already been completed");
+	
+	
+	
 	private final String message;
 	private final HttpStatus status;
 	private final String title;
