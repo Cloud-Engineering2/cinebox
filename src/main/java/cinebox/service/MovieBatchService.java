@@ -95,6 +95,27 @@ public class MovieBatchService {
 		log.info("Movie batch job completed. Saved {} movies.", movies.size());
 	}
 	
+	// 매년 12월 15일 01시에 다음 연도 영화 목록 조회 (fetchAndSaveMovies 와의 충돌을 피하기 위함)
+	@Scheduled(cron = "0 0 1 12 15 ?")
+	public void fetchAndSaveMoviesNextYear() {
+		log.info("Starting movie batch job...");
+		
+		int openStartDt = LocalDate.now().getYear() + 1;
+		List<KobisMovieDto> movieDtoList = fetchKobisMovieList(openStartDt);
+		if (movieDtoList == null || movieDtoList.isEmpty()) {
+			log.info("No movie data found from KOBIS API");
+			return;
+		}
+		
+		List<Movie> movies = movieDtoList.stream()
+				.map(this::convertToMovie)
+				.filter(movie -> movie != null)
+				.collect(Collectors.toList());
+		
+		movieRepository.saveAll(movies);
+		log.info("Movie batch job completed. Saved {} movies.", movies.size());
+	}
+	
 	// KOBIS 영화목록 조회
 	private List<KobisMovieDto> fetchKobisMovieList(int openStartDt) {
 		String url = String.format("%s?key=%s&openStartDt=%d&itemPerPage=%d",
