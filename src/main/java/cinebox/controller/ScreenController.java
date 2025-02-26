@@ -3,6 +3,7 @@ package cinebox.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.ScreenRequest;
 import cinebox.dto.response.ScreenResponse;
+import cinebox.dto.validation.CreateGroup;
 import cinebox.service.ScreenService;
 import lombok.RequiredArgsConstructor;
 
@@ -25,7 +27,7 @@ public class ScreenController {
     // 상영 정보 추가
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ScreenResponse> createScreen(@RequestBody ScreenRequest request) {
+    public ResponseEntity<ScreenResponse> createScreen(@RequestBody @Validated(CreateGroup.class) ScreenRequest request) {
         ScreenResponse responseDto = screenService.createScreen(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
@@ -45,6 +47,6 @@ public class ScreenController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<Void> deleteScreen(@PathVariable("screenId") Long screenId) {
         screenService.deleteScreen(screenId);
-        return ResponseEntity.noContent().build();
-    }
+		return ResponseEntity.noContent().build();
+	}
 }
