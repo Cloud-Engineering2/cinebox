@@ -1,6 +1,7 @@
 package cinebox.service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.MovieStatus;
 import cinebox.common.exception.movie.DuplicatedMovieException;
@@ -16,15 +18,18 @@ import cinebox.common.exception.movie.MovieDeleteFailedException;
 import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
+import cinebox.dto.response.ScreenResponse;
 import cinebox.entity.Movie;
 import cinebox.entity.Screen;
 import cinebox.repository.MovieRepository;
+import cinebox.repository.ScreenRepository;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class MovieServiceImpl implements MovieService {
 	private final MovieRepository movieRepository;
+	private final ScreenRepository screenRepository;
 	
 	// 영화 등록(생성)
 	@Override
@@ -92,6 +97,21 @@ public class MovieServiceImpl implements MovieService {
 		return dateSet.stream().sorted().collect(Collectors.toList());
 	}
 
+	// 날짜별 상영 정보 조회
+	@Override
+	@Transactional(readOnly = true)
+	public List<ScreenResponse> getScreensByDate(Long movieId, LocalDate date) {
+		movieRepository.findById(movieId).orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		LocalDateTime startOfDay = date.atStartOfDay();
+		LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
+		
+		List<Screen> screens = screenRepository.findByMovie_MovieIdAndStartTimeBetween(movieId, startOfDay, endOfDay);
+		return screens.stream()
+				.map(ScreenResponse::new)
+				.collect(Collectors.toList());
+	}
+	
 	// 영화 정보 수정
 	@Override
 	public MovieResponse updateMovie(Long movieId, MovieRequest request) {

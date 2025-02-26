@@ -5,6 +5,7 @@ import java.util.List;
 
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
+import cinebox.dto.response.ScreenResponse;
 
 public interface MovieService {
 	// create
@@ -20,6 +21,9 @@ public interface MovieService {
 
 	// 특정 영화 상영 날짜 목록 조회
 	List<LocalDate> getAvailableDatesForMovie(Long movieId);
+	
+    // 특정 영화의 날짜별 상영 정보 조회
+	List<ScreenResponse> getScreensByDate(Long movieId, LocalDate date);
 	
 	// update
 	// 영화 정보 수정
