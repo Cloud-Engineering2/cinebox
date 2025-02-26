@@ -80,7 +80,7 @@ public class ScreenService {
             throw ScreenTimeConflictException.EXCEPTION;
         }
 
-		screen.updateScreen(movie, auditorium, request.getStartTime(), request.getPrice());
+		screen.updateScreen(movie, auditorium, startTime, request.getPrice());
 		return new ScreenResponse(screenRepository.save(screen));
 	}
 

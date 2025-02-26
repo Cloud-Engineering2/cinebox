@@ -48,15 +48,10 @@ public class Screen extends BaseTimeEntity {
 	private List<BookingSeat> bookingSeats = new ArrayList<>();
 
 	public void updateScreen(Movie movie, Auditorium auditorium, LocalDateTime startTime, BigDecimal price) {
-		this.movie = movie != null ? movie : this.movie;
-		this.auditorium = auditorium != null ? auditorium : this.auditorium;
-		this.startTime = startTime != null ? startTime : this.startTime;
+		this.movie = movie;
+		this.auditorium = auditorium;
+		this.startTime = startTime;
+		this.endTime = this.startTime.plusMinutes(movie.getRunTime() + 10);
 		this.price = price != null ? price : this.price;
-
-		// 영화와 상영시작시간이 모두 변경된 경우 + 하나만 변경된 경우에 대한 상영종료 시간 처리
-		if (movie != null || startTime != null) {
-			int runtime = movie != null ? movie.getRunTime() : this.movie.getRunTime();
-			this.endTime = this.startTime.plusMinutes(runtime + 10);
-		}
 	}
 }
