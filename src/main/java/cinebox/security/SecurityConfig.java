@@ -10,6 +10,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -41,13 +42,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         	http
-                .csrf(csrf -> csrf.disable())
-        		.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+	            .csrf(csrf -> csrf.disable())
+	            .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+	            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/css/**", "/js/**").permitAll()
+                        .requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
                 		.requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/page/**").permitAll()
-                        .requestMatchers("/page/admin").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers("/", "/signup/**", "/mypage/**").permitAll()
+                        .requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
                 		.anyRequest().authenticated()
                 ).addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class);
             return http.build();

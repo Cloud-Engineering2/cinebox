@@ -3,9 +3,12 @@ package cinebox.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.hibernate.annotations.SQLDelete;
+
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
 import cinebox.dto.request.UserRequest;
+import cinebox.dto.response.UserResponse;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -27,6 +30,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE user_id = ?") // 삭제 시 논리 삭제 처리
 public class User extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,6 +70,9 @@ public class User extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "user")
 	private List<Review> reviews = new ArrayList<>();
+	
+    @Column(name = "is_deleted", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
+    private boolean isDeleted = false;
 
 	public User(String identifier, String password, Role role) {
 		this.identifier = identifier;
@@ -85,7 +92,25 @@ public class User extends BaseTimeEntity {
         		userDTO.getGender(),
         		userDTO.getRole(),
         		null,
-        		null
+        		null,
+        	    false
+    		);
+	}
+	
+	public static User of(UserResponse userDTO) {
+        return new User(
+        		userDTO.getUserId(),
+        		userDTO.getIdentifier(),
+        		userDTO.getEmail(),
+        		null,
+        		userDTO.getName(),
+        		userDTO.getPhone(),
+        		userDTO.getAge(),
+        		userDTO.getGender(),
+        		userDTO.getRole(),
+        		null,
+        		null,
+        		true
     		);
 	}
 }

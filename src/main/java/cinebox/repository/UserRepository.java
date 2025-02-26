@@ -1,15 +1,18 @@
 package cinebox.repository;
 
+import java.util.Collection;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
-
-
 import org.springframework.stereotype.Repository;
 import cinebox.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByUserId(Long userId);
-	boolean existsByIdentifier(String identifier);
-	User findByIdentifier(String identifier);
+	Optional<User> findByIdentifierAndIsDeletedFalse(String identifier);
+	Optional<User> findByUserIdAndIsDeletedFalse(Long userId);
+	Collection<User> findAllByIsDeletedFalse();
+	Optional<User> findByIdentifier(String identifier);
 
 }
