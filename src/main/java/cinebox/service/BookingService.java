@@ -10,8 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.BookingStatus;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
-import cinebox.common.exception.booking.NotFoundScreenException;
 import cinebox.common.exception.booking.NotFoundSeatException;
+import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.dto.BookingSeatDTO;
 import cinebox.dto.request.BookingRequest;
 import cinebox.dto.response.BookingResponse;

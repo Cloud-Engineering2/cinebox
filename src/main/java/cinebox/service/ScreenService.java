@@ -6,14 +6,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.auditorium.NotFoundAuditoriumException;
-import cinebox.common.exception.booking.NotFoundScreenException;
 import cinebox.common.exception.movie.NotFoundMovieException;
+import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.dto.request.ScreenRequest;
 import cinebox.dto.response.ScreenResponse;
 import cinebox.entity.Auditorium;
 import cinebox.entity.Movie;
 import cinebox.entity.Screen;
-import cinebox.exception.NotFoundException;
 import cinebox.repository.AuditoriumRepository;
 import cinebox.repository.MovieRepository;
 import cinebox.repository.ScreenRepository;
