@@ -1,4 +1,4 @@
-package cinebox.dto;
+package cinebox.dto.request;
 
 import lombok.Getter;
 

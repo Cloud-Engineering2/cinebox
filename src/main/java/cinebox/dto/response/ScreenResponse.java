@@ -1,4 +1,4 @@
-package cinebox.dto;
+package cinebox.dto.response;
 
 import cinebox.entity.Screen;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
-public class ScreenResponseDto {
+public class ScreenResponse {
     private Long screenId;
     private Long movieId;
     private Long auditoriumId;
@@ -15,7 +15,7 @@ public class ScreenResponseDto {
     private LocalDateTime endTime;
     private BigDecimal price;
 
-    public ScreenResponseDto(Screen screen) {
+    public ScreenResponse(Screen screen) {
         this.screenId = screen.getScreenId();
         this.movieId = screen.getMovie().getMovieId();
         this.auditoriumId = screen.getAuditorium().getAuditoriumId();
