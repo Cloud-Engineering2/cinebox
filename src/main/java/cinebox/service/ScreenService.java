@@ -1,6 +1,7 @@
 package cinebox.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cinebox.common.exception.auditorium.NotFoundAuditoriumException;
 import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.common.exception.screen.NotFoundScreenException;
+import cinebox.common.exception.screen.ScreenTimeConflictException;
 import cinebox.dto.request.ScreenRequest;
 import cinebox.dto.response.ScreenResponse;
 import cinebox.entity.Auditorium;
@@ -35,6 +37,12 @@ public class ScreenService {
 				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
 
 		LocalDateTime endTime = request.getStartTime().plusMinutes(movie.getRunTime() + 10); // 🎯 endTime 자동 계산
+		
+		List<Screen> overlappingScreens = screenRepository
+				.findByAuditoriumAndStartTimeLessThanAndEndTimeGreaterThan(auditorium, endTime, request.getStartTime());
+		if(!overlappingScreens.isEmpty()) {
+			throw ScreenTimeConflictException.EXCEPTION;
+		}
 
 		Screen screen = Screen.builder()
 				.movie(movie)
@@ -56,12 +64,21 @@ public class ScreenService {
 		Movie movie = request.getMovieId() != null
 				? movieRepository.findById(request.getMovieId())
 						.orElseThrow(() -> NotFoundMovieException.EXCEPTION)
-				: null;
+				: screen.getMovie();
 		
 		Auditorium auditorium = request.getAuditoriumId() != null 
 	            ? auditoriumRepository.findById(request.getAuditoriumId())
 						.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION)
-				: null;
+				: screen.getAuditorium();
+		
+		LocalDateTime startTime = request.getStartTime() != null ? request.getStartTime() : screen.getStartTime();
+		LocalDateTime endTime = startTime.plusMinutes(movie.getRunTime() + 10);
+		
+		List<Screen> overlappingScreens = screenRepository
+				.findByAuditoriumAndScreenIdNotAndStartTimeLessThanAndEndTimeGreaterThan(auditorium, screenId, endTime, startTime);
+        if (!overlappingScreens.isEmpty()) {
+            throw ScreenTimeConflictException.EXCEPTION;
+        }
 
 		screen.updateScreen(movie, auditorium, request.getStartTime(), request.getPrice());
 		return new ScreenResponse(screenRepository.save(screen));
