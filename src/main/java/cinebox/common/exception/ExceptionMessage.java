@@ -21,6 +21,7 @@ public enum ExceptionMessage {
 	
 	// screen
 	NOT_FOUND_SCREEN("유효하지 않은 ScreenId 입니다.", HttpStatus.NOT_FOUND, "Not Found ScreenId"),
+	SCREEN_TIME_CONFLICT("해당 상영관 및 시간에 상영할 수 없습니다.", HttpStatus.BAD_REQUEST, "Screen Time Conflict"),
 	
 	// booking- seat
 	NOT_FOUND_SEAT("유효하지 않은 SeatId 입니다.", HttpStatus.NOT_FOUND, "Not Found SeatId"),
