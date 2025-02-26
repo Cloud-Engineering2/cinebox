@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.PaymentRequest;
 import cinebox.dto.response.PaymentResponse;
-import cinebox.entity.Payment;
 import cinebox.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,7 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<PaymentResponse> processPayment(@RequestBody PaymentRequest request) {
         PaymentResponse paymentResponse = paymentService.processPayment(request);
-        return ResponseEntity.ok(paymentResponse); // 결제 성공 시 응답
+        return ResponseEntity.ok(paymentResponse); 
     }
     
 //    // 결제확인

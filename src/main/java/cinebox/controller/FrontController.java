@@ -13,6 +13,4 @@ public class FrontController {
 			return "booking/payment-test";
 		}
 	
-	
-	
 }
