@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Footer</title>
+<style>
+    .pd29 {
+    	padding: 29px;
+	}
+	
+	.container {
+	    max-width: none;
+    	padding: 0px 60px;
+    	position: fixed;
+    	bottom: 0;
+	}
+	.justify-content{
+		justify-self: center;
+	}
+</style>
+</head>
+<body>
+	<th:block th:fragment="footerLayout">
+		<div class="container border-top">
+			<footer class="pd29">
+				<div
+					class="d-flex d-flex flex-wrap flex-sm-row justify-content">
+					<p>&copy; 2025 Company, Inc. All rights reserved.</p>
+				</div>
+			</footer>
+		</div>
+	</th:block>
+</body>
+</html>
