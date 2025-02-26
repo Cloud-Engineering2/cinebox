@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +40,9 @@ public class Booking extends BaseTimeEntity {
 	private User user;
 
 	private LocalDateTime bookingDate;
+	
+	// 추가 2025.2.21
+	@Transient
 	private BigDecimal totalPrice;
 
 	@Column(nullable = false)
@@ -50,4 +54,11 @@ public class Booking extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "booking")
 	private List<Payment> payments = new ArrayList<>();
+
+	 // Set the totalPrice value
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+	
 }

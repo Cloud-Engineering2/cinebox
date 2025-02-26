@@ -3,6 +3,9 @@ package cinebox.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -32,9 +35,10 @@ public class Auditorium extends BaseTimeEntity {
 
 	private int capacity;
 
-	@OneToMany(mappedBy = "auditorium")
+	@OneToMany(mappedBy = "auditorium", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Seat> seats = new ArrayList<>();
 
+	//@JsonIgnoreProperties("auditorium") // 순환 참조 방지 //추가 
 	@OneToMany(mappedBy = "auditorium")
 	private List<Screen> screens = new ArrayList<>();
 }
