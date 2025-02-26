@@ -1,16 +1,19 @@
 package cinebox.service;
 
 import cinebox.dto.ScreenRequest;
+import cinebox.dto.ScreenResponseDto;
 import cinebox.entity.Auditorium;
 import cinebox.entity.Movie;
 import cinebox.entity.Screen;
+import cinebox.exception.NotFoundException;
 import cinebox.repository.AuditoriumRepository;
 import cinebox.repository.MovieRepository;
 import cinebox.repository.ScreenRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,46 +24,59 @@ public class ScreenService {
 
     // 상영 정보 추가
     @Transactional
-    public Screen createScreen(ScreenRequest request) {
+    public ScreenResponseDto createScreen(ScreenRequest request) {
         Movie movie = movieRepository.findById(request.getMovieId())
-                .orElseThrow(() -> new EntityNotFoundException("영화를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("영화를 찾을 수 없습니다. movieId: " + request.getMovieId()));
+
         Auditorium auditorium = auditoriumRepository.findById(request.getAuditoriumId())
-                .orElseThrow(() -> new EntityNotFoundException("상영관을 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("상영관을 찾을 수 없습니다. auditoriumId: " + request.getAuditoriumId()));
+
+        LocalDateTime endTime = request.getStartTime().plusMinutes(movie.getRunTime()); // 🎯 endTime 자동 계산
 
         Screen screen = Screen.builder()
                 .movie(movie)
                 .auditorium(auditorium)
                 .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
+                .endTime(endTime)
                 .price(request.getPrice())
                 .build();
 
-        return screenRepository.save(screen);
+        screenRepository.save(screen);
+        return new ScreenResponseDto(screen);
     }
 
     // 상영 정보 수정
     @Transactional
-    public Screen updateScreen(Long screenId, ScreenRequest request) {
+    public ScreenResponseDto updateScreen(Long screenId, ScreenRequest request) {
         Screen screen = screenRepository.findById(screenId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 상영 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 상영 정보를 찾을 수 없습니다. screenId: " + screenId));
+
+        Movie movie = movieRepository.findById(request.getMovieId())
+                .orElseThrow(() -> new NotFoundException("영화를 찾을 수 없습니다. movieId: " + request.getMovieId()));
+
+        Auditorium auditorium = auditoriumRepository.findById(request.getAuditoriumId())
+                .orElseThrow(() -> new NotFoundException("상영관을 찾을 수 없습니다. auditoriumId: " + request.getAuditoriumId()));
+
+        LocalDateTime endTime = request.getStartTime().plusMinutes(movie.getRunTime()); // 🎯 endTime 자동 계산
 
         screen = Screen.builder()
                 .screenId(screenId)
-                .movie(screen.getMovie())
-                .auditorium(screen.getAuditorium())
+                .movie(movie)
+                .auditorium(auditorium)
                 .startTime(request.getStartTime())
-                .endTime(request.getEndTime())
+                .endTime(endTime)
                 .price(request.getPrice())
                 .build();
 
-        return screenRepository.save(screen);
+        screenRepository.save(screen);
+        return new ScreenResponseDto(screen);
     }
 
     // 상영 정보 삭제
     @Transactional
     public void deleteScreen(Long screenId) {
         Screen screen = screenRepository.findById(screenId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 상영 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new NotFoundException("해당 상영 정보를 찾을 수 없습니다. screenId: " + screenId));
         screenRepository.delete(screen);
     }
 }
