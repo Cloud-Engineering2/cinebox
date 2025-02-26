@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.common.exception.review.NotFoundReviewException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
-import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 import cinebox.entity.Movie;
@@ -18,14 +17,13 @@ import cinebox.entity.Review;
 import cinebox.entity.User;
 import cinebox.repository.MovieRepository;
 import cinebox.repository.ReviewRepository;
-import cinebox.repository.UserRepository;
 import cinebox.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-	private final UserRepository userRepository;
+	private final UserService userService;
 	private final MovieRepository movieRepository;
 	private final ReviewRepository reviewRepository;
 
@@ -50,6 +48,11 @@ public class ReviewService {
 	public Review selectReviewByReviewId(Long reviewId) {
 		return reviewRepository.findById(reviewId).orElseThrow(()-> NotFoundReviewException.EXCEPTION);
 	}
+	
+	public List<ReviewResponse> selectReviewByUserId(Long userId) {
+		User user = User.of(userService.getUserById(userId));
+		return reviewRepository.findByUserUserId(userId).stream().map(ReviewResponse::from).collect(Collectors.toList());
+	}
 
 	public void updateReview(ReviewRequest reviewRequest) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -57,10 +60,9 @@ public class ReviewService {
 		Long requestUserId = userDetails.getUser().getUserId();
 		Review review = selectReviewByReviewId(reviewRequest.getReviewId());
 		
-		if(requestUserId.equals
-				(review.getUser().getUserId())) {
+		if(requestUserId.equals(review.getUser().getUserId())) {
 			Movie movie = movieRepository.findById(reviewRequest.getMovieId()).orElseThrow(()-> NotFoundMovieException.EXCEPTION);
-			User user = userRepository.findById(reviewRequest.getUserId()).orElseThrow(()-> NotFoundUserException.EXCEPTION);
+			User user = User.of(userService.getUserById(reviewRequest.getUserId()));
 			
 	    	Review updatedReview = Review.of(movie, user, reviewRequest);
 	    	reviewRepository.save(updatedReview);	

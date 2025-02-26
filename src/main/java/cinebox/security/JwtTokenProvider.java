@@ -1,13 +1,10 @@
 package cinebox.security;
 
-import java.util.Collections;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
@@ -63,7 +60,7 @@ public class JwtTokenProvider {
     	DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
 
         Long userId = decodedJWT.getClaim("user_id").asLong();
-        cinebox.entity.User user = userRepository.findById(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
+        cinebox.entity.User user = userRepository.findByUserIdAndIsDeletedFalse(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
         String role = decodedJWT.getClaim("role").asString();
         
         PrincipalDetails principalDetails = new PrincipalDetails(user);
