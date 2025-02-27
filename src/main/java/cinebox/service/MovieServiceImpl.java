@@ -1,7 +1,9 @@
 package cinebox.service;
 
+import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.security.core.Authentication;
@@ -12,10 +14,10 @@ import cinebox.common.enums.MovieStatus;
 import cinebox.common.exception.movie.DuplicatedMovieException;
 import cinebox.common.exception.movie.MovieDeleteFailedException;
 import cinebox.common.exception.movie.NotFoundMovieException;
-import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
 import cinebox.entity.Movie;
+import cinebox.entity.Screen;
 import cinebox.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -73,6 +75,21 @@ public class MovieServiceImpl implements MovieService {
 			throw NotFoundMovieException.EXCEPTION;
 		}
 		return MovieResponse.from(movie);
+	}
+	
+	// 특정 영화 상영 날짜 목록 조회
+	@Override
+	public List<LocalDate> getAvailableDatesForMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		List<Screen> screens = movie.getScreens();
+		
+		Set<LocalDate> dateSet = screens.stream()
+				.map(screen -> screen.getStartTime().toLocalDate())
+				.collect(Collectors.toSet());
+		
+		return dateSet.stream().sorted().collect(Collectors.toList());
 	}
 
 	// 영화 정보 수정

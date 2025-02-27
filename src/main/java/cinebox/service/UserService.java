@@ -34,10 +34,11 @@ public class UserService {
 	private final AuthenticationManager authenticationManager;
 	
     public UserResponse signup(UserRequest user) {
-        if (userRepository.existsByIdentifier(user.getIdentifier())) {
-            throw DuplicateUserException.EXCEPTION;
+        boolean isDuplicatedIdentifier = userRepository.findByIdentifier(user.getIdentifier()).isPresent();
+        if(isDuplicatedIdentifier) {
+        	throw DuplicateUserException.EXCEPTION;
         }
-
+        
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
 		User newUser = User.of(user);
@@ -53,22 +54,19 @@ public class UserService {
         );
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        if (!userRepository.existsByIdentifier(userDetails.getUsername())) {
-            throw NotFoundUserException.EXCEPTION;
-        }
-        
-        User user = userRepository.findByIdentifier(userDetails.getUsername());
+        User user = userRepository.findByIdentifierAndIsDeletedFalse(userDetails.getUsername()).orElseThrow(() -> NotFoundUserException.EXCEPTION);
         String token = jwtTokenProvider.createToken(user.getUserId(), user.getRole().toString());
 
         return new AuthResponse(user.getUserId(), user.getIdentifier(), user.getRole().toString(), token);
 	}
 
+	// deleted = true 인 경우 조회되지 않는다.
 	public List<UserResponse> getAllUser() {
-		return userRepository.findAll().stream().map(UserResponse::from).collect(Collectors.toList());
+		return userRepository.findAllByIsDeletedFalse().stream().map(UserResponse::from).collect(Collectors.toList());
 	}
 
     public UserResponse getUserById(Long userId) {
-    	User user = userRepository.findById(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
+    	User user = userRepository.findByUserIdAndIsDeletedFalse(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
         return UserResponse.from(user);
     }
 
@@ -77,7 +75,8 @@ public class UserService {
 		PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
 		Long currentUserId = userDetails.getUser().getUserId();
 		Role currentUserRole = userDetails.getUser().getRole();
-		User requestUser = userRepository.findById(requestUserId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
+		
+		User requestUser = userRepository.findByUserIdAndIsDeletedFalse(requestUserId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
 		
 		boolean isUser = !(currentUserRole.equals(Role.ADMIN));
 		boolean isMatchedUser = (requestUserId == currentUserId);

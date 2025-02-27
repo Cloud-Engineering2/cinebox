@@ -5,17 +5,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.BookingStatus;
-import cinebox.common.exception.ExceptionMessage;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
-import cinebox.common.exception.booking.NotFoundScreenException;
 import cinebox.common.exception.booking.NotFoundSeatException;
+import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.BookingSeatDTO;
 import cinebox.dto.request.BookingRequest;
