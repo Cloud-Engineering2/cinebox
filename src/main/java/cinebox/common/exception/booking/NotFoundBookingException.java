@@ -7,8 +7,9 @@ public class NotFoundBookingException extends BaseException  {
 
 	private static final long serialVersionUID = 1L;
 
+	public static final BaseException EXCEPTION = new NotFoundBookingException();
 	
-	public NotFoundBookingException(ExceptionMessage message) {
+	private NotFoundBookingException() {
 		super(ExceptionMessage.NOT_FOUND_BOOKING);
 	
 	}
