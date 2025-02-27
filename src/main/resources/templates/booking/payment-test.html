@@ -6,12 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>예매 목록</title>
     <style>
-       	h1 {text-align: center;}
-       	table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th,td {  border: 1px solid #ddd; padding: 10px;text-align: center; }
-        th {background-color: #f2f2f2;}
-        .no-bookings { text-align: center; color: #888;}
-		.loading {text-align: center;}     
+        h1 { text-align: center; }
+        table { width: 100%; border-collapse: collapse;  margin-top: 20px; }
+        th,
+        td {border: 1px solid #ddd; padding: 10px; text-align: center; }
+        th { background-color: #f2f2f2;}
+        .no-bookings {text-align: center; color: #888; }
+        .loading { text-align: center; }
+        
     </style>
 </head>
 
@@ -26,7 +28,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // JWT 토큰 (여기에 실제 토큰을 넣으세요)
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDU1MjU3Nn0.lN7HrTjK_cDWrukfsWrlH-E_yisoyzh-l5Dux_YcfF8";
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDY1ODI4MH0.SQs5HnRhzTCjojqQhkGPgZ5Lk1g6sx6u1Ixw6gE98RU";
 
             // 예매 목록을 가져오는 fetch 요청
             fetch('/api/bookings/list', {
@@ -57,6 +59,7 @@
                                         <th>총 금액 (₩)</th>
                                         <th>상태</th>
                                         <th>예매일</th>
+                                      
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -64,24 +67,33 @@
 
                         // bookings 배열에서 각 예매 정보 처리
                         bookings.forEach(function (booking) {
-    						let seatList = booking.seatNumbers.join(', ');  // 좌석 번호들을 쉼표로 구분
-    						let formattedPrice = new Intl.NumberFormat('ko-KR').format(booking.totalPrice); // 금액 포맷
+                            let seatList = booking.seatNumbers.join(', ');  // 좌석 번호들을 쉼표로 구분
+                            let formattedPrice = new Intl.NumberFormat('ko-KR').format(booking.totalPrice); // 금액 포맷
 
-    						// bookingId와 totalPrice를 안전하게 처리
-    						bookingTable += `
-        						<tr id="booking-${booking.bookingId}">
-           							 <td>${booking.bookingId}</td>
-            							<td>${booking.screenName}</td>
-           								 <td>${seatList}</td>
-           								 <td>${formattedPrice} 원</td> <!-- 총 금액 표시 -->
-           								 <td>${booking.status}
-               								${booking.status === 'PENDING' ? 
-                    							`<button onclick="processPayment(${JSON.stringify(booking.bookingId)}, ${JSON.stringify(booking.totalPrice)})">결제하기</button>` 	 : '결제 완료'}
-            							</td>
-            							<td>${new Date(booking.bookingDate).toLocaleString()}</td>
-        						</tr>
-   								 `;
-						});
+                            bookingTable += `
+                                <tr id="booking-${booking.bookingId}">
+                                    <td>${booking.bookingId}</td>
+                                    <td>${booking.screenName}</td>
+                                    <td>${seatList}</td>
+                                    <td>${formattedPrice} 원</td> <!-- 총 금액 표시 -->
+                                    <td>
+                                    ${booking.status === 'PENDING' ? 
+                                        `<span>PENDING</span> 
+                                         <button onclick="processPayment(${JSON.stringify(booking.bookingId)}, ${JSON.stringify(booking.totalPrice)})">결제하기</button>` : 
+                                    booking.status === 'PAID' ? 
+                                        `<span>결제완료</span> 
+                                         <button onclick="cancelPayment(${booking.bookingId}, ${booking.paymentId})">결제 취소</button>` : 
+                                    booking.status === 'REFUNDED' ? 
+                                        '결제취소됨' : 
+                                        '알 수 없음'}
+                                	</td>
+
+                                    <td>${new Date(booking.bookingDate).toLocaleString()}</td>
+                                  
+                                </tr>
+                               
+                            `;
+                        });
 
                         bookingTable += '</tbody></table>';
                         bookingListContainer.innerHTML = bookingTable;  // 테이블로 출력
@@ -94,12 +106,9 @@
                 });
         });
 
-        
         // 사용자 정보 가져오기
         function getUserInfo() {
-            //const token = localStorage.getItem('authToken'); // 또는 세션 스토리지, 쿠키 등
-			 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDU1MjU3Nn0.lN7HrTjK_cDWrukfsWrlH-E_yisoyzh-l5Dux_YcfF8";
-
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDY1ODI4MH0.SQs5HnRhzTCjojqQhkGPgZ5Lk1g6sx6u1Ixw6gE98RU";
             return fetch('/api/users', {
                 method: 'GET',
                 headers: {
@@ -108,13 +117,13 @@
             })
             .then(response => {
                 if (!response.ok) {
-                	console.error('응답 실패:', response.statusText);
+                    console.error('응답 실패:', response.statusText);
                     throw new Error('사용자 정보를 가져오는 데 실패했습니다.');
                 }
                 return response.json();
             })
             .then(user => {
-            	if (!user) {
+                if (!user) {
                     console.error('사용자 정보가 없습니다.');
                 }
                 return user; // 사용자 정보를 반환
@@ -125,10 +134,12 @@
             });
         }
 
-        
-     	// 결제 처리 함수
+     	// 전역 객체 paymentMap 초기화
+        const paymentMap = {};
+     
+        // 결제 처리 함수
         async function processPayment(bookingId, totalPrice) {
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDU1MjU3Nn0.lN7HrTjK_cDWrukfsWrlH-E_yisoyzh-l5Dux_YcfF8";
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDY2NzU0N30.83dpy7sFYRvQ-0m5yZFQsXxqun_z4iGEvqWfZsqX4MM";
 
             if (!token) {
                 alert("로그인이 필요합니다!");
@@ -139,18 +150,18 @@
             console.log("전송된 예매 ID:", bookingId);
             console.log("전송된 결제 금액:", totalPrice);
 
-        	 // 사용자 정보 가져오기
+            // 사용자 정보 가져오기
             const user = await getUserInfo();
             if (!user) {
                 alert("사용자 정보를 가져오는 데 실패했습니다.");
                 return;
             }
             console.log("사용자 정보:", user);  // 사용자 정보 확인
-            
+
             // 결제 로직 (PG 결제)
             const IMP = window.IMP;
             IMP.init("imp25587836"); // 해당 키를 사용하세요.
-            
+
             IMP.request_pay({
                 pg: "html5_inicis", // KG이니시스
                 pay_method: "card", // 결제 방법
@@ -160,8 +171,18 @@
                 buyer_name: user[0].name, // 사용자 이름
                 m_redirect_url: "/", // 모바일 결제 후 리다이렉트될 URL
             }, (rsp) => {
+                console.log("결제 응답 확인", rsp); // 결제 응답 전체 확인
                 if (rsp.success) {
-                    // 결제 성공 시
+                   
+                	 // 결제 ID를 hidden 필드에 저장 (이 부분을 추가)
+                    const hiddenInput = document.getElementById(`paymentId-${bookingId}`);
+                    if (hiddenInput) {
+                        hiddenInput.value = rsp.imp_uid;  // 결제 ID를 hidden 필드에 저장
+                        console.log('결제 ID가 hidden 필드에 저장되었습니다:', hiddenInput.value); // 로그로 확인
+                    } else {
+                        console.error('결제 ID를 저장할 hidden 필드를 찾을 수 없습니다.');
+                    }
+        
                     fetch('/api/payments', {
                         method: 'POST',
                         headers: {
@@ -173,21 +194,25 @@
                             totalAmount: totalPrice,
                             paymentMethod: "CARD", // 결제 방법
                             paymentId: rsp.imp_uid, // 결제 고유 ID
-                            paymentSuccess: rsp.success // 결제 성공 여부를 직접 전달
+                            paymentSuccess: rsp.success // 결제 성공 여부
                         })
                     })
                     .then(response => response.json())
                     .then(data => {
                         console.log("결제 성공 후 서버 응답:", data);
-                        const message = data.message || "결제 상태를 확인할 수 없습니다.";
-
                         if (data.paymentStatus === "COMPLETED") {
                             alert("결제가 완료되었습니다.");
-                            /* // 예매 상태를 '결제 완료'로 변경
-                            const bookingRow = document.getElementById(`booking-${bookingId}`);
-                            const statusCell = bookingRow.querySelector('td:nth-child(5)');
-                            statusCell.innerText = '결제 완료'; // 상태 업데이트
-                            statusCell.classList.add('completed'); // 스타일 추가 가능 (선택 사항) */
+
+                         	// 결제 ID를 전역 객체에 저장
+                            // paymentMap에 결제 정보 저장
+        					paymentMap[bookingId] = {
+            					paymentId: data.paymentId,
+            					amount: totalPrice, // 결제 금액
+            					paymentStatus: data.paymentStatus, // 결제 상태
+        						};
+
+                            console.log("paymentMap 갱신:", paymentMap); // paymentMap 내용 확인
+                        
                         } else {
                             alert("결제 상태를 확인할 수 없습니다. 오류 발생");
                         }
@@ -203,12 +228,52 @@
                 }
             });
         }
+        
+        // 결제취소 함수
+        function cancelPayment(bookingId, paymentId) {
+            if (!paymentId) {
+                alert('결제 정보를 찾을 수 없습니다.');
+                return;
+            }
+            // 사용자에게 결제 취소 확인
+            const isConfirmed = confirm("정말 삭제하시겠습니까?");
+            if(!isConfirmed){
+            	return;// 취소하면  함수 종료
+            }
 
+            const cancelRequest = {
+                bookingId: bookingId,
+                paymentId: paymentId
+            };
 
-      
+            fetch(`/api/payments/${paymentId}/cancel`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(cancelRequest)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error ' + response.status);
+                }
+                return response.json(); // 정상적인 경우만 파싱
+            })
+            .then(data => {
+                alert(data.message);
+                location.reload();
+            })
+            .catch(error => {
+                console.error('결제 취소 중 오류 발생:', error);
+                alert('결제 취소에 실패했습니다.');
+            });
+
+        }
+
     </script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
-  <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+  
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+    <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
 </body>
 
 </html>
