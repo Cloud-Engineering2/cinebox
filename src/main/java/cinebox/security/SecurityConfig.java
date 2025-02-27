@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
         		.addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                		.requestMatchers("/api/auth/**","/api/bookings/**", "/api/payments","/api/payments/cancel","/bookings/payment-test","/css/**", "/js/**").permitAll()
+                		.requestMatchers("/api/auth/**","/api/bookings","/api/bookings/**", "/api/payments/","/api/payments/**","/bookings/payment-test","/css/**", "/js/**").permitAll()
                 		.requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/page/**").permitAll()
                         .requestMatchers("/page/admin").hasAuthority("ROLE_ADMIN")
