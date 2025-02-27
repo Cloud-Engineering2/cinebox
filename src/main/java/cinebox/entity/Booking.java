@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import cinebox.common.enums.BookingStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,17 +42,15 @@ public class Booking extends BaseTimeEntity {
 
 	private LocalDateTime bookingDate;
 	
-	// 추가 2025.2.21
-	@Transient
 	private BigDecimal totalPrice;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private BookingStatus status;
 
-	@OneToMany(mappedBy = "booking")
-	private List<BookingSeat> bookingSeats = new ArrayList<>();
-
+	@OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingSeat> bookingSeats = new ArrayList<>();
+	
 	@OneToMany(mappedBy = "booking")
 	private List<Payment> payments = new ArrayList<>();
 
@@ -61,7 +60,7 @@ public class Booking extends BaseTimeEntity {
     }
     
     
- // 상태 변경을 위한 setter 메서드 추가
+    // 상태 변경을 위한 setter 메서드 추가
     public void setStatus(BookingStatus status) {
         this.status = status;
     }
