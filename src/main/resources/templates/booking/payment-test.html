@@ -28,7 +28,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             // JWT 토큰 (여기에 실제 토큰을 넣으세요)
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDY1ODI4MH0.SQs5HnRhzTCjojqQhkGPgZ5Lk1g6sx6u1Ixw6gE98RU";
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDcwNjc4NH0.-2vbRxtmR_hpwB-XTYtADVHiEQYLohXMYNPYdhOqfQQ";
 
             // 예매 목록을 가져오는 fetch 요청
             fetch('/api/bookings/list', {
@@ -139,7 +139,7 @@
      
         // 결제 처리 함수
         async function processPayment(bookingId, totalPrice) {
-            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDY2NzU0N30.83dpy7sFYRvQ-0m5yZFQsXxqun_z4iGEvqWfZsqX4MM";
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDcwNjc4NH0.-2vbRxtmR_hpwB-XTYtADVHiEQYLohXMYNPYdhOqfQQ";
 
             if (!token) {
                 alert("로그인이 필요합니다!");
@@ -236,7 +236,7 @@
                 return;
             }
             // 사용자에게 결제 취소 확인
-            const isConfirmed = confirm("정말 삭제하시겠습니까?");
+            const isConfirmed = confirm("정말 결제취소 하시겠습니까?");
             if(!isConfirmed){
             	return;// 취소하면  함수 종료
             }
