@@ -1,5 +1,6 @@
 package cinebox.controller;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -47,6 +48,13 @@ public class MovieController {
 	@GetMapping("/{movieId}")
 	public ResponseEntity<MovieResponse> getMovie(@PathVariable("movieId") Long movieId) {
 		return ResponseEntity.ok(movieService.getMovie(movieId));
+	}
+	
+	// 특정 영화 상영 날짜 목록 조회
+	@GetMapping("/{movieId}/dates")
+	public ResponseEntity<List<LocalDate>> getAvailableDatesForMovie(@PathVariable("movieId") Long movieId) {
+		List<LocalDate> dates = movieService.getAvailableDatesForMovie(movieId);
+		return ResponseEntity.ok(dates);
 	}
 	
 	//TODO: s3 연동하여 이미지 처리
