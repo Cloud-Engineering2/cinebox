@@ -41,8 +41,6 @@ public class Booking extends BaseTimeEntity {
 
 	private LocalDateTime bookingDate;
 	
-	// 추가 2025.2.21
-	@Transient
 	private BigDecimal totalPrice;
 
 	@Column(nullable = false)

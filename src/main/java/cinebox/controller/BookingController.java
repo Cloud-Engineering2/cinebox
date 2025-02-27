@@ -43,11 +43,9 @@ public class BookingController {
 	
 	// 본인의 예매 정보 조회
 	// Angela 작업과 병합 후 BookingResponse와 병합 고려
-	@GetMapping
+	@GetMapping("/my")
 	public ResponseEntity<List<TicketResponse>> getMyBookings() {
 		List<TicketResponse> responses = bookingService.getMyBookings();
 		return ResponseEntity.ok(responses);
 	}
 }
-	
-
