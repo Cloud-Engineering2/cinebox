@@ -10,7 +10,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class PaymentCancelRequest {
-	private String paymentId;   // 결제 ID
-    private String bookingId;   // 예매 ID
+	private Long paymentId;   // 결제 ID
+    private Long bookingId;   // 예매 ID
 
 }
