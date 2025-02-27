@@ -7,7 +7,8 @@ public class AlreadyPaidException extends BaseException {
 
 	private static final long serialVersionUID = 1L;
 
-	public AlreadyPaidException(ExceptionMessage message) {
+	public static final BaseException EXCEPTION =  new AlreadyPaidException();
+	private AlreadyPaidException() {
 		super(ExceptionMessage.SEAT_ALREADY_PAYMENT);
 		
 	}

@@ -10,7 +10,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class PaymentResponse {
 
 	private Long bookingId; // 예약 ID
@@ -25,5 +24,16 @@ public class PaymentResponse {
     public PaymentResponse(Long bookingId, Long paymentId, BigDecimal amount, String paymentMethod) {
         this(bookingId, paymentId, amount, paymentMethod, "COMPLETED", "결제가 완료되었습니다.");
     }
+    
+    // 기본 생성자에 null 허용
+    public PaymentResponse(Long bookingId, Long paymentId, BigDecimal amount, String paymentMethod, String paymentStatus, String message) {
+        this.bookingId = bookingId;
+        this.paymentId = paymentId;
+        this.amount = amount != null ? amount : BigDecimal.ZERO;  // 기본값 설정
+        this.paymentMethod = paymentMethod != null ? paymentMethod : "Unknown";  // 기본값 설정
+        this.paymentStatus = paymentStatus != null ? paymentStatus : "UNKNOWN";
+        this.message = message != null ? message : "No message provided.";
+    }
+  
     
 }

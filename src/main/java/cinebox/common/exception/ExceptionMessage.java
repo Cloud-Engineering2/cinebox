@@ -42,7 +42,10 @@ public enum ExceptionMessage {
 	NOT_FOUND_BOOKING("예매된 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found booking information"),
 	
 	//payment
-	SEAT_ALREADY_PAYMENT("이미 결제가 완료되었습니다", HttpStatus.BAD_REQUEST,"Payment has already been completed");
+	SEAT_ALREADY_PAYMENT("이미 결제가 완료되었습니다", HttpStatus.BAD_REQUEST,"Payment has already been completed"),
+	NOT_FOUND_PAYMENT("결제정보를 찾지못했습니다.", HttpStatus.NOT_FOUND, "Not Found Payment information");
+	
+
 	
 	private final String message;
 	private final HttpStatus status;

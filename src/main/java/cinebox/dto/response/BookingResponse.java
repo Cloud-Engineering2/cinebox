@@ -18,6 +18,7 @@ import lombok.Setter;
 public class BookingResponse {
 
 	private Long bookingId;
+	private Long paymentId;
 	private LocalDateTime bookingDate;
 	private Long screenId;
 	private List<String> seatNumbers;
@@ -25,16 +26,18 @@ public class BookingResponse {
 	private BigDecimal totalPrice; // 여기서 totalPrice를 추가
 	private String message;
 	private String screenName; // 상영관 이름 추가
-
-	public BookingResponse(Long bookingId, LocalDateTime bookingDate, Long screenId, List<String> seatNumbers,
+	
+	public BookingResponse(Long bookingId, Long paymentId, LocalDateTime bookingDate, Long screenId, List<String> seatNumbers,
 			String status, BigDecimal totalPrice, String screenName) {
 		this.bookingId = bookingId;
+		this.paymentId = paymentId;
 		this.bookingDate = bookingDate;
 		this.screenId = screenId;
 		this.seatNumbers = seatNumbers;
 		this.status = status;
 		this.totalPrice = totalPrice;
 		this.screenName = screenName;
+		
 	}
 
 }
