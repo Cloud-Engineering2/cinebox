@@ -1,6 +1,5 @@
 package cinebox.controller;
 
-
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -16,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
 import cinebox.dto.request.BookingRequest;
 import cinebox.dto.response.BookingResponse;
+import cinebox.dto.response.TicketResponse;
 import cinebox.service.BookingService;
 import cinebox.service.PaymentService;
 import lombok.RequiredArgsConstructor;
@@ -54,9 +54,12 @@ public class BookingController {
 	        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("예기치 않은 오류가 발생했습니다.");
 	    }
 	}
-	
-    
-	
-}
-	
 
+	// 본인의 예매 정보 조회
+	// Angela 작업과 병합 후 BookingResponse와 병합 고려
+	@GetMapping("/my")
+	public ResponseEntity<List<TicketResponse>> getMyBookings() {
+		List<TicketResponse> responses = bookingService.getMyBookings();
+		return ResponseEntity.ok(responses);
+	}
+}

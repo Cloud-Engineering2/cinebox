@@ -18,6 +18,7 @@ import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.BookingSeatDTO;
 import cinebox.dto.request.BookingRequest;
 import cinebox.dto.response.BookingResponse;
+import cinebox.dto.response.TicketResponse;
 import cinebox.entity.Booking;
 import cinebox.entity.BookingSeat;
 import cinebox.entity.Screen;
@@ -27,6 +28,7 @@ import cinebox.repository.BookingRepository;
 import cinebox.repository.BookingSeatRepository;
 import cinebox.repository.ScreenRepository;
 import cinebox.repository.SeatRepository;
+import cinebox.repository.UserRepository;
 import cinebox.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -182,4 +184,18 @@ public class BookingService {
 		return bookingResponse;
 	}
 
+  @Transactional(readOnly = true)
+  public List<TicketResponse> getMyBookings() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    PrincipalDetails principal = (PrincipalDetails) auth.getPrincipal();
+    Long userId = principal.getUser().getUserId();
+
+    List<Booking> bookings = bookingRepository.findByUser_UserIdAndStatusIn(
+        userId, List.of(BookingStatus.PENDING, BookingStatus.PAID));
+
+    return bookings.stream()
+        .filter(booking -> booking.getBookingSeats() != null && !booking.getBookingSeats().isEmpty())
+        .map(TicketResponse::from)
+        .collect(Collectors.toList());
+	}
 }
