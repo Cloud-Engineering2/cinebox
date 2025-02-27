@@ -1,14 +1,20 @@
 package cinebox.service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import cinebox.common.enums.BookingStatus;
 import cinebox.common.enums.PaymentMethod;
 import cinebox.common.enums.PaymentStatus;
 import cinebox.common.exception.ExceptionMessage;
 import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.payment.AlreadyPaidException;
+import cinebox.common.exception.payment.NotFoundPaymentException;
+import cinebox.dto.request.PaymentCancelRequest;
 import cinebox.dto.request.PaymentRequest;
 import cinebox.dto.response.PaymentResponse;
 import cinebox.entity.Booking;
@@ -26,6 +32,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
 
+    // 결제 진행
     @Transactional
     public PaymentResponse processPayment(PaymentRequest request) {
         
@@ -88,7 +95,70 @@ public class PaymentService {
                 : "결제가 실패하였습니다."
         );
     }
+    
 
+    @Transactional
+    public PaymentResponse cancelPayment(PaymentCancelRequest cancelRequest) {
+        try {
+            Long paymentId = cancelRequest.getPaymentId();
+            Long bookingId = cancelRequest.getBookingId();
+
+            Payment payment = paymentRepository.findById(paymentId)
+                    .orElseThrow(() -> new NotFoundPaymentException(ExceptionMessage.NOT_FOUND_PAYMENT));
+
+            Booking booking = payment.getBooking();
+
+            if (booking == null || !booking.getBookingId().equals(bookingId)) {
+                throw new NotFoundBookingException(ExceptionMessage.NOT_FOUND_BOOKING);
+            }
+
+            if (payment.getStatus() == PaymentStatus.COMPLETED) {
+                // 예약 상태를 REFUNDED로 변경
+                booking.setStatus(BookingStatus.REFUNDED);
+                bookingRepository.save(booking);  // 상태 변경 반영
+
+                // 연관된 BookingSeat 삭제
+                booking.getBookingSeats().clear();  // 연관된 좌석을 먼저 삭제
+
+                // 예약 삭제
+                bookingRepository.delete(booking);  // 예약 삭제
+
+                // 결제 상태를 REFUNDED로 변경
+                payment.setStatus(PaymentStatus.REFUNDED);
+                paymentRepository.save(payment);
+
+                log.info("예약 삭제 및 결제 취소 완료: bookingId={}, paymentId={}", bookingId, paymentId);
+                return new PaymentResponse(bookingId, paymentId, payment.getAmount(),
+                        payment.getMethod().toString(), payment.getStatus().toString(), "결제가 취소되었습니다.");
+            }
+
+            return new PaymentResponse(bookingId, paymentId, payment.getAmount(),
+                    payment.getMethod().toString(), payment.getStatus().toString(), "결제 취소 불가: 상태 불일치");
+        } catch (NotFoundPaymentException | NotFoundBookingException e) {
+            // 결제나 예약을 찾지 못한 경우
+            log.error("예외 발생: ", e);
+            throw e;  // 예외를 다시 던져서 처리
+        } catch (Exception e) {
+            log.error("결제 취소 중 오류 발생: ", e);
+            throw new RuntimeException("결제 취소 처리 중 오류가 발생했습니다.");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+    
     
     
 }
