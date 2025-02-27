@@ -213,6 +213,7 @@ public class MovieBatchService {
 	private String extractActorNames(KmdbResponse.Result result) {
 	    if (result == null || result.actors() == null || result.actors().actor().isEmpty()) return null;
 	    return result.actors().actor().stream()
+	    		.limit(6)	// 최대 6개의 데이터만 허용  
 	    		.map(KmdbResponse.Actor::actorNm)
 	    		.collect(Collectors.joining(", "));
 	}
