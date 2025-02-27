@@ -12,9 +12,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.BookingStatus;
+import cinebox.common.exception.ExceptionMessage;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
 import cinebox.common.exception.booking.NotFoundScreenException;
 import cinebox.common.exception.booking.NotFoundSeatException;
+import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.BookingSeatDTO;
 import cinebox.dto.request.BookingRequest;
 import cinebox.dto.response.BookingResponse;
@@ -27,7 +29,6 @@ import cinebox.repository.BookingRepository;
 import cinebox.repository.BookingSeatRepository;
 import cinebox.repository.ScreenRepository;
 import cinebox.repository.SeatRepository;
-import cinebox.security.JwtTokenProvider;
 import cinebox.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,8 +105,6 @@ public class BookingService {
 	}
 
 	
-	
-	
 
 	@Transactional
 	public BookingResponse bookSeats(BookingRequest request) {
@@ -124,7 +123,7 @@ public class BookingService {
 		List<String> requestedSeats = request.getSeatNumbers();
 		if (requestedSeats.stream().anyMatch(bookedSeats::contains)) {
 			// 이미 예약된 좌석이 있으면 예외를 던짐
-			throw new AlreadyBookedSeatsException("이미 예약된 좌석이 있습니다: " + requestedSeats);
+			throw AlreadyBookedSeatsException.EXCEPTION;
 		}
 
 		// 현재 로그인한 사용자 정보 가져오기
@@ -134,7 +133,7 @@ public class BookingService {
 		// 사용자 정보에서 User 객체 가져오기
 		User currentUser = userDetails.getUser();
 		if (currentUser == null) {
-			throw new IllegalStateException("로그인된 사용자가 없습니다.");
+			throw NotFoundUserException.EXCEPTION;
 		}
 
 		// 사용자 이름로그로 출력
