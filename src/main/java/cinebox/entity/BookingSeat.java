@@ -1,6 +1,7 @@
 package cinebox.entity;
 
 import cinebox.dto.BookingSeatDTO;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +24,8 @@ public class BookingSeat extends BaseTimeEntity {
 	@Column(name = "booking_seat_id")
 	private Long bookingSeatId;
 
-	@ManyToOne
+	
+	@ManyToOne(cascade = CascadeType.PERSIST)
 	@JoinColumn(name = "booking_id", nullable = false)
 	private Booking booking;
 
