@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>예매 목록</title>
+    <style>
+       	h1 {text-align: center;}
+       	table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th,td {  border: 1px solid #ddd; padding: 10px;text-align: center; }
+        th {background-color: #f2f2f2;}
+        .no-bookings { text-align: center; color: #888;}
+		.loading {text-align: center;}
+        
+    </style>
+</head>
+
+<body>
+
+    <h1>예매 목록</h1>
+
+    <div id="booking-list" class="loading">
+        <p>로딩 중...</p>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // JWT 토큰 (여기에 실제 토큰을 넣으세요)
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDU1MjU3Nn0.lN7HrTjK_cDWrukfsWrlH-E_yisoyzh-l5Dux_YcfF8";
+
+            // 예매 목록을 가져오는 fetch 요청
+            fetch('/api/bookings/list', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}` // Authorization 헤더에 토큰 포함
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('서버 응답 실패');
+                    }
+                    return response.json();
+                })
+                .then(bookings => {
+                    const bookingListContainer = document.getElementById('booking-list');
+
+                    if (bookings.length === 0) {
+                        bookingListContainer.innerHTML = '<p class="no-bookings">예매한 목록이 없습니다.</p>';
+                    } else {
+                        let bookingTable = `
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>예매 ID</th>
+                                        <th>상영관</th>
+                                        <th>좌석 번호</th>
+                                        <th>총 금액 (₩)</th>
+                                        <th>상태</th>
+                                        <th>예매일</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                        `;
+
+                        // bookings 배열에서 각 예매 정보 처리
+                        bookings.forEach(function (booking) {
+    						let seatList = booking.seatNumbers.join(', ');  // 좌석 번호들을 쉼표로 구분
+    						let formattedPrice = new Intl.NumberFormat('ko-KR').format(booking.totalPrice); // 금액 포맷
+
+    						// bookingId와 totalPrice를 안전하게 처리
+    						bookingTable += `
+        						<tr id="booking-${booking.bookingId}">
+           							 <td>${booking.bookingId}</td>
+            							<td>${booking.screenName}</td>
+           								 <td>${seatList}</td>
+           								 <td>${formattedPrice} 원</td> <!-- 총 금액 표시 -->
+           								 <td>${booking.status}
+               								${booking.status === 'PENDING' ? 
+                    							`<button onclick="processPayment(${JSON.stringify(booking.bookingId)}, ${JSON.stringify(booking.totalPrice)})">결제하기</button>` 	 : '결제 완료'}
+            							</td>
+            							<td>${new Date(booking.bookingDate).toLocaleString()}</td>
+        						</tr>
+   								 `;
+						});
+
+                        bookingTable += '</tbody></table>';
+                        bookingListContainer.innerHTML = bookingTable;  // 테이블로 출력
+                    }
+                })
+                .catch(error => {
+                    const bookingListContainer = document.getElementById('booking-list');
+                    bookingListContainer.innerHTML = '<p class="no-bookings">예매 목록을 불러오는 데 실패했습니다.</p>';
+                    console.error('예매 목록을 가져오는 데 오류가 발생했습니다:', error);
+                });
+        });
+
+        
+        // 사용자 정보 가져오기
+        function getUserInfo() {
+            //const token = localStorage.getItem('authToken'); // 또는 세션 스토리지, 쿠키 등
+			 const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDU1MjU3Nn0.lN7HrTjK_cDWrukfsWrlH-E_yisoyzh-l5Dux_YcfF8";
+
+            return fetch('/api/users', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}` // Authorization 헤더에 토큰 포함
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                	console.error('응답 실패:', response.statusText);
+                    throw new Error('사용자 정보를 가져오는 데 실패했습니다.');
+                }
+                return response.json();
+            })
+            .then(user => {
+            	if (!user) {
+                    console.error('사용자 정보가 없습니다.');
+                }
+                return user; // 사용자 정보를 반환
+            })
+            .catch(error => {
+                console.error('사용자 정보를 가져오는 데 오류 발생:', error);
+                return null;
+            });
+        }
+
+        
+     	// 결제 처리 함수
+        async function processPayment(bookingId, totalPrice) {
+            const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoxLCJyb2xlIjoiVVNFUiIsImV4cCI6MTc0MDU1MjU3Nn0.lN7HrTjK_cDWrukfsWrlH-E_yisoyzh-l5Dux_YcfF8";
+
+            if (!token) {
+                alert("로그인이 필요합니다!");
+                return;
+            }
+
+            // totalPrice 값 확인
+            console.log("전송된 예매 ID:", bookingId);
+            console.log("전송된 결제 금액:", totalPrice);
+
+        	 // 사용자 정보 가져오기
+            const user = await getUserInfo();
+            if (!user) {
+                alert("사용자 정보를 가져오는 데 실패했습니다.");
+                return;
+            }
+            console.log("사용자 정보:", user);  // 사용자 정보 확인
+            
+            // 결제 로직 (PG 결제)
+            const IMP = window.IMP;
+            IMP.init("imp25587836"); // 해당 키를 사용하세요.
+            
+            IMP.request_pay({
+                pg: "html5_inicis", // KG이니시스
+                pay_method: "card", // 결제 방법
+                name: "예약결제", // 결제 항목명
+                amount: totalPrice, // 결제 금액
+                buyer_email: user[0].email, // 사용자 이메일
+                buyer_name: user[0].name, // 사용자 이름
+                m_redirect_url: "/", // 모바일 결제 후 리다이렉트될 URL
+            }, (rsp) => {
+                if (rsp.success) {
+                    // 결제 성공 시
+                    fetch('/api/payments', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}` // JWT 토큰 포함
+                        },
+                        body: JSON.stringify({
+                            bookingId: bookingId,
+                            totalAmount: totalPrice,
+                            paymentMethod: "CARD", // 결제 방법
+                            paymentId: rsp.imp_uid, // 결제 고유 ID
+                            paymentSuccess: rsp.success // 결제 성공 여부를 직접 전달
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("결제 성공 후 서버 응답:", data);
+                        const message = data.message || "결제 상태를 확인할 수 없습니다.";
+
+                        if (data.paymentStatus === "COMPLETED") {
+                            alert("결제가 완료되었습니다.");
+                            /* // 예매 상태를 '결제 완료'로 변경
+                            const bookingRow = document.getElementById(`booking-${bookingId}`);
+                            const statusCell = bookingRow.querySelector('td:nth-child(5)');
+                            statusCell.innerText = '결제 완료'; // 상태 업데이트
+                            statusCell.classList.add('completed'); // 스타일 추가 가능 (선택 사항) */
+                        } else {
+                            alert("결제 상태를 확인할 수 없습니다. 오류 발생");
+                        }
+                    })
+                    .catch(error => {
+                        console.error("결제 요청 중 오류 발생:", error);
+                        alert("결제 요청 실패");
+                    });
+                } else {
+                    // 결제 실패 시
+                    alert('결제에 실패했습니다. 오류 메시지: ' + rsp.error_msg);
+                    console.error('결제 실패 응답:', rsp); // 로그에 전체 응답 정보 추가
+                }
+            });
+        }
+
+
+      
+    </script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+  <script src="https://cdn.iamport.kr/v1/iamport.js"></script>
+</body>
+
+</html>

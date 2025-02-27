@@ -59,6 +59,12 @@ public class Booking extends BaseTimeEntity {
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
+    
+    
+ // 상태 변경을 위한 setter 메서드 추가
+    public void setStatus(BookingStatus status) {
+        this.status = status;
+    }
 
 	
 }
