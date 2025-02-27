@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<body th:fragment="main-body">
+	<div class="wrap">
+	<div class="header_wrap">
+	<header class="header">
+		<div class="header_container">
+
+			<div class="logo">
+				<!-- #{pageContent.request.contenxtPath}/  이런식으로 경로 나중에 넣기 -->
+				<a href="/" class="logo_container">
+					<h1>여행을 떠나요🛬 🎈</h1>
+				</a>
+			</div>
+
+			<div class="nav">
+				<ul class="nav_menu">
+					<li><a class="" href="/accommodation/list"><span>호텔</span></a></li>
+					<li><a th:href="@{/notice/list}" class=""><span>공지사항</span></a></li>
+					<!-- 공지사항 로그인후 볼 수있는 조건 인데 이건 그냥 해놓고 풀기
+						<li th:if="${session.loginMember == null}">
+							<a th:href="@{/member/login}" class=""><span>공지사항</span></a>
+						</li>
+						<li th:unless="${session.loginMember == null}">
+							<a th:href="@{/notice}"><span>공지사항</span></a>
+						</li>
+				    -->
+				    <li><a th:href="@{/inquiry/list}" class=""><span>문의하기</span></a></li>
+						
+				</ul>
+			</div>
+							<div class="nav_account">
+					<div class="nav_account_container">
+						
+
+						<ul class="nav_mypage">
+						 	<li class="nav_admin"><a href="/admin/dashboard">관리자페이지</a></li>
+							<li th:if="${session.loginMember == null}">
+								<a th:href="@{/member/login}">로그인</a>
+							</li>
+							<div th:unless="${session.loginMember == null}">
+									<a th:href="@{/member/mypage}">마이페이지</a>
+								</div>
+
+							<li th:if="${session.loginMember != null}">
+								<!--<a th:href="@{/member/mypage}">마이페이지</a> -->
+								<a id="logoutBtn">로그아웃</a>
+								<span th:text="${session.loginMember.memberName} + '님, 반갑습니다'"></span>
+							</li>
+						</ul>
+						
+					</div>
+				</div>
+		</div>
+		<!--header_container end -->
+	</header>
+</div>
+
+	<!-- 페이지별 콘텐츠 -->
+	<th:block layout:fragment="content">
+	
+	</th:block>
+
+	<th:block layout:fragment="script">
+		
+	 <script th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function() {
+            var logoutBtn = document.getElementById("logoutBtn");
+            if (logoutBtn) {
+                logoutBtn.addEventListener("click", function() {
+                    // 로그아웃 요청을 보냄 
+                    fetch('/member/logout', {
+                        method:'POST',
+                        headers: {
+                            'Content-Type' : 'application/json'
+                        }
+                    }).then(response =>{
+                        //리다이렉션 응답을 받으면 현재 페이지를 새로고침하여 로그인 페이지로 이동
+                        if(response.redirected){
+                            window.location.href = response.url;
+                        }
+                    }).catch(error => {
+                        console.log("로그아웃 요청 중 오류 발생 : ", error);
+                    });
+                });
+            }
+        });
+    </script>
+	</th:block>
+	
+	
+
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+	<script th:src="@{/js/function.js}"></script>
+	<script th:src="@{/js/jquery-3.6.0.min.js}"></script>
+	<script th:src="@{/js/common.js}"></script>
+	<script src="https://kit.fontawesome.com/79613ae794.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"></script>
+
+	
+	</div>  
+</body>
+
+</html>

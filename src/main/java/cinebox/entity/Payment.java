@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import cinebox.common.enums.PaymentMethod;
 import cinebox.common.enums.PaymentStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,10 +20,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "payment")
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,7 +35,8 @@ public class Payment extends BaseTimeEntity {
 	@Column(name = "payment_id")
 	private Long paymentId;
 
-	@ManyToOne
+	//@ManyToOne
+	@ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}) 
 	@JoinColumn(name = "booking_id", nullable = false)
 	private Booking booking;
 
@@ -48,4 +52,16 @@ public class Payment extends BaseTimeEntity {
 
 	@Column(name = "canceled_at")
 	private LocalDateTime canceledAt;
+	
+	// toBuilder 메서드 추가
+    public Payment.PaymentBuilder toBuilder() {
+        return Payment.builder()
+                .paymentId(this.paymentId)
+                .booking(this.booking)
+                .amount(this.amount)
+                .method(this.method)
+                .status(this.status)
+                .paidAt(this.paidAt)
+                .canceledAt(this.canceledAt);
+    }
 }

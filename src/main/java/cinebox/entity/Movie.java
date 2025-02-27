@@ -13,6 +13,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -36,13 +37,14 @@ public class Movie extends BaseTimeEntity {
 	private String title;
 
 	// 줄거리 (description)
+	@Lob
 	private String plot;
 
 	private String director;
 	private String actor;
 	private String genre;
 
-	@Column(name = "poster_image_url")
+	@Column(name = "poster_image_url", length = 500)
 	private String posterImageUrl;
 
 	@Column(name = "release_date")
