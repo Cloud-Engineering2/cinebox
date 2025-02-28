@@ -65,5 +65,13 @@ public class Booking extends BaseTimeEntity {
         this.status = status;
     }
 
+    public static Booking createBooking(User user, BigDecimal totalPrice) {
+    	return Booking.builder()
+			.bookingDate(LocalDateTime.now())
+			.status(BookingStatus.PENDING)
+			.user(user)
+			.totalPrice(totalPrice)
+			.build();
+    }
 	
 }
