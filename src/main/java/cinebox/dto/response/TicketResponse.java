@@ -17,9 +17,11 @@ public record TicketResponse(
 		Long auditoriumId,
 		String movieTitle,
 		String auditoriumName,
+		String posterImageUrl,
 		BigDecimal totPrice,
 		List<String> seatNumbers,
 		LocalDateTime screenStartTime,
+		LocalDateTime screenEndTime,
 		LocalDateTime bookingAt
 ) {
 	public static TicketResponse from(Booking booking) {
@@ -29,6 +31,7 @@ public record TicketResponse(
 				.collect(Collectors.toList());
 
 		Screen screen = bookingSeats.get(0).getScreen();
+		String poster = screen.getMovie().getPosterImageUrl();
 
 		return new TicketResponse(
 				booking.getBookingId(),
@@ -36,9 +39,11 @@ public record TicketResponse(
 				screen.getAuditorium().getAuditoriumId(),
 				screen.getMovie().getTitle(),
 				screen.getAuditorium().getName(),
+				poster,
 				booking.getTotalPrice(),
 				seatNumbers,
 				screen.getStartTime(),
+				screen.getEndTime(),
 				booking.getBookingDate());
 	}
 }

@@ -12,4 +12,7 @@ public interface BookingService {
 
 	// 예매 생성
 	BookingResponse createBooking(BookingRequest request);
+
+	// 특정 예매 조회
+	TicketResponse getBooking(Long bookingId);
 }
