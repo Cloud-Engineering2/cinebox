@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,5 +37,12 @@ public class BookingController {
 	public ResponseEntity<List<TicketResponse>> getMyBookings() {
 		List<TicketResponse> responses = bookingService.getMyBookings();
 		return ResponseEntity.ok(responses);
+	}
+	
+	// 특정 예매 조회
+	@GetMapping("/{bookingId}")
+	public ResponseEntity<TicketResponse> getBooking(@PathVariable("bookingId") Long bookingId) {
+		TicketResponse response = bookingService.getBooking(bookingId);
+		return ResponseEntity.ok(response);
 	}
 }

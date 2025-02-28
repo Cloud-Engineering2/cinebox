@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.BookingStatus;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
+import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.booking.NotFoundSeatException;
 import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.dto.request.BookingRequest;
@@ -79,5 +80,14 @@ public class BookingServiceImpl implements BookingService {
 		bookingSeatRepository.saveAll(bookingSeats);
 		
 		return new BookingResponse(savedBooking.getBookingId(), screen.getScreenId());
+	}
+
+	// 특정 예매 조회
+	@Override
+	public TicketResponse getBooking(Long bookingId) {
+		Booking booking = bookingRepository.findById(bookingId)
+				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		
+		return TicketResponse.from(booking);
 	}
 }
