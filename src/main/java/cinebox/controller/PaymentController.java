@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cinebox.dto.request.PaymentCancelRequest;
 import cinebox.dto.request.PaymentRequest;
 import cinebox.dto.response.PaymentResponse;
 import cinebox.service.PaymentService;
@@ -31,17 +30,10 @@ public class PaymentController {
 
 	// 결제 취소
 	@PostMapping("/{paymentId}/cancel")
-	public ResponseEntity<PaymentResponse> cancelPayment(@PathVariable Long paymentId,
-			@RequestBody PaymentCancelRequest cancelRequest) {
-
-		// cancelRequest에 paymentId를 설정
-		cancelRequest.setPaymentId(paymentId);
-
-		// 결제 취소 서비스 호출
-		PaymentResponse paymentResponse = paymentService.cancelPayment(cancelRequest);
-
-		// 결제 취소 성공 응답
+	public ResponseEntity<PaymentResponse> cancelPayment(
+			@PathVariable Long paymentId,
+			@RequestBody PaymentRequest request) {
+		PaymentResponse paymentResponse = paymentService.cancelPayment(paymentId, request);
 		return ResponseEntity.ok(paymentResponse);
 	}
-
 }
