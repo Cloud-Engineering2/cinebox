@@ -13,7 +13,6 @@ import lombok.Builder;
 @Builder
 public record TicketResponse(
 		Long bookingId,
-		Long userId,
 		Long movieId,
 		Long auditoriumId,
 		String movieTitle,
@@ -33,7 +32,6 @@ public record TicketResponse(
 
 		return new TicketResponse(
 				booking.getBookingId(),
-				booking.getUser().getUserId(),
 				screen.getMovie().getMovieId(),
 				screen.getAuditorium().getAuditoriumId(),
 				screen.getMovie().getTitle(),
