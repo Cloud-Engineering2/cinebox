@@ -13,7 +13,6 @@ import cinebox.entity.BookingSeat;
 @Repository
 public interface BookingSeatRepository extends JpaRepository<BookingSeat, Long> {
 
-
 	List<BookingSeat> findByScreen_ScreenId(Long screenId);
 
 	// BookingSeatRepository에 추가할 메서드 예시
@@ -26,11 +25,10 @@ public interface BookingSeatRepository extends JpaRepository<BookingSeat, Long> 
 	List<BookingSeat> findByScreen_ScreenIdAndSeat_SeatNumberIn(Long screenId, List<String> seatNumbers);
 
 	// screenId와 startTime에 맞는 좌석 번호를 찾아서 예약된 좌석 리스트 반환
-  List<BookingSeat> findByScreen_ScreenIdAndScreen_StartTimeAndSeat_SeatNumberIn(Long screenId, LocalDateTime startTime, List<String> seatNumbers);
+	List<BookingSeat> findByScreen_ScreenIdAndScreen_StartTimeAndSeat_SeatNumberIn(Long screenId, LocalDateTime startTime, List<String> seatNumbers);
 
-  @Query("SELECT bs.seat.seatId FROM BookingSeat bs WHERE bs.screen.screenId = :screenId")
-  List<Long> findBookedSeatIdsByScreenId(@Param("screenId") Long screenId);
+	void deleteByBooking(Booking booking);
 
-  void deleteByBooking(Booking booking);
+	int countByScreen_ScreenIdAndSeat_SeatNumberIn(Long screenId, List<String> seatNumbers);
 
 }

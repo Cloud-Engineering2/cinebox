@@ -55,29 +55,24 @@ public class BookingServiceImpl implements BookingService {
 	@Transactional
 	public BookingResponse createBooking(BookingRequest request) {
 		User currentUser = SecurityUtil.getCurrentUser();
-		
+
 		Screen screen = screenRepository.findById(request.getScreenId())
 				.orElseThrow(() -> NotFoundScreenException.EXCEPTION);
-		
-		List<String> bookedSeats = bookingSeatRepository.findByScreen_ScreenId(request.getScreenId())
-				.stream()
-				.map(bookingSeat -> bookingSeat.getSeat().getSeatNumber())
-				.collect(Collectors.toList());
-		
-		List<String> requestedSeats = request.getSeatNumbers();
-		if (requestedSeats.stream().anyMatch(bookedSeats::contains)) {
+
+		int alreadyBookedCount = bookingSeatRepository.countByScreen_ScreenIdAndSeat_SeatNumberIn(request.getScreenId(), request.getSeatNumbers());
+		if (alreadyBookedCount > 0) {
 			throw AlreadyBookedSeatsException.EXCEPTION;
 		}
-		
-		BigDecimal totalPrice = screen.getPrice().multiply(new BigDecimal(requestedSeats.size()));
-		
+
+		BigDecimal totalPrice = screen.getPrice().multiply(BigDecimal.valueOf(request.getSeatNumbers().size()));
+
 		Booking booking = Booking.createBooking(currentUser, totalPrice);
-		
 		Booking savedBooking = bookingRepository.save(booking);
-		
-		List<BookingSeat> bookingSeats = requestedSeats.stream()
+
+		List<BookingSeat> bookingSeats = request.getSeatNumbers().stream()
 				.map(seatNumber -> {
-					Seat seat = seatRepository.findBySeatNumberAndAuditorium_AuditoriumId(seatNumber, screen.getAuditorium().getAuditoriumId())
+					Seat seat = seatRepository
+							.findBySeatNumberAndAuditorium_AuditoriumId(seatNumber, screen.getAuditorium().getAuditoriumId())
 							.orElseThrow(() -> NotFoundSeatException.EXCEPTION);
 					return new BookingSeat(savedBooking, screen, seat);
 				}).collect(Collectors.toList());
