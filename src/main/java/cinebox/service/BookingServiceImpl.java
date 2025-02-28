@@ -12,6 +12,7 @@ import cinebox.common.exception.booking.AlreadyBookedSeatsException;
 import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.booking.NotFoundSeatException;
 import cinebox.common.exception.screen.NotFoundScreenException;
+import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.dto.request.BookingRequest;
 import cinebox.dto.response.BookingResponse;
 import cinebox.dto.response.TicketResponse;
@@ -87,6 +88,13 @@ public class BookingServiceImpl implements BookingService {
 	public TicketResponse getBooking(Long bookingId) {
 		Booking booking = bookingRepository.findById(bookingId)
 				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		
+		User currentUser = SecurityUtil.getCurrentUser();
+		User bookingUser = booking.getUser();
+		
+		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
+			throw NoAuthorizedUserException.EXCEPTION;
+		}
 		
 		return TicketResponse.from(booking);
 	}

@@ -7,6 +7,6 @@ public class NoAuthorizedUserException extends BaseException {
 	public static final BaseException EXCEPTION = new NoAuthorizedUserException();
 	
 	private NoAuthorizedUserException() {
-		super(ExceptionMessage.NOT_AUTHORIZED_USER);
+		super(ExceptionMessage.ACCESS_DENIED_USER);
 	}
 }
