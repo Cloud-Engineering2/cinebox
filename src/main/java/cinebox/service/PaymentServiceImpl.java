@@ -9,6 +9,7 @@ import cinebox.common.enums.BookingStatus;
 import cinebox.common.enums.PaymentStatus;
 import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.payment.AlreadyPaidException;
+import cinebox.common.exception.payment.InvalidPaymentStatusException;
 import cinebox.common.exception.payment.NotFoundPaymentException;
 import cinebox.common.exception.payment.NotPaidBookingException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
@@ -37,9 +38,15 @@ public class PaymentServiceImpl implements PaymentService {
 		Booking booking = bookingRepository.findById(request.bookingId())
 				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
 
+		BookingStatus status = booking.getStatus();
+		
 		// 중복 결제 방지
-		if (booking.getStatus().equals(BookingStatus.PAID)) {
-			throw AlreadyPaidException.EXCEPTION;
+		if (!status.equals(BookingStatus.PENDING)) {
+			if (booking.getStatus().equals(BookingStatus.PAID)) {
+				throw AlreadyPaidException.EXCEPTION;
+			} else {
+				throw InvalidPaymentStatusException.EXCEPTION;
+			}
 		}
 
 		// 본인만 결제 가능
