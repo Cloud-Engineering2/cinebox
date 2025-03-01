@@ -28,7 +28,12 @@ public class PaymentController {
 		return ResponseEntity.ok(paymentResponse);
 	}
 
+	/**
+	 * @deprecated
+	 * Booking에서 처리 
+	 */
 	// 결제 취소
+	@Deprecated
 	@PostMapping("/{paymentId}/cancel")
 	public ResponseEntity<PaymentResponse> cancelPayment(@PathVariable("paymentId") Long paymentId) {
 		PaymentResponse paymentResponse = paymentService.cancelPayment(paymentId);

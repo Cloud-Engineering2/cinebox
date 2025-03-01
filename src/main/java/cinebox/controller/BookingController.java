@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.BookingRequest;
 import cinebox.dto.response.BookingResponse;
+import cinebox.dto.response.PaymentResponse;
 import cinebox.dto.response.TicketResponse;
 import cinebox.service.BookingService;
 import lombok.RequiredArgsConstructor;
@@ -38,11 +39,18 @@ public class BookingController {
 		List<TicketResponse> responses = bookingService.getMyBookings();
 		return ResponseEntity.ok(responses);
 	}
-	
+
 	// 특정 예매 조회
 	@GetMapping("/{bookingId}")
 	public ResponseEntity<TicketResponse> getBooking(@PathVariable("bookingId") Long bookingId) {
 		TicketResponse response = bookingService.getBooking(bookingId);
 		return ResponseEntity.ok(response);
+	}
+
+	// 예매 취소 및 환불
+	@PostMapping("/{bookingId}")
+	public ResponseEntity<PaymentResponse> refundBooking(@PathVariable("bookingId") Long bookingId) {
+		PaymentResponse paymentResponse = bookingService.refundPayment(bookingId);
+		return ResponseEntity.ok(paymentResponse);
 	}
 }

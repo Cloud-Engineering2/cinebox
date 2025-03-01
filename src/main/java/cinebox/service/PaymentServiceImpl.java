@@ -65,6 +65,11 @@ public class PaymentServiceImpl implements PaymentService {
 		return PaymentResponse.from(savedPayment);
 	}
 
+	/**
+	 * @deprecated
+	 * Booking에서 처리 
+	 */
+	@Deprecated
 	@Override
 	public PaymentResponse cancelPayment(Long paymentId) {
 		Payment payment = paymentRepository.findById(paymentId)
