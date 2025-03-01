@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import cinebox.common.enums.BookingStatus;
 import cinebox.entity.Booking;
 import cinebox.entity.BookingSeat;
 import cinebox.entity.Screen;
@@ -22,7 +23,8 @@ public record TicketResponse(
 		List<String> seatNumbers,
 		LocalDateTime screenStartTime,
 		LocalDateTime screenEndTime,
-		LocalDateTime bookingAt
+		LocalDateTime bookingAt,
+		BookingStatus status
 ) {
 	public static TicketResponse from(Booking booking) {
 		List<BookingSeat> bookingSeats = booking.getBookingSeats();
@@ -44,6 +46,7 @@ public record TicketResponse(
 				seatNumbers,
 				screen.getStartTime(),
 				screen.getEndTime(),
-				booking.getBookingDate());
+				booking.getBookingDate(),
+				booking.getStatus());
 	}
 }
