@@ -62,4 +62,8 @@ public class Payment extends BaseTimeEntity {
                 .paidAt(this.paidAt)
                 .canceledAt(this.canceledAt);
     }
+
+	public void updateStatus(PaymentStatus status) {
+		this.status = status;
+	}
 }

@@ -9,5 +9,5 @@ public interface PaymentService {
 	PaymentResponse processPayment(PaymentRequest request);
 
 	// 결제 취소
-	PaymentResponse cancelPayment(Long paymentId, PaymentRequest request);
+	PaymentResponse cancelPayment(Long paymentId);
 }

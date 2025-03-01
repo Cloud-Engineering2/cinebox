@@ -43,10 +43,9 @@ public enum ExceptionMessage {
 	
 	//payment
 	SEAT_ALREADY_PAYMENT("이미 결제가 완료되었습니다", HttpStatus.BAD_REQUEST,"Payment has already been completed"),
-	NOT_FOUND_PAYMENT("결제정보를 찾지못했습니다.", HttpStatus.NOT_FOUND, "Not Found Payment information");
-	
+	NOT_FOUND_PAYMENT("결제정보를 찾지못했습니다.", HttpStatus.NOT_FOUND, "Not Found Payment information"),
+	NOT_PAID_BOOKING("결제가 완료되지 않은 예매입니다.", HttpStatus.BAD_REQUEST, "Not Paid Booking");
 
-	
 	private final String message;
 	private final HttpStatus status;
 	private final String title;

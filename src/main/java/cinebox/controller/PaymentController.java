@@ -30,10 +30,8 @@ public class PaymentController {
 
 	// 결제 취소
 	@PostMapping("/{paymentId}/cancel")
-	public ResponseEntity<PaymentResponse> cancelPayment(
-			@PathVariable Long paymentId,
-			@RequestBody PaymentRequest request) {
-		PaymentResponse paymentResponse = paymentService.cancelPayment(paymentId, request);
+	public ResponseEntity<PaymentResponse> cancelPayment(@PathVariable("paymentId") Long paymentId) {
+		PaymentResponse paymentResponse = paymentService.cancelPayment(paymentId);
 		return ResponseEntity.ok(paymentResponse);
 	}
 }
