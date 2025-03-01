@@ -1,6 +1,7 @@
 package cinebox.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
@@ -8,9 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.BookingStatus;
+import cinebox.common.enums.PaymentStatus;
+import cinebox.common.exception.payment.NotFoundPaymentException;
 import cinebox.entity.Booking;
+import cinebox.entity.Payment;
 import cinebox.repository.BookingRepository;
-import cinebox.repository.BookingSeatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +22,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class BookingBatchService {
 	private final BookingRepository bookingRepository;
-	private final BookingSeatRepository bookingSeatRepository;
 
 	// 매 분마다 실행
 	@Scheduled(cron = "0 * * * * ?")
@@ -33,9 +35,15 @@ public class BookingBatchService {
 		}
 
 		for (Booking booking : expiredBookings) {
-			bookingSeatRepository.deleteByBooking(booking);
+			booking.getBookingSeats().clear();
+			booking.updateStatus(BookingStatus.CANCELED);
+			Payment payment = booking.getPayments().stream()
+					.max(Comparator.comparing(Payment::getCreatedAt))
+					.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
+			payment.updateStatus(PaymentStatus.FAILED);
 		}
+		
 		bookingRepository.deleteAll(expiredBookings);
-		log.info("Deleted {} expired pending bookings", expiredBookings.size());
+		log.info("Canceled {} expired pending bookings", expiredBookings.size());
 	}
 }

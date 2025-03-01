@@ -73,5 +73,10 @@ public class Booking extends BaseTimeEntity {
 			.totalPrice(totalPrice)
 			.build();
     }
+
+	public void updateStatus(BookingStatus status) {
+		this.status = status;
+		
+	}
 	
 }
