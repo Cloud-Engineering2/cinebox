@@ -1,6 +1,7 @@
 package cinebox.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,17 +39,6 @@ public class PaymentServiceImpl implements PaymentService {
 		Booking booking = bookingRepository.findById(request.bookingId())
 				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
 
-		BookingStatus status = booking.getStatus();
-		
-		// 중복 결제 방지
-		if (!status.equals(BookingStatus.PENDING)) {
-			if (booking.getStatus().equals(BookingStatus.PAID)) {
-				throw AlreadyPaidException.EXCEPTION;
-			} else {
-				throw InvalidPaymentStatusException.EXCEPTION;
-			}
-		}
-
 		// 본인만 결제 가능
 		User currentUser = SecurityUtil.getCurrentUser();
 		User bookingUser = booking.getUser();
@@ -56,20 +46,32 @@ public class PaymentServiceImpl implements PaymentService {
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
+		
+		Payment payment = booking.getPayments().stream()
+				.max(Comparator.comparing(Payment::getCreatedAt))
+				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
 
-		Payment savedPayment = Payment.builder()
-				.booking(booking)
-				.amount(booking.getTotalPrice())
-				.method(request.method())
-				.status(PaymentStatus.COMPLETED)
-				.paidAt(LocalDateTime.now())
-				.build();
+		BookingStatus status = booking.getStatus();
+		PaymentStatus pStatus = payment.getStatus();
+		
+		// 중복 결제 방지
+		if (!status.equals(BookingStatus.PENDING) 
+				|| !pStatus.equals(PaymentStatus.REQUESTED)) {
+			if (booking.getStatus().equals(BookingStatus.PAID) 
+					&& pStatus.equals(PaymentStatus.COMPLETED)) {
+				throw AlreadyPaidException.EXCEPTION;
+			} else {
+				throw InvalidPaymentStatusException.EXCEPTION;
+			}
+		}
 
-		paymentRepository.save(savedPayment);
+		payment.processPayment(request);
+		paymentRepository.save(payment);
+		
 		booking.updateStatus(BookingStatus.PAID);
 		bookingRepository.save(booking);
 
-		return PaymentResponse.from(savedPayment);
+		return PaymentResponse.from(payment);
 	}
 
 	/**

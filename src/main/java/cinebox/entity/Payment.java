@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 
 import cinebox.common.enums.PaymentMethod;
 import cinebox.common.enums.PaymentStatus;
+import cinebox.dto.request.PaymentRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -51,19 +52,21 @@ public class Payment extends BaseTimeEntity {
 	@Column(name = "canceled_at")
 	private LocalDateTime canceledAt;
 	
-	// toBuilder 메서드 추가
-    public Payment.PaymentBuilder toBuilder() {
-        return Payment.builder()
-                .paymentId(this.paymentId)
-                .booking(this.booking)
-                .amount(this.amount)
-                .method(this.method)
-                .status(this.status)
-                .paidAt(this.paidAt)
-                .canceledAt(this.canceledAt);
-    }
+	public static Payment createPayment(Booking booking) {
+		return Payment.builder()
+				.booking(booking)
+				.amount(booking.getTotalPrice())
+				.status(PaymentStatus.REQUESTED)
+				.build();
+	}
 
 	public void updateStatus(PaymentStatus status) {
 		this.status = status;
+	}
+	
+	public void processPayment(PaymentRequest request) {
+		this.method = request.method();
+		this.status = PaymentStatus.COMPLETED;
+		this.paidAt = LocalDateTime.now();
 	}
 }

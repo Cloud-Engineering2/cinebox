@@ -89,6 +89,9 @@ public class BookingServiceImpl implements BookingService {
 				}).collect(Collectors.toList());
 		bookingSeatRepository.saveAll(bookingSeats);
 		
+		Payment payment = Payment.createPayment(savedBooking);
+		paymentRepository.save(payment);
+		
 		return new BookingResponse(savedBooking.getBookingId(), screen.getScreenId());
 	}
 
@@ -139,7 +142,7 @@ public class BookingServiceImpl implements BookingService {
 		booking.getBookingSeats().clear();
 		booking.updateStatus(BookingStatus.REFUNDED);
 		payment.updateStatus(PaymentStatus.REFUNDED);
-		
+
 		bookingRepository.save(booking);
 		paymentRepository.save(payment);
 
