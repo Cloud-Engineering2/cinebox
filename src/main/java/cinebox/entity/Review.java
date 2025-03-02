@@ -34,17 +34,21 @@ public class Review extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	private int rating;
+	private Integer rating;
 
 	private String content;
-
-	public static Review of(Movie movie, User user, ReviewRequest reviewRequest ) {
-		return new Review (
-				reviewRequest.getReviewId(),
-				movie,
-				user,
-				reviewRequest.getRating(),
-				reviewRequest.getContent()
-				);
+	
+	public static Review createReview(Movie movie, User user, ReviewRequest request ) {
+		return Review.builder()
+				.movie(movie)
+				.user(user)
+				.rating(request.rating())
+				.content(request.content())
+				.build();
+	}
+	
+	public void updateReview(ReviewRequest request) {
+		this.rating = request.rating() != null ? request.rating() : this.rating;
+		this.content = request.content() != null ? request.content() : this.content;
 	}
 }
