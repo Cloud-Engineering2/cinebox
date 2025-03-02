@@ -58,34 +58,4 @@ public class ReviewController {
 		reviewService.deleteReview(reviewId);
 		return ResponseEntity.noContent().build();
 	}
-
-//	@PostMapping
-//	public ResponseEntity<ReviewResponse> insertReview(
-//			@PathVariable(name = "movieId") Long movieId,
-//			@RequestBody ReviewRequest reviewRequest) {
-//		ReviewResponse newReview = reviewService.insertReview(reviewRequest);
-//		return ResponseEntity.ok().body(newReview);
-//	}
-//
-//	@GetMapping
-//	public ResponseEntity<List<ReviewResponse>> selectReviewByMovieId(
-//			@PathVariable(name = "movieId") Long movieId) {
-//		List<ReviewResponse> reviews = reviewService.selectReviewByMovieId(movieId);
-//		return ResponseEntity.ok().body(reviews);
-//	}
-//
-//	@PutMapping("/{reviewId}")
-//	public ResponseEntity<String> updateReview(
-//			@PathVariable(name = "reviewId") Long reviewId,
-//			@RequestBody ReviewRequest reviewRequest) {
-//		reviewService.updateReview(reviewRequest);
-//		return ResponseEntity.ok().body("Success Update");
-//	}
-//
-//	@DeleteMapping("/{reviewId}")
-//	public ResponseEntity<String> deleteReview(
-//			@PathVariable(name = "reviewId") Long reviewId) {
-//		reviewService.deleteReview(reviewId);
-//		return ResponseEntity.ok().body("Success Delete");
-//	}
 }
