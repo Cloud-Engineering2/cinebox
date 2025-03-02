@@ -11,6 +11,7 @@ import lombok.Getter;
 public class ReviewResponse {
 	private Long reviewId;
 	private Long movieId;
+	private String movieTitle;
 	private Long userId;
 	private String identifier;
 	private int rating;
@@ -21,6 +22,7 @@ public class ReviewResponse {
 		return new ReviewResponse (
 				review.getReviewId(),
 				review.getMovie().getMovieId(),
+				review.getMovie().getTitle(),
 				review.getUser().getUserId(),
 				review.getUser().getIdentifier(),
 				review.getRating(),
