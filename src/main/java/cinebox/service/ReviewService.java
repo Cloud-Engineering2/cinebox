@@ -1,5 +1,7 @@
 package cinebox.service;
 
+import java.util.List;
+
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 
@@ -10,5 +12,8 @@ public interface ReviewService {
 
 	// 리뷰 수정
 	ReviewResponse updateReview(Long reviewId, ReviewRequest request);
+
+	// 특정 영화 리뷰 목록 조회
+	List<ReviewResponse> getReviewsByMovieId(Long movieId);
 
 }

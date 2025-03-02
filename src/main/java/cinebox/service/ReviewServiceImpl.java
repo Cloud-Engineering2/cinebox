@@ -1,5 +1,8 @@
 package cinebox.service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +40,7 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
+	@Transactional
 	public ReviewResponse updateReview(Long reviewId, ReviewRequest request) {
 		Review review = reviewRepository.findById(reviewId)
 				.orElseThrow(() -> NotFoundReviewException.EXCEPTION);
@@ -51,6 +55,18 @@ public class ReviewServiceImpl implements ReviewService {
 		Review savedReview = reviewRepository.save(review);
 		
 		return ReviewResponse.from(savedReview);
+	}
+
+	@Override
+	@Transactional
+	public List<ReviewResponse> getReviewsByMovieId(Long movieId) {
+		Movie movie = movieRepository.findById(movieId)
+				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		List<Review> reviews = movie.getReviews();
+		
+		return reviews.stream()
+				.map(ReviewResponse::from)
+				.collect(Collectors.toList());
 	}
 
 //	public ReviewResponse insertReview(ReviewRequest reviewRequest) {
