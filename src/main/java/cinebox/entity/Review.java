@@ -34,7 +34,7 @@ public class Review extends BaseTimeEntity {
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	private int rating;
+	private Integer rating;
 
 	private String content;
 	
@@ -45,5 +45,10 @@ public class Review extends BaseTimeEntity {
 				.rating(request.rating())
 				.content(request.content())
 				.build();
+	}
+	
+	public void updateReview(ReviewRequest request) {
+		this.rating = request.rating() != null ? request.rating() : this.rating;
+		this.content = request.content() != null ? request.content() : this.content;
 	}
 }

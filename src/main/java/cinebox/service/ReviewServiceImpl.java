@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.movie.NotFoundMovieException;
+import cinebox.common.exception.review.NotFoundReviewException;
+import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 import cinebox.entity.Movie;
@@ -32,6 +34,23 @@ public class ReviewServiceImpl implements ReviewService {
 		reviewRepository.save(review);
 		
 		return ReviewResponse.from(review);
+	}
+
+	@Override
+	public ReviewResponse updateReview(Long reviewId, ReviewRequest request) {
+		Review review = reviewRepository.findById(reviewId)
+				.orElseThrow(() -> NotFoundReviewException.EXCEPTION);
+		User currentUser = SecurityUtil.getCurrentUser();
+		User reviewUser = review.getUser();
+		
+		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(reviewUser.getUserId())) {
+			throw NoAuthorizedUserException.EXCEPTION;
+		}
+		
+		review.updateReview(request);
+		Review savedReview = reviewRepository.save(review);
+		
+		return ReviewResponse.from(savedReview);
 	}
 
 //	public ReviewResponse insertReview(ReviewRequest reviewRequest) {

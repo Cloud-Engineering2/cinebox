@@ -11,7 +11,7 @@ public record ReviewRequest(
 		@NotNull(groups = CreateGroup.class, message = "평점을 입력하세요")
 		@Min(groups = {CreateGroup.class, UpdateGroup.class}, value = 1, message = "0점 이상의 점수를 입력하세요.")
 		@Max(groups = {CreateGroup.class, UpdateGroup.class}, value = 5, message = "5점 이하의 점수를 입력하세요.")
-		int rating,
+		Integer rating,
 		
 		@NotNull(groups = CreateGroup.class, message = "리뷰 내용을 입력하세요.")
 		@NotEmpty(groups = {CreateGroup.class, UpdateGroup.class}, message = "리뷰 내용을 입력하세요.")

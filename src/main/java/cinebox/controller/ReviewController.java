@@ -4,6 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 import cinebox.dto.validation.CreateGroup;
+import cinebox.dto.validation.UpdateGroup;
 import cinebox.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 
@@ -20,11 +22,21 @@ import lombok.RequiredArgsConstructor;
 public class ReviewController {
 	private final ReviewService reviewService;
 	
+	// 리뷰 생성
 	@PostMapping("/movies/{movieId}/reviews")
 	public ResponseEntity<ReviewResponse> createReview(
 			@PathVariable("movieId") Long movieId,
 			@Validated(CreateGroup.class) @RequestBody ReviewRequest request) {
 		ReviewResponse response = reviewService.createReview(movieId, request);
+		return ResponseEntity.ok(response);
+	}
+	
+	// 리뷰 수정
+	@PutMapping("/reivews/{reviewId}")
+	public ResponseEntity<ReviewResponse> updateReview(
+			@PathVariable("reviewId") Long reviewId,
+			@Validated(UpdateGroup.class) @RequestBody ReviewRequest request) {
+		ReviewResponse response = reviewService.updateReview(reviewId, request);
 		return ResponseEntity.ok(response);
 	}
 
