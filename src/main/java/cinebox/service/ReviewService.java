@@ -19,4 +19,10 @@ public interface ReviewService {
 	// 영화 삭제
 	void deleteReview(Long reviewId);
 
+	// 본인 리뷰 조회
+	List<ReviewResponse> getMyReviews();
+
+	// 특정 유저의 리뷰 목록 조회
+	List<ReviewResponse> getReviewsByUser(Long userId);
+
 }

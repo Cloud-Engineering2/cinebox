@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.common.exception.review.NotFoundReviewException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
+import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.dto.request.ReviewRequest;
 import cinebox.dto.response.ReviewResponse;
 import cinebox.entity.Movie;
@@ -16,13 +17,14 @@ import cinebox.entity.Review;
 import cinebox.entity.User;
 import cinebox.repository.MovieRepository;
 import cinebox.repository.ReviewRepository;
+import cinebox.repository.UserRepository;
 import cinebox.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
-	private final UserService userService;
+	private final UserRepository userRepository;
 	private final MovieRepository movieRepository;
 	private final ReviewRepository reviewRepository;
 
@@ -58,7 +60,7 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(readOnly = true)
 	public List<ReviewResponse> getReviewsByMovieId(Long movieId) {
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
@@ -70,6 +72,7 @@ public class ReviewServiceImpl implements ReviewService {
 	}
 
 	@Override
+	@Transactional
 	public void deleteReview(Long reviewId) {
 		Review review = reviewRepository.findById(reviewId)
 				.orElseThrow(() -> NotFoundReviewException.EXCEPTION);
@@ -81,5 +84,30 @@ public class ReviewServiceImpl implements ReviewService {
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
 		reviewRepository.delete(review);
+	}
+
+	// 본인 리뷰 조회
+	@Override
+	@Transactional(readOnly = true)
+	public List<ReviewResponse> getMyReviews() {
+		User currentUser = SecurityUtil.getCurrentUser();
+		
+		return getReviewsByUserId(currentUser.getUserId());
+	}
+
+	// 특정 유저의 리뷰 목록 조회
+	@Override
+	@Transactional(readOnly = true)
+	public List<ReviewResponse> getReviewsByUser(Long userId) {
+		User user = userRepository.findById(userId)
+				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+		return getReviewsByUserId(user.getUserId());
+	}
+
+	private List<ReviewResponse> getReviewsByUserId(Long userId) {
+		List<Review> reviews = reviewRepository.findByUserUserId(userId);
+		return reviews.stream()
+				.map(ReviewResponse::from)
+				.collect(Collectors.toList());
 	}
 }
