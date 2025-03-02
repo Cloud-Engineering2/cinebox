@@ -37,14 +37,13 @@ public class Review extends BaseTimeEntity {
 	private int rating;
 
 	private String content;
-
-	public static Review of(Movie movie, User user, ReviewRequest reviewRequest ) {
-		return new Review (
-				reviewRequest.getReviewId(),
-				movie,
-				user,
-				reviewRequest.getRating(),
-				reviewRequest.getContent()
-				);
+	
+	public static Review createReview(Movie movie, User user, ReviewRequest request ) {
+		return Review.builder()
+				.movie(movie)
+				.user(user)
+				.rating(request.rating())
+				.content(request.content())
+				.build();
 	}
 }
