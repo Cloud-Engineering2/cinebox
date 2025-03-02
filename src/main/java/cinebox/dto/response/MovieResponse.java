@@ -18,7 +18,8 @@ public record MovieResponse (
 		LocalDate releaseDate,
 		Integer runtime,
 		String ratingGrade,
-		MovieStatus status
+		MovieStatus status,
+		Integer likeCount
 ) {
 	public static MovieResponse from(Movie movie) {
     	return new MovieResponse(
@@ -32,6 +33,7 @@ public record MovieResponse (
     			movie.getReleaseDate(),
     			movie.getRunTime(),
     			movie.getRatingGrade(),
-    			movie.getStatus());
+    			movie.getStatus(),
+    			movie.getLikeCount());
     }
 }

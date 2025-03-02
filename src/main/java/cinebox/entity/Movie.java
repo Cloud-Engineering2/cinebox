@@ -6,6 +6,7 @@ import java.util.List;
 
 import cinebox.common.enums.MovieStatus;
 import cinebox.dto.request.MovieRequest;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -66,6 +67,12 @@ public class Movie extends BaseTimeEntity {
 	@OneToMany(mappedBy = "movie")
 	private List<Review> reviews = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MovieLike> likes = new ArrayList<>();
+	
+	@Column(name = "like_count", nullable = false)
+	private Integer likeCount = 0;
+	
 	public static Movie register(MovieRequest request, String posterImageUrl) {
 		return Movie.builder()
 				.title(request.title())
@@ -96,5 +103,13 @@ public class Movie extends BaseTimeEntity {
 	
 	public void updateMovieStatus(MovieStatus status) {
 		this.status = status;
+	}
+	
+	public void incrementLikeCount() {
+		this.likeCount = (this.likeCount == null ? 0 : this.likeCount) + 1;
+	}
+	
+	public void decrementLikeCount() {
+		this.likeCount = (this.likeCount == null ? 0 : this.likeCount) - 1;
 	}
 }

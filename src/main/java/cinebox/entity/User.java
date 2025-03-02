@@ -9,6 +9,7 @@ import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
 import cinebox.dto.request.UserRequest;
 import cinebox.dto.response.UserResponse;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -71,6 +72,9 @@ public class User extends BaseTimeEntity {
 	@OneToMany(mappedBy = "user")
 	private List<Review> reviews = new ArrayList<>();
 	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private List<MovieLike> movieLikes = new ArrayList<>();
+	
     @Column(name = "is_deleted", nullable = false, columnDefinition = "TINYINT(1) DEFAULT 0")
     private boolean isDeleted = false;
 
@@ -93,6 +97,7 @@ public class User extends BaseTimeEntity {
         		userDTO.getRole(),
         		null,
         		null,
+        		null,
         	    false
     		);
 	}
@@ -108,6 +113,7 @@ public class User extends BaseTimeEntity {
         		userDTO.getAge(),
         		userDTO.getGender(),
         		userDTO.getRole(),
+        		null,
         		null,
         		null,
         		true
