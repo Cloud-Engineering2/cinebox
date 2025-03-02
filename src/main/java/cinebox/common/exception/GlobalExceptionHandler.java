@@ -35,17 +35,19 @@ public class GlobalExceptionHandler {
         logger.warn("Validation error: {}", e.getMessage());
         
         StringBuilder errorMessageBuilder = new StringBuilder();
-        e.getBindingResult().getFieldErrors().forEach(error -> {
-        	errorMessageBuilder.append(error.getField()).append(", ");
+        e.getBindingResult().getFieldErrors().forEach(error -> { 
+        	errorMessageBuilder
+	        	.append(error.getField())
+	        	.append(" : ")
+	        	.append(error.getDefaultMessage())
+	        	.append(" ");
         });
         
         if (errorMessageBuilder.length() > 0) {
-        	errorMessageBuilder.setLength(errorMessageBuilder.length() - 2);
+        	errorMessageBuilder.setLength(errorMessageBuilder.length() - 1);
         }
         
-        String detailedMessage = errorMessageBuilder.toString()
-        		+ ": " 
-        		+ ExceptionMessage.VALIDATION_ERROR.getMessage();
+        String detailedMessage = errorMessageBuilder.toString();
         
         ErrorResponse errorResponse = ErrorResponse.from(
                 ExceptionMessage.VALIDATION_ERROR.getStatus().value(),
