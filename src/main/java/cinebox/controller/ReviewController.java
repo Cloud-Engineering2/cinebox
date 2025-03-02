@@ -50,6 +50,14 @@ public class ReviewController {
 		List<ReviewResponse> responses = reviewService.getReviewsByMovieId(movieId);
 		return ResponseEntity.ok(responses);
 	}
+	
+	// 리뷰 삭제
+	@GetMapping("/reviews/{reviewId}")
+	public ResponseEntity<Void> deleteReviewById(
+			@PathVariable("reviewId") Long reviewId) {
+		reviewService.deleteReview(reviewId);
+		return ResponseEntity.noContent().build();
+	}
 
 //	@PostMapping
 //	public ResponseEntity<ReviewResponse> insertReview(

@@ -16,4 +16,7 @@ public interface ReviewService {
 	// 특정 영화 리뷰 목록 조회
 	List<ReviewResponse> getReviewsByMovieId(Long movieId);
 
+	// 영화 삭제
+	void deleteReview(Long reviewId);
+
 }

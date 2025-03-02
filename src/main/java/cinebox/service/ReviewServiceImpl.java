@@ -69,6 +69,20 @@ public class ReviewServiceImpl implements ReviewService {
 				.collect(Collectors.toList());
 	}
 
+	@Override
+	public void deleteReview(Long reviewId) {
+		Review review = reviewRepository.findById(reviewId)
+				.orElseThrow(() -> NotFoundReviewException.EXCEPTION);
+		
+		User currentUser = SecurityUtil.getCurrentUser();
+		User reviewUser = review.getUser();
+		
+		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(reviewUser.getUserId())) {
+			throw NoAuthorizedUserException.EXCEPTION;
+		}
+		reviewRepository.delete(review);
+	}
+
 //	public ReviewResponse insertReview(ReviewRequest reviewRequest) {
 //		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //		PrincipalDetails userDetails = (PrincipalDetails) authentication.getPrincipal();
