@@ -22,4 +22,6 @@ public interface ScreenRepository extends JpaRepository<Screen, Long> {
 	List<Screen> findByMovie_MovieIdAndStartTimeBetween(Long movieId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
 	List<Screen> findByMovie_MovieIdAndStartTimeBetweenOrderByStartTimeAsc(Long movieId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+	List<Screen> findByStartTimeAfter(LocalDateTime datetime);
 }

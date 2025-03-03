@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -144,6 +145,7 @@ public class ScreenServiceImpl implements ScreenService {
 				.collect(Collectors.toList());
 	}
 
+	// 모든 상영 정보 조회 (날짜 내림차순)
 	@Override
 	@Transactional(readOnly = true)
 	public List<DateScreenResponse> getAllScreens() {
@@ -155,6 +157,25 @@ public class ScreenServiceImpl implements ScreenService {
 		
 		Map<LocalDate, List<ScreenResponse>> grouped = screenResponses.stream()
 				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate()));
+		
+		return grouped.entrySet().stream()
+				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toList());
+	}
+
+	// 상영될 모든 상영 정보 조회 (날짜 오름차순)
+	@Override
+	@Transactional(readOnly = true)
+	public List<DateScreenResponse> getUpcomingScreens() {
+		LocalDateTime now = LocalDateTime.now();
+		List<Screen> screens = screenRepository.findByStartTimeAfter(now);
+		
+		List<ScreenResponse> screenResponses = screens.stream()
+				.map(ScreenResponse::from)
+				.collect(Collectors.toList());
+		
+		Map<LocalDate, List<ScreenResponse>> grouped = new TreeMap<>(screenResponses.stream()
+				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate())));
 		
 		return grouped.entrySet().stream()
 				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))

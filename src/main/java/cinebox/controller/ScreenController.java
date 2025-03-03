@@ -81,4 +81,12 @@ public class ScreenController {
     	List<DateScreenResponse> responses = screenService.getAllScreens();
     	return ResponseEntity.ok(responses);
     }
+    
+    // 상영될 모든 상영 정보 조회
+    @GetMapping("/screens/upcoming")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<DateScreenResponse>> getUpcomingScreens() {
+    	List<DateScreenResponse> responses = screenService.getUpcomingScreens();
+    	return ResponseEntity.ok(responses);
+    }
 }
