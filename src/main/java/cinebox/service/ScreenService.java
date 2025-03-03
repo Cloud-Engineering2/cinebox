@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import cinebox.dto.request.ScreenRequest;
+import cinebox.dto.response.AuditoriumScreenResponse;
 import cinebox.dto.response.ScreenResponse;
 
 public interface ScreenService {
@@ -20,5 +21,5 @@ public interface ScreenService {
 	List<LocalDate> getAvailableDatesForMovie(Long movieId);
 	
     // 특정 영화의 날짜별 상영 정보 조회
-	List<ScreenResponse> getScreensByDate(Long movieId, LocalDate date);
+	List<AuditoriumScreenResponse> getScreensByDate(Long movieId, LocalDate date);
 }

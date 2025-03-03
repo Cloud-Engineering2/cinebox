@@ -3,6 +3,7 @@ package cinebox.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.common.exception.screen.ScreenTimeConflictException;
 import cinebox.dto.request.ScreenRequest;
+import cinebox.dto.response.AuditoriumScreenResponse;
 import cinebox.dto.response.ScreenResponse;
 import cinebox.entity.Auditorium;
 import cinebox.entity.Movie;
@@ -120,7 +122,7 @@ public class ScreenServiceImpl implements ScreenService {
 	// 날짜별 상영 정보 조회
 	@Override
 	@Transactional(readOnly = true)
-	public List<ScreenResponse> getScreensByDate(Long movieId, LocalDate date) {
+	public List<AuditoriumScreenResponse> getScreensByDate(Long movieId, LocalDate date) {
 		movieRepository.findById(movieId).orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 
 		LocalDateTime startOfDay = date.atStartOfDay();
@@ -129,8 +131,15 @@ public class ScreenServiceImpl implements ScreenService {
 		List<Screen> screens = screenRepository
 				.findByMovie_MovieIdAndStartTimeBetweenOrderByStartTimeAsc(movieId, startOfDay, endOfDay);
 
-		return screens.stream()
+		List<ScreenResponse> screenResponses =  screens.stream()
 				.map(ScreenResponse::from)
+				.collect(Collectors.toList());
+		
+		Map<Long, List<ScreenResponse>> grouped = screenResponses.stream()
+				.collect(Collectors.groupingBy(ScreenResponse::auditoriumId));
+		
+		return grouped.values().stream()
+				.map(AuditoriumScreenResponse::from)
 				.collect(Collectors.toList());
 	}
 }

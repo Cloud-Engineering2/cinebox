@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.ScreenRequest;
+import cinebox.dto.response.AuditoriumScreenResponse;
 import cinebox.dto.response.ScreenResponse;
 import cinebox.dto.validation.CreateGroup;
 import cinebox.service.ScreenService;
@@ -65,10 +66,10 @@ public class ScreenController {
     
     // 특정 영화의 날짜별 상영 정보 조회
     @GetMapping("/movies/{movieId}/screens")
-    public ResponseEntity<List<ScreenResponse>> getScreensByDate(
+    public ResponseEntity<List<AuditoriumScreenResponse>> getScreensByDate(
     		@PathVariable("movieId") Long movieId,
     		@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-    	List<ScreenResponse> responses = screenService.getScreensByDate(movieId, date);
+    	List<AuditoriumScreenResponse> responses = screenService.getScreensByDate(movieId, date);
 		return ResponseEntity.ok(responses);
 	}
 }
