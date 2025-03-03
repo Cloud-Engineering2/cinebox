@@ -181,4 +181,23 @@ public class ScreenServiceImpl implements ScreenService {
 				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toList());
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<DateScreenResponse> getScreensByMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		List<Screen> screens = screenRepository.findByMovie(movie);
+		
+		List<ScreenResponse> screenResponses = screens.stream()
+				.map(ScreenResponse::from)
+				.collect(Collectors.toList());
+		
+		Map<LocalDate, List<ScreenResponse>> grouped = screenResponses.stream()
+				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate()));
+		
+		return grouped.entrySet().stream()
+				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toList());
+	}
 }

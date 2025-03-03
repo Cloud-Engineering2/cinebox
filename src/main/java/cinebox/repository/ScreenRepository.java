@@ -1,6 +1,7 @@
 package cinebox.repository;
 
 import cinebox.entity.Auditorium;
+import cinebox.entity.Movie;
 import cinebox.entity.Screen;
 
 import java.time.LocalDateTime;
@@ -24,4 +25,6 @@ public interface ScreenRepository extends JpaRepository<Screen, Long> {
 	List<Screen> findByMovie_MovieIdAndStartTimeBetweenOrderByStartTimeAsc(Long movieId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 
 	List<Screen> findByStartTimeAfter(LocalDateTime datetime);
+
+	List<Screen> findByMovie(Movie movie);
 }
