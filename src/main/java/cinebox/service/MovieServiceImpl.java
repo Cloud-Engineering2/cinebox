@@ -106,7 +106,7 @@ public class MovieServiceImpl implements MovieService {
 		LocalDateTime startOfDay = date.atStartOfDay();
 		LocalDateTime endOfDay = date.plusDays(1).atStartOfDay();
 		
-		List<Screen> screens = screenRepository.findByMovie_MovieIdAndStartTimeBetween(movieId, startOfDay, endOfDay);
+		List<Screen> screens = screenRepository.findByMovie_MovieIdAndStartTimeBetweenOrderByStartTimeAsc(movieId, startOfDay, endOfDay);
 		return screens.stream()
 				.map(ScreenResponse::from)
 				.collect(Collectors.toList());

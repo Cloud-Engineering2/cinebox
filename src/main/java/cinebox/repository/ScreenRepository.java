@@ -20,4 +20,6 @@ public interface ScreenRepository extends JpaRepository<Screen, Long> {
 
 	// 특정 날짜 하루동안의 상영 정보 조회
 	List<Screen> findByMovie_MovieIdAndStartTimeBetween(Long movieId, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+	List<Screen> findByMovie_MovieIdAndStartTimeBetweenOrderByStartTimeAsc(Long movieId, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }
