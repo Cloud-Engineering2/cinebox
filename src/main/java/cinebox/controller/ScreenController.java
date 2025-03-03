@@ -35,7 +35,8 @@ public class ScreenController {
     // 상영 정보 추가
     @PostMapping("/screens")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<ScreenResponse> createScreen(@RequestBody @Validated(CreateGroup.class) ScreenRequest request) {
+    public ResponseEntity<ScreenResponse> createScreen(
+    		@RequestBody @Validated(CreateGroup.class) ScreenRequest request) {
         ScreenResponse responseDto = screenService.createScreen(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
     }
