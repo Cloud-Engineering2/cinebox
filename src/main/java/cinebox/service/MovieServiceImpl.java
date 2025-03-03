@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.MovieStatus;
 import cinebox.common.exception.movie.DuplicatedMovieException;
@@ -25,6 +26,7 @@ public class MovieServiceImpl implements MovieService {
 	
 	// 영화 등록(생성)
 	@Override
+	@Transactional
 	public MovieResponse registerMovie(MovieRequest request) {
 		if (movieRepository.existsByTitleAndReleaseDate(request.title(), request.releaseDate())) {
 			throw DuplicatedMovieException.EXCEPTION;
@@ -37,6 +39,7 @@ public class MovieServiceImpl implements MovieService {
 
 	// 영화 목록 조회 (정렬, 검색)
 	@Override
+	@Transactional(readOnly = true)
 	public List<MovieResponse> getAllMovies(String sortBy, String searchText) {
 		List<Movie> movies;
 		
@@ -63,6 +66,7 @@ public class MovieServiceImpl implements MovieService {
 
 	// 특정 영화 조회
 	@Override
+	@Transactional(readOnly = true)
 	public MovieResponse getMovie(Long movieId) {
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
@@ -76,6 +80,7 @@ public class MovieServiceImpl implements MovieService {
 	
 	// 영화 정보 수정
 	@Override
+	@Transactional
 	public MovieResponse updateMovie(Long movieId, MovieRequest request) {
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
@@ -88,6 +93,7 @@ public class MovieServiceImpl implements MovieService {
 
 	// 영화 삭제
 	@Override
+	@Transactional
 	public void deleteMovie(Long movieId) {
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
