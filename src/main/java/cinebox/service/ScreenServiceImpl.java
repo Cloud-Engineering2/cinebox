@@ -16,6 +16,7 @@ import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.common.exception.screen.ScreenTimeConflictException;
 import cinebox.dto.request.ScreenRequest;
 import cinebox.dto.response.AuditoriumScreenResponse;
+import cinebox.dto.response.DateScreenResponse;
 import cinebox.dto.response.ScreenResponse;
 import cinebox.entity.Auditorium;
 import cinebox.entity.Movie;
@@ -131,7 +132,7 @@ public class ScreenServiceImpl implements ScreenService {
 		List<Screen> screens = screenRepository
 				.findByMovie_MovieIdAndStartTimeBetweenOrderByStartTimeAsc(movieId, startOfDay, endOfDay);
 
-		List<ScreenResponse> screenResponses =  screens.stream()
+		List<ScreenResponse> screenResponses = screens.stream()
 				.map(ScreenResponse::from)
 				.collect(Collectors.toList());
 		
@@ -140,6 +141,23 @@ public class ScreenServiceImpl implements ScreenService {
 		
 		return grouped.values().stream()
 				.map(AuditoriumScreenResponse::from)
+				.collect(Collectors.toList());
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public List<DateScreenResponse> getAllScreens() {
+		List<Screen> screens = screenRepository.findAll();
+		
+		List<ScreenResponse> screenResponses = screens.stream()
+				.map(ScreenResponse::from)
+				.collect(Collectors.toList());
+		
+		Map<LocalDate, List<ScreenResponse>> grouped = screenResponses.stream()
+				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate()));
+		
+		return grouped.entrySet().stream()
+				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toList());
 	}
 }

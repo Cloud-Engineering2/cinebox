@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.ScreenRequest;
 import cinebox.dto.response.AuditoriumScreenResponse;
+import cinebox.dto.response.DateScreenResponse;
 import cinebox.dto.response.ScreenResponse;
 import cinebox.dto.validation.CreateGroup;
 import cinebox.service.ScreenService;
@@ -72,4 +73,12 @@ public class ScreenController {
     	List<AuditoriumScreenResponse> responses = screenService.getScreensByDate(movieId, date);
 		return ResponseEntity.ok(responses);
 	}
+    
+    // 모든 상영 정보 조회
+    @GetMapping("/screens")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<DateScreenResponse>> getAllScreens() {
+    	List<DateScreenResponse> responses = screenService.getAllScreens();
+    	return ResponseEntity.ok(responses);
+    }
 }
