@@ -151,16 +151,7 @@ public class ScreenServiceImpl implements ScreenService {
 	public List<DateScreenResponse> getAllScreens() {
 		List<Screen> screens = screenRepository.findAll();
 		
-		List<ScreenResponse> screenResponses = screens.stream()
-				.map(ScreenResponse::from)
-				.collect(Collectors.toList());
-		
-		Map<LocalDate, List<ScreenResponse>> grouped = screenResponses.stream()
-				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate()));
-		
-		return grouped.entrySet().stream()
-				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList());
+		return groupScreensByDateDesc(screens);
 	}
 
 	// 상영될 모든 상영 정보 조회 (날짜 오름차순)
@@ -170,18 +161,10 @@ public class ScreenServiceImpl implements ScreenService {
 		LocalDateTime now = LocalDateTime.now();
 		List<Screen> screens = screenRepository.findByStartTimeAfter(now);
 		
-		List<ScreenResponse> screenResponses = screens.stream()
-				.map(ScreenResponse::from)
-				.collect(Collectors.toList());
-		
-		Map<LocalDate, List<ScreenResponse>> grouped = new TreeMap<>(screenResponses.stream()
-				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate())));
-		
-		return grouped.entrySet().stream()
-				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
-				.collect(Collectors.toList());
+		return groupScreensByDateAsc(screens);
 	}
 
+	// 영화별 상영 정보 목록 조회
 	@Override
 	@Transactional(readOnly = true)
 	public List<DateScreenResponse> getScreensByMovie(Long movieId) {
@@ -189,12 +172,31 @@ public class ScreenServiceImpl implements ScreenService {
 		
 		List<Screen> screens = screenRepository.findByMovie(movie);
 		
+		return groupScreensByDateAsc(screens);
+	}
+
+	// 날짜별 상영 정보 그룹화 (내림차순)
+	private List<DateScreenResponse> groupScreensByDateDesc(List<Screen> screens) {
 		List<ScreenResponse> screenResponses = screens.stream()
 				.map(ScreenResponse::from)
 				.collect(Collectors.toList());
 		
 		Map<LocalDate, List<ScreenResponse>> grouped = screenResponses.stream()
 				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate()));
+		
+		return grouped.entrySet().stream()
+				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
+				.collect(Collectors.toList());
+	}
+	
+	// 날짜별 상영 정보 그룹화 (오름차순)
+	private List<DateScreenResponse> groupScreensByDateAsc(List<Screen> screens) {
+		List<ScreenResponse> screenResponses = screens.stream()
+				.map(ScreenResponse::from)
+				.collect(Collectors.toList());
+		
+		Map<LocalDate, List<ScreenResponse>> grouped = new TreeMap<>(screenResponses.stream()
+				.collect(Collectors.groupingBy(response -> response.startTime().toLocalDate())));
 		
 		return grouped.entrySet().stream()
 				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
