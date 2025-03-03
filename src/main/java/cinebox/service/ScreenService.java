@@ -30,16 +30,16 @@ public class ScreenService {
 	// 상영 정보 추가
 	@Transactional
 	public ScreenResponse createScreen(ScreenRequest request) {
-		Movie movie = movieRepository.findById(request.getMovieId())
+		Movie movie = movieRepository.findById(request.movieId())
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 
-		Auditorium auditorium = auditoriumRepository.findById(request.getAuditoriumId())
+		Auditorium auditorium = auditoriumRepository.findById(request.auditoriumId())
 				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
 
-		LocalDateTime endTime = request.getStartTime().plusMinutes(movie.getRunTime() + 10); // 🎯 endTime 자동 계산
+		LocalDateTime endTime = request.startTime().plusMinutes(movie.getRunTime() + 10); // 🎯 endTime 자동 계산
 		
 		List<Screen> overlappingScreens = screenRepository
-				.findByAuditoriumAndStartTimeLessThanAndEndTimeGreaterThan(auditorium, endTime, request.getStartTime());
+				.findByAuditoriumAndStartTimeLessThanAndEndTimeGreaterThan(auditorium, endTime, request.startTime());
 		if(!overlappingScreens.isEmpty()) {
 			throw ScreenTimeConflictException.EXCEPTION;
 		}
@@ -47,13 +47,13 @@ public class ScreenService {
 		Screen screen = Screen.builder()
 				.movie(movie)
 				.auditorium(auditorium)
-				.startTime(request.getStartTime())
+				.startTime(request.startTime())
 				.endTime(endTime)
-				.price(request.getPrice())
+				.price(request.price())
 				.build();
 
 		screenRepository.save(screen);
-		return new ScreenResponse(screen);
+		return ScreenResponse.from(screen);
 	}
 
 	// 상영 정보 수정
@@ -61,17 +61,17 @@ public class ScreenService {
 	public ScreenResponse updateScreen(Long screenId, ScreenRequest request) {
 		Screen screen = screenRepository.findById(screenId).orElseThrow(() -> NotFoundScreenException.EXCEPTION);
 
-		Movie movie = request.getMovieId() != null
-				? movieRepository.findById(request.getMovieId())
+		Movie movie = request.movieId() != null
+				? movieRepository.findById(request.movieId())
 						.orElseThrow(() -> NotFoundMovieException.EXCEPTION)
 				: screen.getMovie();
 		
-		Auditorium auditorium = request.getAuditoriumId() != null 
-	            ? auditoriumRepository.findById(request.getAuditoriumId())
+		Auditorium auditorium = request.auditoriumId() != null 
+	            ? auditoriumRepository.findById(request.auditoriumId())
 						.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION)
 				: screen.getAuditorium();
 		
-		LocalDateTime startTime = request.getStartTime() != null ? request.getStartTime() : screen.getStartTime();
+		LocalDateTime startTime = request.startTime() != null ? request.startTime() : screen.getStartTime();
 		LocalDateTime endTime = startTime.plusMinutes(movie.getRunTime() + 10);
 		
 		List<Screen> overlappingScreens = screenRepository
@@ -80,8 +80,8 @@ public class ScreenService {
             throw ScreenTimeConflictException.EXCEPTION;
         }
 
-		screen.updateScreen(movie, auditorium, startTime, request.getPrice());
-		return new ScreenResponse(screenRepository.save(screen));
+		screen.updateScreen(movie, auditorium, startTime, request.price());
+		return ScreenResponse.from(screenRepository.save(screen));
 	}
 
 	// 상영 정보 삭제

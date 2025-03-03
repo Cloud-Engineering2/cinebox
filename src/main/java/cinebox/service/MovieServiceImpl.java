@@ -108,7 +108,7 @@ public class MovieServiceImpl implements MovieService {
 		
 		List<Screen> screens = screenRepository.findByMovie_MovieIdAndStartTimeBetween(movieId, startOfDay, endOfDay);
 		return screens.stream()
-				.map(ScreenResponse::new)
+				.map(ScreenResponse::from)
 				.collect(Collectors.toList());
 	}
 	
