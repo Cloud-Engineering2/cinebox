@@ -1,9 +1,7 @@
 package cinebox.controller;
 
-import java.time.LocalDate;
 import java.util.List;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.dto.request.MovieRequest;
 import cinebox.dto.response.MovieResponse;
-import cinebox.dto.response.ScreenResponse;
 import cinebox.dto.validation.CreateGroup;
 import cinebox.service.MovieService;
 import lombok.RequiredArgsConstructor;
@@ -52,13 +49,6 @@ public class MovieController {
 		return ResponseEntity.ok(movieService.getMovie(movieId));
 	}
 	
-	// 특정 영화 상영 날짜 목록 조회
-	@GetMapping("/{movieId}/dates")
-	public ResponseEntity<List<LocalDate>> getAvailableDatesForMovie(@PathVariable("movieId") Long movieId) {
-		List<LocalDate> dates = movieService.getAvailableDatesForMovie(movieId);
-		return ResponseEntity.ok(dates);
-	}
-	
 	//TODO: s3 연동하여 이미지 처리
 	// 영화 정보 수정
 	@PutMapping("/{movieId}")
@@ -75,14 +65,5 @@ public class MovieController {
 	public ResponseEntity<Void> deleteMovie(@PathVariable("movieId") Long movieId) {
 		movieService.deleteMovie(movieId);
 		return ResponseEntity.noContent().build();
-	}
-    
-    // 특정 영화의 날짜별 상영 정보 조회
-    @GetMapping("/{movieId}/screens")
-    public ResponseEntity<List<ScreenResponse>> getScreensByDate(
-    		@PathVariable("movieId") Long movieId,
-    		@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-    	List<ScreenResponse> responses = movieService.getScreensByDate(movieId, date);
-		return ResponseEntity.ok(responses);
 	}
 }
