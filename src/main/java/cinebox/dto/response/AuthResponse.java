@@ -13,6 +13,9 @@ public class AuthResponse {
 //    private String role;
 //    private String token;
 	
+	private Long userId;
+	private String role;
+	private String identifier;
 	private String accessToken;
 	private String refreshToken;
 }
