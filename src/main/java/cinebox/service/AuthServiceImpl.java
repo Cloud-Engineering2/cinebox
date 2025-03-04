@@ -1,5 +1,7 @@
 package cinebox.service;
 
+import java.util.Optional;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -7,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cinebox.common.exception.auth.NotFoundTokenException;
 import cinebox.common.exception.user.DuplicateUserException;
 import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.UserRequest;
@@ -62,8 +65,8 @@ public class AuthServiceImpl implements AuthService {
 		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
 		tokenRedisRepository.save(tokenRedis);
 
-		jwtTokenProvider.saveCookie(response, accessToken);
+		jwtTokenProvider.saveAccessCookie(response, accessToken);
+		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
 		return new AuthResponse(accessToken, refreshToken);
 	}
-
 }

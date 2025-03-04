@@ -12,14 +12,14 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
 public class RedisRepositoryConfig {
 	@Value("${spring.data.redis.host}")
-    private String host;
+	private String host;
 
-    @Value("${spring.data.redis.port}")
-    private int port;
-    
-    @Bean
-    public LettuceConnectionFactory redisConnectionFactory() {
-        RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
-        return new LettuceConnectionFactory(configuration);
-    }
+	@Value("${spring.data.redis.port}")
+	private int port;
+
+	@Bean
+	public LettuceConnectionFactory redisConnectionFactory() {
+		RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
+		return new LettuceConnectionFactory(configuration);
+	}
 }
