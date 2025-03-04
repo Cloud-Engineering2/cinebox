@@ -8,14 +8,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class AuthResponse {
-//	private Long userId;
-//    private String identifier;
-//    private String role;
-//    private String token;
-	
 	private Long userId;
 	private String role;
 	private String identifier;
-	private String accessToken;
-	private String refreshToken;
 }

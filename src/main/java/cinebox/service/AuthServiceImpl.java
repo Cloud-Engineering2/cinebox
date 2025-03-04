@@ -67,6 +67,6 @@ public class AuthServiceImpl implements AuthService {
 
 		jwtTokenProvider.saveAccessCookie(response, accessToken);
 		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
-		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier(), accessToken, refreshToken);
+		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
 	}
 }
