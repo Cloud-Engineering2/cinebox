@@ -13,6 +13,7 @@ import cinebox.dto.response.AuthResponse;
 import cinebox.dto.response.UserResponse;
 import cinebox.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -28,9 +29,11 @@ public class AuthController {
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
-		AuthResponse response = userService.login(authRequest);
-		return ResponseEntity.ok(response);	
+	public ResponseEntity<AuthResponse> login(
+			@RequestBody AuthRequest authRequest,
+			HttpServletResponse response) {
+		AuthResponse authResponse = userService.login(authRequest, response);
+		return ResponseEntity.ok(authResponse);	
 	}
 	
 	@GetMapping("/logout")
