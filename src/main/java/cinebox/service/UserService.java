@@ -3,29 +3,19 @@ package cinebox.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.Role;
-import cinebox.common.exception.user.DuplicateUserException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
-import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.UserRequest;
-import cinebox.dto.response.AuthResponse;
 import cinebox.dto.response.UserResponse;
-import cinebox.entity.TokenRedis;
 import cinebox.entity.User;
-import cinebox.repository.TokenRedisRepository;
 import cinebox.repository.UserRepository;
-import cinebox.security.JwtTokenProvider;
 import cinebox.security.PrincipalDetails;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -33,42 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtTokenProvider jwtTokenProvider;
-	private final AuthenticationManager authenticationManager;
-	private final TokenRedisRepository tokenRedisRepository;
-	
-    public UserResponse signup(UserRequest user) {
-        boolean isDuplicatedIdentifier = userRepository.findByIdentifier(user.getIdentifier()).isPresent();
-        if(isDuplicatedIdentifier) {
-        	throw DuplicateUserException.EXCEPTION;
-        }
-        
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-		User newUser = User.of(user);
-
-		userRepository.save(newUser);
-		return UserResponse.from(newUser);
-	}
-
-    // 유저 인증 (identifier, pw) -> 토큰 생성 (user_id, role)
-    @Transactional
-	public AuthResponse login(AuthRequest authRequest, HttpServletResponse response) {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(authRequest.getIdentifier(), authRequest.getPassword());
-		Authentication authentication = authenticationManager.authenticate(token);
-		
-		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
-		User user = principal.getUser();
-		
-		String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
-		String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
-		
-		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
-		tokenRedisRepository.save(tokenRedis);
-		
-		jwtTokenProvider.saveCookie(response, accessToken);
-		return new AuthResponse(accessToken, refreshToken);
-	}
 
 	// deleted = true 인 경우 조회되지 않는다.
 	public List<UserResponse> getAllUser() {

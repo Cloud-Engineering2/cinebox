@@ -11,7 +11,7 @@ import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.UserRequest;
 import cinebox.dto.response.AuthResponse;
 import cinebox.dto.response.UserResponse;
-import cinebox.service.UserService;
+import cinebox.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -20,11 +20,11 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
-	private final UserService userService;
+	private final AuthService authService;
 	
 	@PostMapping("/signup")
 	public ResponseEntity<UserResponse> signup(@RequestBody UserRequest user) {
-		UserResponse newUser = userService.signup(user);
+		UserResponse newUser = authService.signup(user);
 		return ResponseEntity.ok().body(newUser);
 	}
 	
@@ -32,7 +32,7 @@ public class AuthController {
 	public ResponseEntity<AuthResponse> login(
 			@RequestBody AuthRequest authRequest,
 			HttpServletResponse response) {
-		AuthResponse authResponse = userService.login(authRequest, response);
+		AuthResponse authResponse = authService.login(authRequest, response);
 		return ResponseEntity.ok(authResponse);	
 	}
 	
