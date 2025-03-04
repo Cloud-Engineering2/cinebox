@@ -67,7 +67,7 @@ public class ScreenController {
 	}
     
     // 특정 영화의 날짜별 상영 정보 조회
-    @GetMapping("/movies/{movieId}/screens")
+    @GetMapping("/movies/{movieId}/screens/date")
     public ResponseEntity<List<AuditoriumScreenResponse>> getScreensByDate(
     		@PathVariable("movieId") Long movieId,
     		@RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -88,6 +88,14 @@ public class ScreenController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<DateScreenResponse>> getUpcomingScreens() {
     	List<DateScreenResponse> responses = screenService.getUpcomingScreens();
+    	return ResponseEntity.ok(responses);
+    }
+    
+    // 영화별 상영 정보 목록 조회
+    @GetMapping("/movies/{movieId}/screens")
+    public ResponseEntity<List<DateScreenResponse>> getScreensByMovie(
+    		@PathVariable("movieId") Long movieId) {
+    	List<DateScreenResponse> responses = screenService.getScreensByMovie(movieId);
     	return ResponseEntity.ok(responses);
     }
 }

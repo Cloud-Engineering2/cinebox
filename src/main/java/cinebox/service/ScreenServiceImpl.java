@@ -151,6 +151,32 @@ public class ScreenServiceImpl implements ScreenService {
 	public List<DateScreenResponse> getAllScreens() {
 		List<Screen> screens = screenRepository.findAll();
 		
+		return groupScreensByDateDesc(screens);
+	}
+
+	// 상영될 모든 상영 정보 조회 (날짜 오름차순)
+	@Override
+	@Transactional(readOnly = true)
+	public List<DateScreenResponse> getUpcomingScreens() {
+		LocalDateTime now = LocalDateTime.now();
+		List<Screen> screens = screenRepository.findByStartTimeAfter(now);
+		
+		return groupScreensByDateAsc(screens);
+	}
+
+	// 영화별 상영 정보 목록 조회
+	@Override
+	@Transactional(readOnly = true)
+	public List<DateScreenResponse> getScreensByMovie(Long movieId) {
+		Movie movie = movieRepository.findById(movieId).orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+		
+		List<Screen> screens = screenRepository.findByMovie(movie);
+		
+		return groupScreensByDateAsc(screens);
+	}
+
+	// 날짜별 상영 정보 그룹화 (내림차순)
+	private List<DateScreenResponse> groupScreensByDateDesc(List<Screen> screens) {
 		List<ScreenResponse> screenResponses = screens.stream()
 				.map(ScreenResponse::from)
 				.collect(Collectors.toList());
@@ -162,14 +188,9 @@ public class ScreenServiceImpl implements ScreenService {
 				.map(entry -> DateScreenResponse.from(entry.getKey(), entry.getValue()))
 				.collect(Collectors.toList());
 	}
-
-	// 상영될 모든 상영 정보 조회 (날짜 오름차순)
-	@Override
-	@Transactional(readOnly = true)
-	public List<DateScreenResponse> getUpcomingScreens() {
-		LocalDateTime now = LocalDateTime.now();
-		List<Screen> screens = screenRepository.findByStartTimeAfter(now);
-		
+	
+	// 날짜별 상영 정보 그룹화 (오름차순)
+	private List<DateScreenResponse> groupScreensByDateAsc(List<Screen> screens) {
 		List<ScreenResponse> screenResponses = screens.stream()
 				.map(ScreenResponse::from)
 				.collect(Collectors.toList());

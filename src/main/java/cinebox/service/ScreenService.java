@@ -29,4 +29,7 @@ public interface ScreenService {
 
 	// 상영될 모든 상영 정보 조회
 	List<DateScreenResponse> getUpcomingScreens();
+
+	// 영화별 상영 정보 목록 조회
+	List<DateScreenResponse> getScreensByMovie(Long movieId);
 }

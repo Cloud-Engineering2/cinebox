@@ -9,6 +9,7 @@ import cinebox.entity.Screen;
 public record ScreenResponse(
 		Long screenId,
 		Long movieId,
+		String movieTitle,
 		Long auditoriumId,
 		String auditoriumName,
 		Integer auditoriumCapacity,
@@ -27,6 +28,7 @@ public record ScreenResponse(
 		return new ScreenResponse(
 				screen.getScreenId(),
 				screen.getMovie().getMovieId(),
+				screen.getMovie().getTitle(),
 				auditorium.getAuditoriumId(),
 				auditorium.getName(),
 				capacity,
