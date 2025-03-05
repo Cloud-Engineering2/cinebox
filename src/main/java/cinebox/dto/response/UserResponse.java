@@ -2,7 +2,6 @@ package cinebox.dto.response;
 
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
-import cinebox.dto.request.UserRequest;
 import cinebox.entity.User;
 
 public record UserResponse(
@@ -16,19 +15,6 @@ public record UserResponse(
 	    Role role
 ) {
 	public static UserResponse from(User user) {
-        return new UserResponse(
-                user.getUserId(),
-                user.getIdentifier(),
-                user.getEmail(),
-                user.getName(),
-                user.getPhone(),
-                user.getAge(),
-                user.getGender(),
-                user.getRole()
-        );
-	}
-	
-	public static UserResponse from(UserRequest user) {
         return new UserResponse(
                 user.getUserId(),
                 user.getIdentifier(),

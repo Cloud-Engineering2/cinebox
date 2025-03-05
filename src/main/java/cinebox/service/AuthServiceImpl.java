@@ -1,7 +1,6 @@
 package cinebox.service;
 
-import java.util.Optional;
-
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -9,10 +8,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cinebox.common.exception.auth.NotFoundTokenException;
-import cinebox.common.exception.user.DuplicateUserException;
+import cinebox.common.exception.user.DuplicatedIdentifierException;
+import cinebox.common.exception.user.DuplicatedEmailException;
+import cinebox.common.exception.user.DuplicatedPhoneException;
+import cinebox.common.exception.user.DuplicatedFieldException;
 import cinebox.dto.request.AuthRequest;
-import cinebox.dto.request.UserRequest;
+import cinebox.dto.request.SignUpRequest;
 import cinebox.dto.response.AuthResponse;
 import cinebox.dto.response.UserResponse;
 import cinebox.entity.TokenRedis;
@@ -36,18 +37,26 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	@Transactional
-	public UserResponse signup(UserRequest request) {
-		boolean isDuplicatedIdentifier = userRepository.findByIdentifier(request.getIdentifier()).isPresent();
-        if(isDuplicatedIdentifier) {
-        	throw DuplicateUserException.EXCEPTION;
-        }
-        
-        String encodedPassword = passwordEncoder.encode(request.getPassword());
-        request.setPassword(encodedPassword);
-		User newUser = User.of(request);
+	public UserResponse signup(SignUpRequest request) {
+		if (userRepository.existsByIdentifier(request.identifier())) {
+			throw DuplicatedIdentifierException.EXCEPTION;
+		}
+		if (userRepository.existsByEmail(request.email())) {
+			throw DuplicatedEmailException.EXCEPTION;
+		}
+		if (userRepository.existsByPhone(request.phone())) {
+			throw DuplicatedPhoneException.EXCEPTION;
+		}
 
-		userRepository.save(newUser);
-		return UserResponse.from(newUser);
+        String encodedPassword = passwordEncoder.encode(request.password());
+		User newUser = User.createUser(request, encodedPassword);
+
+		try {
+			User savedUser = userRepository.save(newUser);
+			return UserResponse.from(savedUser);
+		} catch(DataIntegrityViolationException e) {
+			throw DuplicatedFieldException.EXCEPTION;
+		}
 	}
 
 	@Override

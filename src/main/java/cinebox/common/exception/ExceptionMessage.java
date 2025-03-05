@@ -13,7 +13,10 @@ public enum ExceptionMessage {
 	
 	// user
 	NOT_FOUND_USER("유효하지 않은 UserId 입니다.", HttpStatus.NOT_FOUND, "Not Found UserId"),
-	ALREADY_EXIST_USER("사용 중인 아이디 입니다.", HttpStatus.BAD_REQUEST, "Already Exist UserId"),
+	ALREADY_EXIST_ID("사용 중인 아이디 입니다.", HttpStatus.CONFLICT, "Already Exist ID"),
+	ALREADY_EXIST_EMAIL("이미 등록된 이메일입니다.", HttpStatus.CONFLICT, "Already Exist Email"),
+	ALREADY_EXIST_PHONE("이미 등록된 전화번호입니다.", HttpStatus.CONFLICT, "Already Exist Phone"),
+	ALREADY_EXIST_FIELD("중복된 필드가 존재합니다.", HttpStatus.CONFLICT, "Duplicated Field Exists"),
 	NOT_AUTHORIZED_USER("토큰 정보와 일치하는 사용자가 아닙니다.", HttpStatus.FORBIDDEN, "Not Authorized User"),
 	ACCESS_DENIED_USER("해당 리소스에 접근할 권한이 없습니다.", HttpStatus.FORBIDDEN, "Access Denied"),
 

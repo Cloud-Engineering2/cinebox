@@ -5,11 +5,10 @@ import java.util.List;
 
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
-import cinebox.dto.request.UserRequest;
+import cinebox.dto.request.SignUpRequest;
 import cinebox.dto.request.UserUpdateRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -87,24 +86,6 @@ public class User extends BaseTimeEntity {
 		this.role = role;
 	}
 
-	public static User of(UserRequest userDTO) {
-        return new User(
-        		userDTO.getUserId(),
-        		userDTO.getIdentifier(),
-        		userDTO.getEmail(),
-        		userDTO.getPassword(),
-        		userDTO.getName(),
-        		userDTO.getPhone(),
-        		userDTO.getAge(),
-        		userDTO.getGender(),
-        		userDTO.getRole(),
-        		null,
-        		null,
-        		null,
-        	    false
-    		);
-	}
-
 	public void updateUser(UserUpdateRequest request, String encodedPassword) {
 		this.email = request.email() != null ? request.email() : this.email;
 		this.password = encodedPassword != null ? encodedPassword : this.password;
@@ -119,5 +100,18 @@ public class User extends BaseTimeEntity {
 
 	public void restoreUser() {
 		this.isDeleted = false;
+	}
+
+	public static User createUser(SignUpRequest request, String encodedPassword) {
+		return User.builder()
+				.identifier(request.identifier())
+				.password(encodedPassword)
+				.email(request.email())
+				.name(request.name())
+				.phone(request.phone())
+				.age(request.age())
+				.gender(request.gender())
+				.role(request.role())
+				.build();
 	}
 }
