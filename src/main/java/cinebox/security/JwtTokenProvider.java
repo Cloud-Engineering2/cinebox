@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.PartialUpdate;
+import org.springframework.data.redis.core.RedisKeyValueTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,6 +36,7 @@ public class JwtTokenProvider {
 	private final UserRepository userRepository;
 	private final PrincipalDetailsService principalDetailsService;
 	private final TokenRedisRepository tokenRedisRepository;
+	private final RedisKeyValueTemplate redisKeyValueTemplate;
 
 	@Value("${security.jwt.secretkey}")
 	private String secretKey;
@@ -142,8 +145,10 @@ public class JwtTokenProvider {
 			// 쿠키에 새 액세스 토큰 저장
 			saveAccessCookie(response, newAccessToken);
 			// Redis 업데이트
-			tokenRedis.updateAccessToken(newAccessToken);
-			tokenRedisRepository.save(tokenRedis);
+//			tokenRedis.updateAccessToken(newAccessToken);
+//			tokenRedisRepository.save(tokenRedis);
+			PartialUpdate<TokenRedis> update = new PartialUpdate<>(String.valueOf(userId), TokenRedis.class).set("accessToken", newAccessToken);
+            redisKeyValueTemplate.update(update);
 
 			log.info("## 토큰 재발급 완료. userId: {}", userId);
 
