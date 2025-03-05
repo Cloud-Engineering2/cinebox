@@ -12,6 +12,7 @@ import cinebox.common.exception.user.DuplicatedIdentifierException;
 import cinebox.common.enums.Role;
 import cinebox.common.exception.user.DuplicatedEmailException;
 import cinebox.common.exception.user.DuplicatedPhoneException;
+import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.DuplicatedFieldException;
 import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.SignUpRequest;
@@ -40,25 +41,13 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public UserResponse signup(SignUpRequest request) {
-		if (userRepository.existsByIdentifier(request.identifier())) {
-			throw DuplicatedIdentifierException.EXCEPTION;
-		}
-		if (userRepository.existsByEmail(request.email())) {
-			throw DuplicatedEmailException.EXCEPTION;
-		}
-		if (userRepository.existsByPhone(request.phone())) {
-			throw DuplicatedPhoneException.EXCEPTION;
-		}
+		validateUniqueFields(request);
 
         String encodedPassword = passwordEncoder.encode(request.password());
 		User newUser = User.createUser(request, encodedPassword);
 
 		// ADMIN이 생성하는 계정이 아니라면 USER로 역할 고정
-		try {
-			if (SecurityUtil.getCurrentUser() != null && SecurityUtil.isAdmin()) {
-				newUser.updateUserRole(Role.USER);
-			}
-		} catch(Exception e) {
+		if (!SecurityUtil.isAdmin()) {
 			newUser.updateUserRole(Role.USER);
 		}
 
@@ -88,5 +77,17 @@ public class AuthServiceImpl implements AuthService {
 		jwtTokenProvider.saveAccessCookie(response, accessToken);
 		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
 		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
+	}
+	
+	private void validateUniqueFields(SignUpRequest request) {
+		if (userRepository.existsByIdentifier(request.identifier())) {
+			throw DuplicatedIdentifierException.EXCEPTION;
+		}
+		if (userRepository.existsByEmail(request.email())) {
+			throw DuplicatedEmailException.EXCEPTION;
+		}
+		if (userRepository.existsByPhone(request.phone())) {
+			throw DuplicatedPhoneException.EXCEPTION;
+		}
 	}
 }
