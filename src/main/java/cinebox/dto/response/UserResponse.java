@@ -4,21 +4,17 @@ import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
 import cinebox.dto.request.UserRequest;
 import cinebox.entity.User;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 
-@Getter
-@AllArgsConstructor
-public class UserResponse {
-    private Long userId;
-    private String identifier;
-    private String email;
-    private String name;
-    private String phone;
-    private Integer age;
-    private Gender gender;
-    private Role role = Role.USER;
-
+public record UserResponse(
+		Long userId,
+	    String identifier,
+	    String email,
+	    String name,
+	    String phone,
+	    Integer age,
+	    Gender gender,
+	    Role role
+) {
 	public static UserResponse from(User user) {
         return new UserResponse(
                 user.getUserId(),

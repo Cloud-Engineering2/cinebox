@@ -23,17 +23,4 @@ public class UserRequest {
     private Gender gender;
     private Role role = Role.USER;
 
-	public static UserRequest from(User user) {
-        return new UserRequest(
-                user.getUserId(),
-                user.getIdentifier(),
-                user.getPassword(),
-                user.getEmail(),
-                user.getName(),
-                user.getPhone(),
-                user.getAge(),
-                user.getGender(),
-                user.getRole()
-        );
-	}
 }

@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
 import cinebox.dto.request.UserRequest;
-import cinebox.dto.response.UserResponse;
+import cinebox.dto.request.UserUpdateRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,6 +34,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE user_id = ?") // 삭제 시 논리 삭제 처리
+@SQLRestriction("is_deleted = false")	// 조회 시 is_deleted가 false인 데이터만 불러옴
 public class User extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -101,22 +104,16 @@ public class User extends BaseTimeEntity {
         	    false
     		);
 	}
+
+	public void updateUser(UserUpdateRequest request, String encodedPassword) {
+		this.email = request.email() != null ? request.email() : this.email;
+		this.password = encodedPassword != null ? encodedPassword : this.password;
+		this.name = request.name() != null ? request.name() : this.name;
+		this.phone = request.phone() != null ? request.phone() : this.phone;
+		this.age = request.age() != null ? request.age() : this.age;
+	}
 	
-	public static User of(UserResponse userDTO) {
-        return new User(
-        		userDTO.getUserId(),
-        		userDTO.getIdentifier(),
-        		userDTO.getEmail(),
-        		null,
-        		userDTO.getName(),
-        		userDTO.getPhone(),
-        		userDTO.getAge(),
-        		userDTO.getGender(),
-        		userDTO.getRole(),
-        		null,
-        		null,
-        		null,
-        		true
-    		);
+	public void updateUserRole(UserUpdateRequest request) {
+		this.role = request.role() != null ? request.role() : this.role;
 	}
 }
