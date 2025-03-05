@@ -3,25 +3,18 @@ package cinebox.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import cinebox.common.enums.Role;
-import cinebox.common.exception.user.DuplicateUserException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
-import cinebox.dto.request.AuthRequest;
 import cinebox.dto.request.UserRequest;
-import cinebox.dto.response.AuthResponse;
 import cinebox.dto.response.UserResponse;
 import cinebox.entity.User;
 import cinebox.repository.UserRepository;
-import cinebox.security.JwtTokenProvider;
 import cinebox.security.PrincipalDetails;
 import lombok.RequiredArgsConstructor;
 
@@ -30,35 +23,6 @@ import lombok.RequiredArgsConstructor;
 public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
-	private final JwtTokenProvider jwtTokenProvider;
-	private final AuthenticationManager authenticationManager;
-	
-    public UserResponse signup(UserRequest user) {
-        boolean isDuplicatedIdentifier = userRepository.findByIdentifier(user.getIdentifier()).isPresent();
-        if(isDuplicatedIdentifier) {
-        	throw DuplicateUserException.EXCEPTION;
-        }
-        
-        String encodedPassword = passwordEncoder.encode(user.getPassword());
-        user.setPassword(encodedPassword);
-		User newUser = User.of(user);
-
-		userRepository.save(newUser);
-		return UserResponse.from(newUser);
-	}
-
-    // 유저 인증 (identifier, pw) -> 토큰 생성 (user_id, role)
-	public AuthResponse login(AuthRequest authRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(authRequest.getIdentifier(), authRequest.getPassword())
-        );
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-
-        User user = userRepository.findByIdentifierAndIsDeletedFalse(userDetails.getUsername()).orElseThrow(() -> NotFoundUserException.EXCEPTION);
-        String token = jwtTokenProvider.createToken(user.getUserId(), user.getRole().toString());
-
-        return new AuthResponse(user.getUserId(), user.getIdentifier(), user.getRole().toString(), token);
-	}
 
 	// deleted = true 인 경우 조회되지 않는다.
 	public List<UserResponse> getAllUser() {

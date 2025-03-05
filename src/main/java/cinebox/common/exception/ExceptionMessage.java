@@ -8,6 +8,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum ExceptionMessage {
+	// auth
+	NOT_FOUND_TOKEN("다시 로그인 해 주세요.", HttpStatus.NOT_FOUND, "Not Found Token"),
+	
 	// user
 	NOT_FOUND_USER("유효하지 않은 UserId 입니다.", HttpStatus.NOT_FOUND, "Not Found UserId"),
 	ALREADY_EXIST_USER("사용 중인 아이디 입니다.", HttpStatus.BAD_REQUEST, "Already Exist UserId"),

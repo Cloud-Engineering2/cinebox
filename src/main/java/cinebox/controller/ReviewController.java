@@ -36,7 +36,7 @@ public class ReviewController {
 	}
 	
 	// 리뷰 수정
-	@PutMapping("/reivews/{reviewId}")
+	@PutMapping("/reviews/{reviewId}")
 	public ResponseEntity<ReviewResponse> updateReview(
 			@PathVariable("reviewId") Long reviewId,
 			@Validated(UpdateGroup.class) @RequestBody ReviewRequest request) {

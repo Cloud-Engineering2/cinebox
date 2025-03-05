@@ -85,6 +85,7 @@ public class Movie extends BaseTimeEntity {
 				.runTime(request.runtime())
 				.ratingGrade(request.ratingGrade())
 				.status(request.status() != null ? request.status() : MovieStatus.UNRELEASED)
+				.likeCount(0)
 				.build();
 	}
 	
