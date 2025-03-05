@@ -41,12 +41,9 @@ public class User extends BaseTimeEntity {
 	private Long userId;
 
 	@Column(nullable = false, unique = true)
-	@Pattern(regexp = "^.{4,20}$", message = "아이디는 4자 이상 20자 이하이어야 합니다.")
 	private String identifier;
 
 	@Column(nullable = false, unique = true)
-	@Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", 
-    		 message = "이메일 형식이 올바르지 않습니다.")
 	private String email;
 
 	@Column(nullable = false)
@@ -56,7 +53,6 @@ public class User extends BaseTimeEntity {
 	private String name;
 
 	@Column(nullable = false, unique = true)
-	@Pattern(regexp = "^01[0-9]-[0-9]{3,4}-[0-9]{4}$", message = "전화번호 형식이 올바르지 않습니다.")
 	private String phone;
 
 	private Integer age;
