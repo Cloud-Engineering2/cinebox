@@ -3,8 +3,6 @@ package cinebox.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,7 +13,6 @@ import cinebox.dto.request.UserUpdateRequest;
 import cinebox.dto.response.UserResponse;
 import cinebox.entity.User;
 import cinebox.repository.UserRepository;
-import cinebox.security.PrincipalDetails;
 import cinebox.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 
@@ -42,6 +39,14 @@ public class UserServiceImpl implements UserService {
     			.orElseThrow(() -> NotFoundUserException.EXCEPTION);
         return UserResponse.from(user);
     }
+
+	// 본인 사용자 조회
+	@Override
+	@Transactional(readOnly = true)
+	public UserResponse getMyInform() {
+		User currentUser = SecurityUtil.getCurrentUser();
+		return UserResponse.from(currentUser);
+	}
 
 	// 사용자 정보 수정
 	@Override

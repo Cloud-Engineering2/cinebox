@@ -39,6 +39,14 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
+	// 본인 사용자 정보 조회
+	@GetMapping("/my")
+	public ResponseEntity<UserResponse> getMyInform() {
+		UserResponse response = userService.getMyInform();
+		return ResponseEntity.ok(response);
+	}
+
+	// 사용자 정보 수정
 	@PutMapping("/{userId}")
 	public ResponseEntity<UserResponse> updateUser(
 			@PathVariable("userId") Long userId,
@@ -47,8 +55,9 @@ public class UserController {
 		return ResponseEntity.ok(response);
 	}
 
+	// 사용자 회원 탈퇴
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId) {
+	public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
 		userService.deleteUser(userId);
 		return ResponseEntity.noContent().build();
 	}
