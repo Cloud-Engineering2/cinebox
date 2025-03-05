@@ -7,6 +7,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,5 +61,13 @@ public class UserController {
 	public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
 		userService.deleteUser(userId);
 		return ResponseEntity.noContent().build();
+	}
+
+	// 사용자 복구
+	@PostMapping("/{userId}/restore")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<UserResponse> restoreUser(@PathVariable("userId") Long userId) {
+		UserResponse response = userService.restoreUser(userId);
+		return ResponseEntity.ok(response);
 	}
 }

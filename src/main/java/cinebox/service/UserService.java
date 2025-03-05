@@ -22,4 +22,7 @@ public interface UserService {
 	// 사용자 삭제
 	void deleteUser(Long userId);
 
+	// 사용자 복구
+	UserResponse restoreUser(Long userId);
+
 }

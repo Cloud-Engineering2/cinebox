@@ -74,6 +74,7 @@ public class UserServiceImpl implements UserService {
 		return UserResponse.from(updatedUser);
 	}
 
+	// 회원 탈퇴
 	@Override
 	@Transactional
 	public void deleteUser(Long userId) {
@@ -86,5 +87,18 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		userRepository.delete(reqUser);
+	}
+
+	// 사용자 복구
+	@Override
+	@Transactional
+	public UserResponse restoreUser(Long userId) {
+		User user = userRepository.findDeletedByUserId(userId)
+    			.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+
+		user.restoreUser();
+		User saved = userRepository.save(user);
+
+		return UserResponse.from(saved);
 	}
 }

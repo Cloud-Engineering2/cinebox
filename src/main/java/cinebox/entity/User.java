@@ -116,4 +116,8 @@ public class User extends BaseTimeEntity {
 	public void updateUserRole(UserUpdateRequest request) {
 		this.role = request.role() != null ? request.role() : this.role;
 	}
+
+	public void restoreUser() {
+		this.isDeleted = false;
+	}
 }
