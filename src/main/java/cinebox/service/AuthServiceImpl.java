@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.user.DuplicatedIdentifierException;
+import cinebox.common.enums.Role;
 import cinebox.common.exception.user.DuplicatedEmailException;
 import cinebox.common.exception.user.DuplicatedPhoneException;
 import cinebox.common.exception.user.DuplicatedFieldException;
@@ -22,6 +23,7 @@ import cinebox.repository.TokenRedisRepository;
 import cinebox.repository.UserRepository;
 import cinebox.security.JwtTokenProvider;
 import cinebox.security.PrincipalDetails;
+import cinebox.security.SecurityUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -50,6 +52,15 @@ public class AuthServiceImpl implements AuthService {
 
         String encodedPassword = passwordEncoder.encode(request.password());
 		User newUser = User.createUser(request, encodedPassword);
+
+		// ADMIN이 생성하는 계정이 아니라면 USER로 역할 고정
+		try {
+			if (SecurityUtil.getCurrentUser() != null && SecurityUtil.isAdmin()) {
+				newUser.updateUserRole(Role.USER);
+			}
+		} catch(Exception e) {
+			newUser.updateUserRole(Role.USER);
+		}
 
 		try {
 			User savedUser = userRepository.save(newUser);

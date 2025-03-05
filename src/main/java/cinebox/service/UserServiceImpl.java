@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
 		
 		reqUser.updateUser(request, encodedPassword);
 		if (SecurityUtil.isAdmin()) {
-			reqUser.updateUserRole(request);
+			reqUser.updateUserRole(request.role());
 		}
 		
 		User updatedUser = userRepository.save(reqUser);
