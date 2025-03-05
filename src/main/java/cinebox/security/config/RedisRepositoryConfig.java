@@ -12,7 +12,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.mapping.RedisMappingContext;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 
-import cinebox.entity.TokenRedis;
+import cinebox.domain.auth.entity.TokenRedis;
 
 @Configuration
 @EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
