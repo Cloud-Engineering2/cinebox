@@ -4,19 +4,19 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import cinebox.dto.request.UserRequest;
+import cinebox.dto.request.UserUpdateRequest;
 import cinebox.dto.response.UserResponse;
-import cinebox.entity.User;
 import cinebox.service.UserService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -24,28 +24,51 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserController {
 	private final UserService userService;
-	
+
+	// 전체 사용자 조회
 	@GetMapping
-	public ResponseEntity<List<UserResponse>> getAllUser() {
-		List<UserResponse> users = userService.getAllUser();
-		return ResponseEntity.ok().body(users);
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<List<UserResponse>> getAllActiveUser() {
+		List<UserResponse> responses = userService.getAllActiveUser();
+		return ResponseEntity.ok(responses);
 	}
-	
+
+	// 사용자 정보 조회
 	@GetMapping("/{userId}")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<UserResponse> getUser(@PathVariable("userId") Long userId) {
-		UserResponse user = userService.getUserById(userId);
-		return ResponseEntity.ok().body(user);
+		UserResponse response = userService.getUserById(userId);
+		return ResponseEntity.ok(response);
 	}
-	
+
+	// 본인 사용자 정보 조회
+	@GetMapping("/my")
+	public ResponseEntity<UserResponse> getMyInform() {
+		UserResponse response = userService.getMyInform();
+		return ResponseEntity.ok(response);
+	}
+
+	// 사용자 정보 수정
 	@PutMapping("/{userId}")
-	public ResponseEntity<?> updateUser(@PathVariable("userId") Long userId, @RequestBody UserRequest userRequest, HttpServletRequest request) {    	
-	    User updatedUser = userService.updateUser(userId, userRequest);
-    	return ResponseEntity.ok().body(updatedUser);	 
+	public ResponseEntity<UserResponse> updateUser(
+			@PathVariable("userId") Long userId,
+			@RequestBody @Validated UserUpdateRequest request) {
+		UserResponse response = userService.updateUser(userId, request);
+		return ResponseEntity.ok(response);
 	}
-	
+
+	// 사용자 회원 탈퇴
 	@DeleteMapping("/{userId}")
-	public ResponseEntity<String> deleteUser(@PathVariable("userId") Long userId) {		
+	public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
 		userService.deleteUser(userId);
-		return ResponseEntity.ok().body("Success Delete");
+		return ResponseEntity.noContent().build();
+	}
+
+	// 사용자 복구
+	@PostMapping("/{userId}/restore")
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
+	public ResponseEntity<UserResponse> restoreUser(@PathVariable("userId") Long userId) {
+		UserResponse response = userService.restoreUser(userId);
+		return ResponseEntity.ok(response);
 	}
 }

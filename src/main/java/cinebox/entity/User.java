@@ -1,14 +1,16 @@
 package cinebox.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
-import cinebox.dto.request.UserRequest;
-import cinebox.dto.response.UserResponse;
+import cinebox.dto.request.SignUpRequest;
+import cinebox.dto.request.UserUpdateRequest;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +21,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Pattern;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,6 +34,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @SQLDelete(sql = "UPDATE user SET is_deleted = true WHERE user_id = ?") // 삭제 시 논리 삭제 처리
+@SQLRestriction("is_deleted = false")	// 조회 시 is_deleted가 false인 데이터만 불러옴
 public class User extends BaseTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,12 +42,9 @@ public class User extends BaseTimeEntity {
 	private Long userId;
 
 	@Column(nullable = false, unique = true)
-	@Pattern(regexp = "^.{4,20}$", message = "아이디는 4자 이상 20자 이하이어야 합니다.")
 	private String identifier;
 
 	@Column(nullable = false, unique = true)
-	@Pattern(regexp = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$", 
-    		 message = "이메일 형식이 올바르지 않습니다.")
 	private String email;
 
 	@Column(nullable = false)
@@ -54,10 +54,21 @@ public class User extends BaseTimeEntity {
 	private String name;
 
 	@Column(nullable = false, unique = true)
-	@Pattern(regexp = "^01[0-9]-[0-9]{3,4}-[0-9]{4}$", message = "전화번호 형식이 올바르지 않습니다.")
 	private String phone;
 
-	private Integer age;
+	@Column(name = "birth_date")
+	private LocalDate birthDate;
+	
+	@Transient
+	public Integer getAge() {
+		if (this.birthDate == null) return null;
+		LocalDate today = LocalDate.now();
+		int age = today.getYear() - this.birthDate.getYear();
+		if (today.isBefore(this.birthDate.withYear(today.getYear()))) {
+			age --;
+		}
+		return age;
+	}
 
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
@@ -84,39 +95,32 @@ public class User extends BaseTimeEntity {
 		this.role = role;
 	}
 
-	public static User of(UserRequest userDTO) {
-        return new User(
-        		userDTO.getUserId(),
-        		userDTO.getIdentifier(),
-        		userDTO.getEmail(),
-        		userDTO.getPassword(),
-        		userDTO.getName(),
-        		userDTO.getPhone(),
-        		userDTO.getAge(),
-        		userDTO.getGender(),
-        		userDTO.getRole(),
-        		null,
-        		null,
-        		null,
-        	    false
-    		);
+	public void updateUser(UserUpdateRequest request, String encodedPassword) {
+		this.email = request.email() != null ? request.email() : this.email;
+		this.password = encodedPassword != null ? encodedPassword : this.password;
+		this.name = request.name() != null ? request.name() : this.name;
+		this.phone = request.phone() != null ? request.phone() : this.phone;
+		this.birthDate = request.birthDate() != null ? request.birthDate() : this.birthDate;
 	}
 	
-	public static User of(UserResponse userDTO) {
-        return new User(
-        		userDTO.getUserId(),
-        		userDTO.getIdentifier(),
-        		userDTO.getEmail(),
-        		null,
-        		userDTO.getName(),
-        		userDTO.getPhone(),
-        		userDTO.getAge(),
-        		userDTO.getGender(),
-        		userDTO.getRole(),
-        		null,
-        		null,
-        		null,
-        		true
-    		);
+	public void updateUserRole(Role role) {
+		this.role = role != null ? role : this.role;
+	}
+
+	public void restoreUser() {
+		this.isDeleted = false;
+	}
+
+	public static User createUser(SignUpRequest request, String encodedPassword) {
+		return User.builder()
+				.identifier(request.identifier())
+				.password(encodedPassword)
+				.email(request.email())
+				.name(request.name())
+				.phone(request.phone())
+				.birthDate(request.birthDate())
+				.gender(request.gender())
+				.role(request.role())
+				.build();
 	}
 }
