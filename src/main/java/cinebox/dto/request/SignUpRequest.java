@@ -1,5 +1,7 @@
 package cinebox.dto.request;
 
+import java.time.LocalDate;
+
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
 import jakarta.validation.constraints.Email;
@@ -28,8 +30,8 @@ public record SignUpRequest(
 		@Pattern(regexp = "^01[0-9]-[0-9]{3,4}-[0-9]{4}$", message = "전화번호 형식이 올바르지 않습니다.")
 		String phone,
 		
-		@NotNull(message = "나이를 입력해주세요.")
-		Integer age,
+		@NotNull(message = "생년월일을 입력해주세요.")
+		LocalDate birthDate,
 		
 		Gender gender,
 		Role role

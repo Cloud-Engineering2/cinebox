@@ -1,5 +1,7 @@
 package cinebox.dto.response;
 
+import java.time.LocalDate;
+
 import cinebox.common.enums.Gender;
 import cinebox.common.enums.Role;
 import cinebox.entity.User;
@@ -11,6 +13,7 @@ public record UserResponse(
 	    String name,
 	    String phone,
 	    Integer age,
+	    LocalDate birthDate,
 	    Gender gender,
 	    Role role
 ) {
@@ -22,6 +25,7 @@ public record UserResponse(
                 user.getName(),
                 user.getPhone(),
                 user.getAge(),
+                user.getBirthDate(),
                 user.getGender(),
                 user.getRole()
         );

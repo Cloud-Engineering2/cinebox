@@ -1,5 +1,6 @@
 package cinebox.entity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +21,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Pattern;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -55,7 +56,19 @@ public class User extends BaseTimeEntity {
 	@Column(nullable = false, unique = true)
 	private String phone;
 
-	private Integer age;
+	@Column(name = "birth_date")
+	private LocalDate birthDate;
+	
+	@Transient
+	public Integer getAge() {
+		if (this.birthDate == null) return null;
+		LocalDate today = LocalDate.now();
+		int age = today.getYear() - this.birthDate.getYear();
+		if (today.isBefore(this.birthDate.withYear(today.getYear()))) {
+			age --;
+		}
+		return age;
+	}
 
 	@Enumerated(EnumType.STRING)
 	private Gender gender;
@@ -87,7 +100,7 @@ public class User extends BaseTimeEntity {
 		this.password = encodedPassword != null ? encodedPassword : this.password;
 		this.name = request.name() != null ? request.name() : this.name;
 		this.phone = request.phone() != null ? request.phone() : this.phone;
-		this.age = request.age() != null ? request.age() : this.age;
+		this.birthDate = request.birthDate() != null ? request.birthDate() : this.birthDate;
 	}
 	
 	public void updateUserRole(Role role) {
@@ -105,7 +118,7 @@ public class User extends BaseTimeEntity {
 				.email(request.email())
 				.name(request.name())
 				.phone(request.phone())
-				.age(request.age())
+				.birthDate(request.birthDate())
 				.gender(request.gender())
 				.role(request.role())
 				.build();
