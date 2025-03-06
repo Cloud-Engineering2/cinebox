@@ -8,7 +8,7 @@ import cinebox.domain.movie.dto.MovieResponse;
 public interface MovieService {
 	// create
 	// 영화 등록(생성)
-	MovieResponse registerMovie(MovieRequest request);
+	MovieResponse registerMovie(MovieRequest request, String posterImageUrl);
 	
 	// read
 	// 영화 목록 조회 (정렬, 검색)

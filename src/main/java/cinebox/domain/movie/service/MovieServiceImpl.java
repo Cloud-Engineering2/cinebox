@@ -27,12 +27,12 @@ public class MovieServiceImpl implements MovieService {
 	// 영화 등록(생성)
 	@Override
 	@Transactional
-	public MovieResponse registerMovie(MovieRequest request) {
+	public MovieResponse registerMovie(MovieRequest request, String posterImageUrl) {
 		if (movieRepository.existsByTitleAndReleaseDate(request.title(), request.releaseDate())) {
 			throw DuplicatedMovieException.EXCEPTION;
 		}
 		
-		Movie newMovie = Movie.register(request, null);
+		Movie newMovie = Movie.register(request, posterImageUrl);
 		movieRepository.save(newMovie);
 		return MovieResponse.from(newMovie);
 	}
