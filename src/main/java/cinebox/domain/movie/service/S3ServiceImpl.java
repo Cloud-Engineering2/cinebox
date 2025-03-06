@@ -23,6 +23,10 @@ public class S3ServiceImpl implements S3Service {
 
 	@Override
 	public String uploadFile(MovieRequest request, MultipartFile image) {
+		if (image == null) {
+			return null;
+		}
+		
 		String fileName = generateFileName(request);
 		
 		try {

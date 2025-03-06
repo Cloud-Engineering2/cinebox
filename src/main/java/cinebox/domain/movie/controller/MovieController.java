@@ -36,7 +36,7 @@ public class MovieController {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<MovieResponse> registerMovie(
 			@RequestPart("movie") @Validated(CreateGroup.class) MovieRequest request,
-			@RequestPart("image") MultipartFile image) {
+			@RequestPart(value = "image", required = false) MultipartFile image) {
 		String posterImageUrl = s3Service.uploadFile(request, image);
 		MovieResponse response = movieService.registerMovie(request, posterImageUrl);
 		return ResponseEntity.ok(response);
