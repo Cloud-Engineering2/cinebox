@@ -26,6 +26,7 @@ public enum ExceptionMessage {
 	NOT_FOUND_MOVIE("유효하지 않은 MovieId 입니다.", HttpStatus.NOT_FOUND, "Not Found MovieId"),
 	DUPLICATED_MOVIE("이미 존재하는 영화입니다.", HttpStatus.CONFLICT, "Conflict Title and ReleaseDate"),
 	MOVIE_DELETE_FAILED("영화 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Delete Movie"),
+	INVALID_RATING("유효하지 않은 관람등급입니다.", HttpStatus.BAD_REQUEST, "Invalid Rating Grade"),
 	
 	// s3
 	S3_SERVER_ERROR("S3 서버 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR, "S3 Server Error"),
