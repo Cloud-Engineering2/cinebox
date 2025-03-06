@@ -2,10 +2,12 @@ package cinebox.security.jwt;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.PartialUpdate;
 import org.springframework.data.redis.core.RedisKeyValueTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,6 +41,7 @@ public class JwtTokenProvider {
 	private final PrincipalDetailsService principalDetailsService;
 	private final TokenRedisRepository tokenRedisRepository;
 	private final RedisKeyValueTemplate redisKeyValueTemplate;
+	private final RedisTemplate<String, String> redisStringTemplate;
 
 	@Value("${security.jwt.secretkey}")
 	private String secretKey;
@@ -164,5 +167,25 @@ public class JwtTokenProvider {
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Redis 서버 에러");
 		}
 		return null;
+	}
+
+	/**
+	 * 액세스 토큰을 블랙리스트에 등록합니다.
+	 * @param accessToken 블랙리스트에 등록할 액세스 토큰
+	 */
+	public void addAccessTokenToBlacklist(String accessToken) {
+		try {
+			DecodedJWT decoded = JWT.decode(accessToken);
+			long expiresAt = decoded.getExpiresAt().getTime();
+			long now = System.currentTimeMillis();
+			long ttlSeconds = (expiresAt - now) / 1000;
+			if(ttlSeconds > 0) {
+				String blacklistKey = "blacklist:" + accessToken;
+				redisStringTemplate.opsForValue().set(blacklistKey, "true", ttlSeconds, TimeUnit.SECONDS);
+				log.info("액세스 토큰을 블랙리스트에 등록: {} (TTL: {}초)", accessToken, ttlSeconds);
+			}
+		} catch (Exception e) {
+			log.error("액세스 토큰 블랙리스트 등록 실패", e);
+		}
 	}
 }
