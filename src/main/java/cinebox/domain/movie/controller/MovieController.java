@@ -55,15 +55,17 @@ public class MovieController {
 	public ResponseEntity<MovieResponse> getMovie(@PathVariable("movieId") Long movieId) {
 		return ResponseEntity.ok(movieService.getMovie(movieId));
 	}
-	
-	//TODO: s3 연동하여 이미지 처리
+
 	// 영화 정보 수정
-	@PutMapping("/{movieId}")
+	@PutMapping(value = "/{movieId}", consumes = {"multipart/form-data"})
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<MovieResponse> updateMovie(
 			@PathVariable("movieId") Long movieId,
-			@RequestBody MovieRequest request) {
-		return ResponseEntity.ok(movieService.updateMovie(movieId, request));
+			@RequestPart("movie") MovieRequest request,
+			@RequestPart(value = "image", required = false) MultipartFile image) {
+		String posterImageUrl = s3Service.uploadFile(request, image);
+		MovieResponse response = movieService.updateMovie(movieId, request, posterImageUrl);
+		return ResponseEntity.ok(response);
 	}
 	
 	// 영화 삭제

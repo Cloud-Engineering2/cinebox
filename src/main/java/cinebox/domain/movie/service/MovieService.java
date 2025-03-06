@@ -19,7 +19,7 @@ public interface MovieService {
 	
 	// update
 	// 영화 정보 수정
-	MovieResponse updateMovie(Long movieId, MovieRequest request);
+	MovieResponse updateMovie(Long movieId, MovieRequest request, String posterImageUrl);
 
 	// delete
 	// 영화 삭제

@@ -47,6 +47,6 @@ public class S3ServiceImpl implements S3Service {
 		String title = request.title().replaceAll("[^가-힣a-zA-Z0-9]", "_");
 		String releaseDate = request.releaseDate().toString();
 		String uuid = java.util.UUID.randomUUID().toString();
-		return folderName + title + "_" + releaseDate + "_" + uuid;
+		return folderName + title + "/" + releaseDate + "_" + uuid;
 	}
 }

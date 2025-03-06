@@ -81,11 +81,11 @@ public class MovieServiceImpl implements MovieService {
 	// 영화 정보 수정
 	@Override
 	@Transactional
-	public MovieResponse updateMovie(Long movieId, MovieRequest request) {
+	public MovieResponse updateMovie(Long movieId, MovieRequest request, String posterImageUrl) {
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		
-		movie.updateMovie(request, null);
+		movie.updateMovie(request, posterImageUrl);
 		Movie savedMovie = movieRepository.save(movie);
 		
 		return MovieResponse.from(savedMovie);
