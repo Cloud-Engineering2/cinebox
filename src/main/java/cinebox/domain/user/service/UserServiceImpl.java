@@ -9,11 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
+import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.user.dto.UserResponse;
 import cinebox.domain.user.dto.UserUpdateRequest;
 import cinebox.domain.user.entity.User;
 import cinebox.domain.user.repository.UserRepository;
-import cinebox.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service
