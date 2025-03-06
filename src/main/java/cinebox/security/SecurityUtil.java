@@ -4,7 +4,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import cinebox.common.exception.user.NoAuthorizedUserException;
-import cinebox.entity.User;
+import cinebox.domain.user.entity.User;
+import cinebox.security.service.PrincipalDetails;
 
 public class SecurityUtil {
 	public static User getCurrentUser() {
