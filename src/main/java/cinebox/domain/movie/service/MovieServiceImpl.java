@@ -27,12 +27,12 @@ public class MovieServiceImpl implements MovieService {
 	// 영화 등록(생성)
 	@Override
 	@Transactional
-	public MovieResponse registerMovie(MovieRequest request) {
+	public MovieResponse registerMovie(MovieRequest request, String posterImageUrl) {
 		if (movieRepository.existsByTitleAndReleaseDate(request.title(), request.releaseDate())) {
 			throw DuplicatedMovieException.EXCEPTION;
 		}
 		
-		Movie newMovie = Movie.register(request, null);
+		Movie newMovie = Movie.register(request, posterImageUrl);
 		movieRepository.save(newMovie);
 		return MovieResponse.from(newMovie);
 	}
@@ -81,11 +81,11 @@ public class MovieServiceImpl implements MovieService {
 	// 영화 정보 수정
 	@Override
 	@Transactional
-	public MovieResponse updateMovie(Long movieId, MovieRequest request) {
+	public MovieResponse updateMovie(Long movieId, MovieRequest request, String posterImageUrl) {
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		
-		movie.updateMovie(request, null);
+		movie.updateMovie(request, posterImageUrl);
 		Movie savedMovie = movieRepository.save(movie);
 		
 		return MovieResponse.from(savedMovie);
