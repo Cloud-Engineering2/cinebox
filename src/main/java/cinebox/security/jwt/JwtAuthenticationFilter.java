@@ -31,9 +31,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 		UsernamePasswordAuthenticationToken authentication = null;
 
-		if (accessTokenCookie.isPresent() && jwtTokenProvider.validateToken(accessTokenCookie.get().getValue())) {
+		if (accessTokenCookie.isPresent()) {
+			String accessToken = accessTokenCookie.get().getValue();
+			
+			// 블랙리스트 토큰 검증
+			if (jwtTokenProvider.isTokenBlacklisted(accessToken)) {
+				log.warn("블랙리스트에 등록된 토큰이 접속을 시도합니다. 요청 거부");
+				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "사용할 수 없는 토큰입니다.");
+				return;
+			}
+			
 			// 유효한 액세스 토큰이 있는 경우
-			authentication = jwtTokenProvider.createAuthenticationFromToken(accessTokenCookie.get().getValue());
+			if (jwtTokenProvider.validateToken(accessToken)) {
+				authentication = jwtTokenProvider.createAuthenticationFromToken(accessTokenCookie.get().getValue());
+			}
 		} else if (refreshTokenCookie.isPresent() && jwtTokenProvider.validateToken(refreshTokenCookie.get().getValue())) {
 			// 액세스 토큰이 없거나 만료되었을 때, 리프레시 토큰으로 재발급 시도
 			authentication = jwtTokenProvider.replaceAccessToken(response, refreshTokenCookie.get().getValue());

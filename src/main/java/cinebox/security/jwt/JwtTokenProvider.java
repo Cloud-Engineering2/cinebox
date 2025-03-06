@@ -188,4 +188,9 @@ public class JwtTokenProvider {
 			log.error("액세스 토큰 블랙리스트 등록 실패", e);
 		}
 	}
+	
+	public boolean isTokenBlacklisted(String token) {
+		String blacklistKey = "blacklist:" + token;
+		return redisStringTemplate.hasKey(blacklistKey);
+	}
 }

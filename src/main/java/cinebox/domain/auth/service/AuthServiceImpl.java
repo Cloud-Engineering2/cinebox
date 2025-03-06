@@ -85,13 +85,15 @@ public class AuthServiceImpl implements AuthService {
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
-		CookieUtil.clearAuthCookies(response);
-		
+		// 블랙리스트에 액세스 토큰 등록 
 		Optional<Cookie> accessTokenCookie = CookieUtil.getCookie(request, "AT");
 		if (accessTokenCookie.isPresent()) {
 			String accessToken = accessTokenCookie.get().getValue();
 			jwtTokenProvider.addAccessTokenToBlacklist(accessToken);
 		}
+		
+		// 클라이언트 쿠키 삭제
+		CookieUtil.clearAuthCookies(response);
 	}
 
 	private void validateUniqueFields(SignUpRequest request) {
