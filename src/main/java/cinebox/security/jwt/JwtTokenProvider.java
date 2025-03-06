@@ -20,7 +20,9 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import cinebox.common.exception.auth.InvalidTokenException;
 import cinebox.common.exception.auth.NotFoundTokenException;
+import cinebox.common.exception.auth.RedisServerException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.domain.auth.entity.TokenRedis;
 import cinebox.domain.auth.repository.TokenRedisRepository;
@@ -137,8 +139,7 @@ public class JwtTokenProvider {
 
 			if (!tokenRedis.getRefreshToken().equals(refreshToken)) {
 				log.error("리프레시 토큰 불일치: Redis에 저장된 토큰과 요청된 토큰이 다릅니다.");
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token mismatch. Please login again.");
-				return null;
+				throw InvalidTokenException.EXCEPTION;
 			}
 
 			log.info("## 토큰 재발급 시작... userId: {}", userId);
@@ -158,15 +159,14 @@ public class JwtTokenProvider {
 			return authentication;
 		} catch (JWTVerificationException e) {
 			log.error("리프레시 토큰 검증 실패: {}", e.getMessage());
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token expired or invalid.");
+			throw InvalidTokenException.EXCEPTION;
 		} catch (NotFoundTokenException e) {
 			log.error("Redis 토큰 조회 실패: {}", e.getMessage());
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token not found. Please login again.");
+			throw NotFoundTokenException.EXCEPTION;
 		} catch (RedisException redisException) {
 			log.error("Redis 서버 에러: {}", redisException.getMessage());
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Redis 서버 에러");
+			throw RedisServerException.EXCEPTION;
 		}
-		return null;
 	}
 
 	/**

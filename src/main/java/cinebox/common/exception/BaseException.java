@@ -12,18 +12,10 @@ public abstract class BaseException extends RuntimeException {
 		this.title = message.getTitle();
 	}
 
-	// 추가 
-    public BaseException(String message, HttpStatus status) {
-        super(message);
-        this.status = status;
-        this.title = null; // Or you can provide a default title if needed
-    }
-
-    
 	public HttpStatus getStatus() {
 		return status;
 	}
-	
+
 	public String getTitle() {
 		return title;
 	}
