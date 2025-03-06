@@ -107,6 +107,11 @@
 	        <artifactId>spring-session-data-redis</artifactId>
 	    </dependency>
 
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-s3</artifactId>
+			<version>1.12.300</version>
+		</dependency>
 	</dependencies>
 
 	<build>
