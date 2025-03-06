@@ -1,6 +1,7 @@
 package cinebox.domain.user.service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -9,11 +10,17 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
+import cinebox.common.utils.CookieUtil;
 import cinebox.common.utils.SecurityUtil;
+import cinebox.domain.auth.repository.TokenRedisRepository;
 import cinebox.domain.user.dto.UserResponse;
 import cinebox.domain.user.dto.UserUpdateRequest;
 import cinebox.domain.user.entity.User;
 import cinebox.domain.user.repository.UserRepository;
+import cinebox.security.jwt.JwtTokenProvider;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -21,6 +28,8 @@ import lombok.RequiredArgsConstructor;
 public class UserServiceImpl implements UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+	private final JwtTokenProvider jwtTokenProvider;
+	private final TokenRedisRepository tokenRedisRepository;
 
 	// 전체 활성 사용자 조회
 	@Override
@@ -77,7 +86,7 @@ public class UserServiceImpl implements UserService {
 	// 회원 탈퇴
 	@Override
 	@Transactional
-	public void deleteUser(Long userId) {
+	public void withdrawUser(Long userId, HttpServletRequest request, HttpServletResponse response) {
 		User reqUser = userRepository.findById(userId)
 				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
 		User currentUser = SecurityUtil.getCurrentUser();
@@ -87,6 +96,16 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		userRepository.delete(reqUser);
+		
+		Optional<Cookie> accessTokenCookie = CookieUtil.getCookie(request, "AT");
+		if (accessTokenCookie.isPresent()) {
+			String accessToken = accessTokenCookie.get().getValue();
+			jwtTokenProvider.addAccessTokenToBlacklist(accessToken);
+		}
+		
+		CookieUtil.clearAuthCookies(response);
+		
+		tokenRedisRepository.deleteById(String.valueOf(reqUser.getUserId()));
 	}
 
 	// 사용자 복구

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import cinebox.domain.user.dto.UserResponse;
 import cinebox.domain.user.dto.UserUpdateRequest;
 import cinebox.domain.user.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -58,9 +60,12 @@ public class UserController {
 	}
 
 	// 사용자 회원 탈퇴
-	@DeleteMapping("/{userId}")
-	public ResponseEntity<Void> deleteUser(@PathVariable("userId") Long userId) {
-		userService.deleteUser(userId);
+	@PostMapping("/{userId}/withdraw")
+	public ResponseEntity<Void> withdrawUser(
+			@PathVariable("userId") Long userId,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+		userService.withdrawUser(userId, request, response);
 		return ResponseEntity.noContent().build();
 	}
 

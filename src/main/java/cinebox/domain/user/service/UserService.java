@@ -4,6 +4,8 @@ import java.util.List;
 
 import cinebox.domain.user.dto.UserResponse;
 import cinebox.domain.user.dto.UserUpdateRequest;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface UserService {
 
@@ -19,8 +21,8 @@ public interface UserService {
 	// 사용자 정보 수정
 	UserResponse updateUser(Long userId, UserUpdateRequest request);
 
-	// 사용자 삭제
-	void deleteUser(Long userId);
+	// 회원 탈퇴
+	void withdrawUser(Long userId, HttpServletRequest request, HttpServletResponse response);
 
 	// 사용자 복구
 	UserResponse restoreUser(Long userId);
