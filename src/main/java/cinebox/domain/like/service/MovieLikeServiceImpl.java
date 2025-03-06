@@ -7,13 +7,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.movie.NotFoundMovieException;
+import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.like.entity.MovieLike;
 import cinebox.domain.like.repository.MovieLikeRepository;
 import cinebox.domain.movie.dto.MovieResponse;
 import cinebox.domain.movie.entity.Movie;
 import cinebox.domain.movie.repository.MovieRepository;
 import cinebox.domain.user.entity.User;
-import cinebox.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

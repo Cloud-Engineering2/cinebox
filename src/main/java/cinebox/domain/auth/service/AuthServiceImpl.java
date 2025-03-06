@@ -1,5 +1,7 @@
 package cinebox.domain.auth.service;
 
+import java.util.Optional;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,11 +10,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import cinebox.common.exception.user.DuplicatedIdentifierException;
 import cinebox.common.enums.Role;
 import cinebox.common.exception.user.DuplicatedEmailException;
+import cinebox.common.exception.user.DuplicatedFieldException;
+import cinebox.common.exception.user.DuplicatedIdentifierException;
 import cinebox.common.exception.user.DuplicatedPhoneException;
-import cinebox.common.exception.user.NoAuthorizedUserException;
+import cinebox.common.utils.CookieUtil;
+import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.auth.dto.AuthRequest;
 import cinebox.domain.auth.dto.AuthResponse;
 import cinebox.domain.auth.dto.SignUpRequest;
@@ -21,10 +25,10 @@ import cinebox.domain.auth.repository.TokenRedisRepository;
 import cinebox.domain.user.dto.UserResponse;
 import cinebox.domain.user.entity.User;
 import cinebox.domain.user.repository.UserRepository;
-import cinebox.common.exception.user.DuplicatedFieldException;
-import cinebox.security.SecurityUtil;
 import cinebox.security.jwt.JwtTokenProvider;
 import cinebox.security.service.PrincipalDetails;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
@@ -78,7 +82,20 @@ public class AuthServiceImpl implements AuthService {
 		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
 		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
 	}
-	
+
+	@Override
+	public void logout(HttpServletRequest request, HttpServletResponse response) {
+		// 블랙리스트에 액세스 토큰 등록 
+		Optional<Cookie> accessTokenCookie = CookieUtil.getCookie(request, "AT");
+		if (accessTokenCookie.isPresent()) {
+			String accessToken = accessTokenCookie.get().getValue();
+			jwtTokenProvider.addAccessTokenToBlacklist(accessToken);
+		}
+		
+		// 클라이언트 쿠키 삭제
+		CookieUtil.clearAuthCookies(response);
+	}
+
 	private void validateUniqueFields(SignUpRequest request) {
 		if (userRepository.existsByIdentifier(request.identifier())) {
 			throw DuplicatedIdentifierException.EXCEPTION;

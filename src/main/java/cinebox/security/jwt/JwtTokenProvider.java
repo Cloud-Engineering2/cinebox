@@ -2,10 +2,12 @@ package cinebox.security.jwt;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.PartialUpdate;
 import org.springframework.data.redis.core.RedisKeyValueTemplate;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +20,9 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import cinebox.common.exception.auth.InvalidTokenException;
 import cinebox.common.exception.auth.NotFoundTokenException;
+import cinebox.common.exception.auth.RedisServerException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.domain.auth.entity.TokenRedis;
 import cinebox.domain.auth.repository.TokenRedisRepository;
@@ -39,6 +43,7 @@ public class JwtTokenProvider {
 	private final PrincipalDetailsService principalDetailsService;
 	private final TokenRedisRepository tokenRedisRepository;
 	private final RedisKeyValueTemplate redisKeyValueTemplate;
+	private final RedisTemplate<String, String> redisStringTemplate;
 
 	@Value("${security.jwt.secretkey}")
 	private String secretKey;
@@ -134,8 +139,7 @@ public class JwtTokenProvider {
 
 			if (!tokenRedis.getRefreshToken().equals(refreshToken)) {
 				log.error("리프레시 토큰 불일치: Redis에 저장된 토큰과 요청된 토큰이 다릅니다.");
-				response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token mismatch. Please login again.");
-				return null;
+				throw InvalidTokenException.EXCEPTION;
 			}
 
 			log.info("## 토큰 재발급 시작... userId: {}", userId);
@@ -155,14 +159,38 @@ public class JwtTokenProvider {
 			return authentication;
 		} catch (JWTVerificationException e) {
 			log.error("리프레시 토큰 검증 실패: {}", e.getMessage());
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Refresh token expired or invalid.");
+			throw InvalidTokenException.EXCEPTION;
 		} catch (NotFoundTokenException e) {
 			log.error("Redis 토큰 조회 실패: {}", e.getMessage());
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token not found. Please login again.");
+			throw NotFoundTokenException.EXCEPTION;
 		} catch (RedisException redisException) {
 			log.error("Redis 서버 에러: {}", redisException.getMessage());
-			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Redis 서버 에러");
+			throw RedisServerException.EXCEPTION;
 		}
-		return null;
+	}
+
+	/**
+	 * 액세스 토큰을 블랙리스트에 등록합니다.
+	 * @param accessToken 블랙리스트에 등록할 액세스 토큰
+	 */
+	public void addAccessTokenToBlacklist(String accessToken) {
+		try {
+			DecodedJWT decoded = JWT.decode(accessToken);
+			long expiresAt = decoded.getExpiresAt().getTime();
+			long now = System.currentTimeMillis();
+			long ttlSeconds = (expiresAt - now) / 1000;
+			if(ttlSeconds > 0) {
+				String blacklistKey = "blacklist:" + accessToken;
+				redisStringTemplate.opsForValue().set(blacklistKey, "true", ttlSeconds, TimeUnit.SECONDS);
+				log.info("액세스 토큰을 블랙리스트에 등록: {} (TTL: {}초)", accessToken, ttlSeconds);
+			}
+		} catch (Exception e) {
+			log.error("액세스 토큰 블랙리스트 등록 실패", e);
+		}
+	}
+	
+	public boolean isTokenBlacklisted(String token) {
+		String blacklistKey = "blacklist:" + token;
+		return redisStringTemplate.hasKey(blacklistKey);
 	}
 }

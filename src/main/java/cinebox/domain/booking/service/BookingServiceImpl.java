@@ -18,6 +18,7 @@ import cinebox.common.exception.payment.NotFoundPaymentException;
 import cinebox.common.exception.payment.NotPaidBookingException;
 import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
+import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.booking.dto.BookingRequest;
 import cinebox.domain.booking.dto.BookingResponse;
 import cinebox.domain.booking.dto.TicketResponse;
@@ -33,7 +34,6 @@ import cinebox.domain.screen.repository.ScreenRepository;
 import cinebox.domain.seat.entity.Seat;
 import cinebox.domain.seat.repository.SeatRepository;
 import cinebox.domain.user.entity.User;
-import cinebox.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

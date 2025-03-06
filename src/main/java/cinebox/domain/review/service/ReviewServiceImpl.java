@@ -10,6 +10,7 @@ import cinebox.common.exception.movie.NotFoundMovieException;
 import cinebox.common.exception.review.NotFoundReviewException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
+import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.movie.entity.Movie;
 import cinebox.domain.movie.repository.MovieRepository;
 import cinebox.domain.review.dto.ReviewRequest;
@@ -18,7 +19,6 @@ import cinebox.domain.review.entity.Review;
 import cinebox.domain.review.repository.ReviewRepository;
 import cinebox.domain.user.entity.User;
 import cinebox.domain.user.repository.UserRepository;
-import cinebox.security.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 
 @Service

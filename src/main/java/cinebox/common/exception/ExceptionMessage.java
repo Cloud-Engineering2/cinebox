@@ -9,7 +9,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ExceptionMessage {
 	// auth
-	NOT_FOUND_TOKEN("다시 로그인 해 주세요.", HttpStatus.NOT_FOUND, "Not Found Token"),
+	NOT_FOUND_TOKEN("토큰을 조회할 수 없습니다. 다시 로그인 해 주세요.", HttpStatus.UNAUTHORIZED, "Not Found Token"),
+	INVALID_TOKEN("유효하지 않은 토큰입니다. 다시 로그인 해 주세요.", HttpStatus.UNAUTHORIZED, "Invaled Token"),
+	REDIS_SERVER_ERROR("Redis 서버 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR, "Redis Server Error"),
 	
 	// user
 	NOT_FOUND_USER("유효하지 않은 UserId 입니다.", HttpStatus.NOT_FOUND, "Not Found UserId"),
