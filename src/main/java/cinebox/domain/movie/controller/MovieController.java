@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import cinebox.common.validation.CreateGroup;
+import cinebox.common.validation.UpdateGroup;
 import cinebox.domain.movie.dto.MovieRequest;
 import cinebox.domain.movie.dto.MovieResponse;
 import cinebox.domain.movie.service.MovieService;
@@ -61,7 +61,7 @@ public class MovieController {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<MovieResponse> updateMovie(
 			@PathVariable("movieId") Long movieId,
-			@RequestPart("movie") MovieRequest request,
+			@RequestPart("movie") @Validated(UpdateGroup.class) MovieRequest request,
 			@RequestPart(value = "image", required = false) MultipartFile image) {
 		String posterImageUrl = s3Service.uploadFile(request, image);
 		MovieResponse response = movieService.updateMovie(movieId, request, posterImageUrl);
