@@ -26,7 +26,7 @@ public class DataInitializer implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		if (auditoriumRepository.count() == 0) {
 			List<Auditorium> auditoriums = IntStream.rangeClosed(1, 6)
-                    .mapToObj(i -> Auditorium.builder().name("상영관 " + i).capacity(100).build())
+                    .mapToObj(i -> Auditorium.builder().name("상영관 " + i).capacity(190).build())
                     .toList();
 
             auditoriumRepository.saveAll(auditoriums);
