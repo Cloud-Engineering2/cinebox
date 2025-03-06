@@ -75,7 +75,7 @@ public class BookingServiceImpl implements BookingService {
 			throw AgeVerificationException.EXCEPTION;
 		}
 
-		Screen screen = screenRepository.findById(request.getScreenId())
+		Screen screen = screenRepository.findById(request.screenId())
 				.orElseThrow(() -> NotFoundScreenException.EXCEPTION);
 		
 		Movie movie = screen.getMovie();
@@ -84,17 +84,17 @@ public class BookingServiceImpl implements BookingService {
 			throw InsufficientAgeException.EXCEPTION;
 		}
 
-		int alreadyBookedCount = bookingSeatRepository.countByScreen_ScreenIdAndSeat_SeatNumberIn(request.getScreenId(), request.getSeatNumbers());
+		int alreadyBookedCount = bookingSeatRepository.countByScreen_ScreenIdAndSeat_SeatNumberIn(request.screenId(), request.seatNumbers());
 		if (alreadyBookedCount > 0) {
 			throw AlreadyBookedSeatsException.EXCEPTION;
 		}
 
-		BigDecimal totalPrice = screen.getPrice().multiply(BigDecimal.valueOf(request.getSeatNumbers().size()));
+		BigDecimal totalPrice = screen.getPrice().multiply(BigDecimal.valueOf(request.seatNumbers().size()));
 
 		Booking booking = Booking.createBooking(currentUser, totalPrice);
 		Booking savedBooking = bookingRepository.save(booking);
 
-		List<BookingSeat> bookingSeats = request.getSeatNumbers().stream()
+		List<BookingSeat> bookingSeats = request.seatNumbers().stream()
 				.map(seatNumber -> {
 					Seat seat = seatRepository
 							.findBySeatNumberAndAuditorium_AuditoriumId(seatNumber, screen.getAuditorium().getAuditoriumId())
