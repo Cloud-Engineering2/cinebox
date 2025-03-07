@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +33,7 @@ public class AuditoriumController {
 	// 상영관 생성
 	@PostMapping
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public ResponseEntity<AuditoriumResponse> createAuditorium(@RequestBody AuditoriumRequest request) {
+	public ResponseEntity<AuditoriumResponse> createAuditorium(@RequestBody @Validated AuditoriumRequest request) {
 		AuditoriumResponse response = auditoriumService.createAuditorium(request);
 		return ResponseEntity.ok(response);
 	}
