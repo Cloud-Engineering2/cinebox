@@ -26,6 +26,7 @@ public enum ExceptionMessage {
 	NOT_FOUND_MOVIE("유효하지 않은 MovieId 입니다.", HttpStatus.NOT_FOUND, "Not Found MovieId"),
 	DUPLICATED_MOVIE("이미 존재하는 영화입니다.", HttpStatus.CONFLICT, "Conflict Title and ReleaseDate"),
 	MOVIE_DELETE_FAILED("영화 삭제에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR, "Failed to Delete Movie"),
+	INVALID_RATING("유효하지 않은 관람등급입니다.", HttpStatus.BAD_REQUEST, "Invalid Rating Grade"),
 	
 	// s3
 	S3_SERVER_ERROR("S3 서버 에러 발생", HttpStatus.INTERNAL_SERVER_ERROR, "S3 Server Error"),
@@ -52,6 +53,8 @@ public enum ExceptionMessage {
 	SCREEN_NOT_FOUND("상영 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found Screen for Booking"),
 	NOT_FOUND_BOOKING("예매된 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found booking information"),
 	ALREADY_REFUNDED("이미 환불된 예매입니다.", HttpStatus.BAD_REQUEST, "Already Refunded"),
+	INSUFFICIENT_AGE("관람이 불가한 영화입니다.", HttpStatus.FORBIDDEN, "Insufficient Age"),
+	AGE_VERIFICATION_FAILED("나이를 확인할 수 없습니다.", HttpStatus.BAD_REQUEST, "Age Verification Failed"),
 	
 	//payment
 	SEAT_ALREADY_PAYMENT("이미 결제가 완료되었습니다", HttpStatus.BAD_REQUEST,"Payment has already been completed"),

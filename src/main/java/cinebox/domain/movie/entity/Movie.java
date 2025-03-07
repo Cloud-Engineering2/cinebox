@@ -6,6 +6,7 @@ import java.util.List;
 
 import cinebox.common.entity.BaseTimeEntity;
 import cinebox.common.enums.MovieStatus;
+import cinebox.common.enums.RatingGrade;
 import cinebox.domain.like.entity.MovieLike;
 import cinebox.domain.movie.dto.MovieRequest;
 import cinebox.domain.review.entity.Review;
@@ -59,7 +60,8 @@ public class Movie extends BaseTimeEntity {
 	private Integer runTime;
 
 	@Column(name = "rating_grade")
-	private String ratingGrade;
+	@Enumerated(EnumType.STRING)
+	private RatingGrade ratingGrade;
 
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
@@ -87,7 +89,7 @@ public class Movie extends BaseTimeEntity {
 				.posterImageUrl(posterImageUrl)
 				.releaseDate(request.releaseDate())
 				.runTime(request.runtime())
-				.ratingGrade(request.ratingGrade())
+				.ratingGrade(RatingGrade.fromLabel(request.ratingGrade()))
 				.status(request.status() != null ? request.status() : MovieStatus.UNRELEASED)
 				.likeCount(0)
 				.build();
@@ -102,7 +104,7 @@ public class Movie extends BaseTimeEntity {
 		this.posterImageUrl = newPosterImageUrl != null ? newPosterImageUrl : this.posterImageUrl;
 		this.releaseDate = request.releaseDate() != null ? request.releaseDate() : this.releaseDate;
 		this.runTime = request.runtime() != null ? request.runtime() : this.runTime;
-		this.ratingGrade = request.ratingGrade() != null ? request.ratingGrade() : this.ratingGrade;
+		this.ratingGrade = request.ratingGrade() != null ? RatingGrade.fromLabel(request.ratingGrade()) : this.ratingGrade;
 		this.status = request.status() != null ? request.status() : this.status;
 	}
 	

@@ -10,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.enums.BookingStatus;
 import cinebox.common.enums.PaymentStatus;
+import cinebox.common.exception.booking.AgeVerificationException;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
+import cinebox.common.exception.booking.InsufficientAgeException;
 import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.booking.NotFoundSeatException;
 import cinebox.common.exception.payment.AlreadyRefundedException;
@@ -26,6 +28,7 @@ import cinebox.domain.booking.entity.Booking;
 import cinebox.domain.booking.entity.BookingSeat;
 import cinebox.domain.booking.repository.BookingRepository;
 import cinebox.domain.booking.repository.BookingSeatRepository;
+import cinebox.domain.movie.entity.Movie;
 import cinebox.domain.payment.dto.PaymentResponse;
 import cinebox.domain.payment.entity.Payment;
 import cinebox.domain.payment.repository.PaymentRepository;
@@ -66,21 +69,32 @@ public class BookingServiceImpl implements BookingService {
 	@Transactional
 	public BookingResponse createBooking(BookingRequest request) {
 		User currentUser = SecurityUtil.getCurrentUser();
+		
+		Integer userAge = currentUser.getAge();
+		if (userAge == null) {
+			throw AgeVerificationException.EXCEPTION;
+		}
 
-		Screen screen = screenRepository.findById(request.getScreenId())
+		Screen screen = screenRepository.findById(request.screenId())
 				.orElseThrow(() -> NotFoundScreenException.EXCEPTION);
+		
+		Movie movie = screen.getMovie();
+		int requiredAge = movie.getRatingGrade().getMinAge();
+		if (userAge < requiredAge) {
+			throw InsufficientAgeException.EXCEPTION;
+		}
 
-		int alreadyBookedCount = bookingSeatRepository.countByScreen_ScreenIdAndSeat_SeatNumberIn(request.getScreenId(), request.getSeatNumbers());
+		int alreadyBookedCount = bookingSeatRepository.countByScreen_ScreenIdAndSeat_SeatNumberIn(request.screenId(), request.seatNumbers());
 		if (alreadyBookedCount > 0) {
 			throw AlreadyBookedSeatsException.EXCEPTION;
 		}
 
-		BigDecimal totalPrice = screen.getPrice().multiply(BigDecimal.valueOf(request.getSeatNumbers().size()));
+		BigDecimal totalPrice = screen.getPrice().multiply(BigDecimal.valueOf(request.seatNumbers().size()));
 
 		Booking booking = Booking.createBooking(currentUser, totalPrice);
 		Booking savedBooking = bookingRepository.save(booking);
 
-		List<BookingSeat> bookingSeats = request.getSeatNumbers().stream()
+		List<BookingSeat> bookingSeats = request.seatNumbers().stream()
 				.map(seatNumber -> {
 					Seat seat = seatRepository
 							.findBySeatNumberAndAuditorium_AuditoriumId(seatNumber, screen.getAuditorium().getAuditoriumId())

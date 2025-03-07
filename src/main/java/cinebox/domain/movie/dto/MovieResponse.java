@@ -32,7 +32,7 @@ public record MovieResponse (
     			movie.getGenre(),
     			movie.getReleaseDate(),
     			movie.getRunTime(),
-    			movie.getRatingGrade(),
+    			movie.getRatingGrade().getLabel(),
     			movie.getStatus(),
     			movie.getLikeCount());
     }

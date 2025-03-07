@@ -20,6 +20,7 @@ import cinebox.batch.dto.KmdbResponse;
 import cinebox.batch.dto.KobisMovieListResponse;
 import cinebox.batch.dto.KobisMovieListResponse.KobisMovieDto;
 import cinebox.common.enums.MovieStatus;
+import cinebox.common.enums.RatingGrade;
 import cinebox.domain.movie.entity.Movie;
 import cinebox.domain.movie.repository.MovieRepository;
 import lombok.RequiredArgsConstructor;
@@ -185,7 +186,7 @@ public class MovieBatchService {
 			.posterImageUrl(posterImageUrl)
 			.releaseDate(releaseDate)
 			.runTime(runtime)
-			.ratingGrade(rating)
+			.ratingGrade(RatingGrade.fromLabel(rating))
 			.status(MovieStatus.UNRELEASED)
 			.build();
 	}
