@@ -53,4 +53,11 @@ public class BookingController {
 		PaymentResponse paymentResponse = bookingService.refundPayment(bookingId);
 		return ResponseEntity.ok(paymentResponse);
 	}
+
+	// 예매 대기 취소
+	@PostMapping("/{bookingId}/cancel")
+	public ResponseEntity<Void> cancelBooking(@PathVariable("bookingId") Long bookingId) {
+		bookingService.cancelBooking(bookingId);
+		return ResponseEntity.noContent().build();
+	}
 }

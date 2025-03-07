@@ -19,4 +19,7 @@ public interface BookingService {
 
 	// 예매 취소 및 환불
 	PaymentResponse refundPayment(Long bookingId);
+
+	// 예매 대기 취소
+	void cancelBooking(Long bookingId);
 }

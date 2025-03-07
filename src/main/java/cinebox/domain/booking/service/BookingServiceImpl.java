@@ -13,6 +13,7 @@ import cinebox.common.enums.PaymentStatus;
 import cinebox.common.exception.booking.AgeVerificationException;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
 import cinebox.common.exception.booking.InsufficientAgeException;
+import cinebox.common.exception.booking.InsufficientBookingStatusException;
 import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.booking.NotFoundSeatException;
 import cinebox.common.exception.payment.AlreadyRefundedException;
@@ -112,15 +113,9 @@ public class BookingServiceImpl implements BookingService {
 	// 특정 예매 조회
 	@Override
 	public TicketResponse getBooking(Long bookingId) {
-		Booking booking = bookingRepository.findById(bookingId)
-				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		Booking booking = getBookingById(bookingId);
 		
-		User currentUser = SecurityUtil.getCurrentUser();
-		User bookingUser = booking.getUser();
-		
-		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
-			throw NoAuthorizedUserException.EXCEPTION;
-		}
+		validateUserAuthorization(booking);
 		
 		return TicketResponse.from(booking);
 	}
@@ -129,19 +124,11 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	@Transactional
 	public PaymentResponse refundPayment(Long bookingId) {
-		Booking booking = bookingRepository.findById(bookingId)
-				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		Booking booking = getBookingById(bookingId);
 		
-		User currentUser = SecurityUtil.getCurrentUser();
-		User bookingUser = booking.getUser();
+		validateUserAuthorization(booking);
 		
-		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
-			throw NoAuthorizedUserException.EXCEPTION;
-		}
-		
-		Payment payment = booking.getPayments().stream()
-				.max(Comparator.comparing(Payment::getCreatedAt))
-				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
+		Payment payment = getLastestPayment(booking);
 		
 		if (payment.getStatus().equals(PaymentStatus.REFUNDED)
 				&& booking.getStatus().equals(BookingStatus.REFUNDED)) {
@@ -153,13 +140,64 @@ public class BookingServiceImpl implements BookingService {
 			throw NotPaidBookingException.EXCEPTION;
 		}
 		
+		processRefund(booking, payment);
+
+		return PaymentResponse.from(payment);
+	}
+	
+	// 예매 대기 취소
+	@Override
+	@Transactional
+	public void cancelBooking(Long bookingId) {
+		Booking booking = getBookingById(bookingId);
+
+		validateUserAuthorization(booking);
+		
+		Payment payment = getLastestPayment(booking);
+		
+		if (!payment.getStatus().equals(PaymentStatus.REQUESTED)
+				|| !booking.getStatus().equals(BookingStatus.PENDING)) {
+			throw InsufficientBookingStatusException.EXCEPTION;
+		}
+
+		processCancel(booking, payment);
+	}
+
+	private Booking getBookingById(Long bookingId) {
+		return bookingRepository.findById(bookingId)
+				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+	}
+
+	private void validateUserAuthorization(Booking booking) {
+		User currentUser = SecurityUtil.getCurrentUser();
+		User bookingUser = booking.getUser();
+
+		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
+			throw NoAuthorizedUserException.EXCEPTION;
+		}
+	}
+
+	private Payment getLastestPayment(Booking booking) {
+		return booking.getPayments().stream()
+				.max(Comparator.comparing(Payment::getCreatedAt))
+				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
+	}
+
+	private void processRefund(Booking booking, Payment payment) {
 		booking.getBookingSeats().clear();
 		booking.updateStatus(BookingStatus.REFUNDED);
 		payment.updateStatus(PaymentStatus.REFUNDED);
 
 		bookingRepository.save(booking);
 		paymentRepository.save(payment);
+	}
 
-		return PaymentResponse.from(payment);
+	private void processCancel(Booking booking, Payment payment) {
+		booking.getBookingSeats().clear();
+		booking.updateStatus(BookingStatus.CANCELED);
+		payment.updateStatus(PaymentStatus.FAILED);
+
+		bookingRepository.save(booking);
+		paymentRepository.save(payment);
 	}
 }
