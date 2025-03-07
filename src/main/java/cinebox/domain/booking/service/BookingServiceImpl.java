@@ -113,15 +113,9 @@ public class BookingServiceImpl implements BookingService {
 	// 특정 예매 조회
 	@Override
 	public TicketResponse getBooking(Long bookingId) {
-		Booking booking = bookingRepository.findById(bookingId)
-				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		Booking booking = getBookingById(bookingId);
 		
-		User currentUser = SecurityUtil.getCurrentUser();
-		User bookingUser = booking.getUser();
-		
-		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
-			throw NoAuthorizedUserException.EXCEPTION;
-		}
+		validateUserAuthorization(booking);
 		
 		return TicketResponse.from(booking);
 	}
@@ -130,19 +124,11 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	@Transactional
 	public PaymentResponse refundPayment(Long bookingId) {
-		Booking booking = bookingRepository.findById(bookingId)
-				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		Booking booking = getBookingById(bookingId);
 		
-		User currentUser = SecurityUtil.getCurrentUser();
-		User bookingUser = booking.getUser();
+		validateUserAuthorization(booking);
 		
-		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
-			throw NoAuthorizedUserException.EXCEPTION;
-		}
-		
-		Payment payment = booking.getPayments().stream()
-				.max(Comparator.comparing(Payment::getCreatedAt))
-				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
+		Payment payment = getLastestPayment(booking);
 		
 		if (payment.getStatus().equals(PaymentStatus.REFUNDED)
 				&& booking.getStatus().equals(BookingStatus.REFUNDED)) {
@@ -154,12 +140,7 @@ public class BookingServiceImpl implements BookingService {
 			throw NotPaidBookingException.EXCEPTION;
 		}
 		
-		booking.getBookingSeats().clear();
-		booking.updateStatus(BookingStatus.REFUNDED);
-		payment.updateStatus(PaymentStatus.REFUNDED);
-
-		bookingRepository.save(booking);
-		paymentRepository.save(payment);
+		processRefund(booking, payment);
 
 		return PaymentResponse.from(payment);
 	}
@@ -168,25 +149,50 @@ public class BookingServiceImpl implements BookingService {
 	@Override
 	@Transactional
 	public void cancelBooking(Long bookingId) {
-		Booking booking = bookingRepository.findById(bookingId)
-				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+		Booking booking = getBookingById(bookingId);
 
+		validateUserAuthorization(booking);
+		
+		Payment payment = getLastestPayment(booking);
+		
+		if (!payment.getStatus().equals(PaymentStatus.REQUESTED)
+				|| !booking.getStatus().equals(BookingStatus.PENDING)) {
+			throw InsufficientBookingStatusException.EXCEPTION;
+		}
+
+		processCancel(booking, payment);
+	}
+
+	private Booking getBookingById(Long bookingId) {
+		return bookingRepository.findById(bookingId)
+				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+	}
+
+	private void validateUserAuthorization(Booking booking) {
 		User currentUser = SecurityUtil.getCurrentUser();
 		User bookingUser = booking.getUser();
 
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
-		
-		Payment payment = booking.getPayments().stream()
+	}
+
+	private Payment getLastestPayment(Booking booking) {
+		return booking.getPayments().stream()
 				.max(Comparator.comparing(Payment::getCreatedAt))
 				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
-		
-		if (!payment.getStatus().equals(PaymentStatus.REQUESTED)
-				|| !booking.getStatus().equals(BookingStatus.PENDING)) {
-			throw InsufficientBookingStatusException.EXCEPTION;
-		}
-		
+	}
+
+	private void processRefund(Booking booking, Payment payment) {
+		booking.getBookingSeats().clear();
+		booking.updateStatus(BookingStatus.REFUNDED);
+		payment.updateStatus(PaymentStatus.REFUNDED);
+
+		bookingRepository.save(booking);
+		paymentRepository.save(payment);
+	}
+
+	private void processCancel(Booking booking, Payment payment) {
 		booking.getBookingSeats().clear();
 		booking.updateStatus(BookingStatus.CANCELED);
 		payment.updateStatus(PaymentStatus.FAILED);
