@@ -3,8 +3,6 @@ package cinebox.domain.auditorium.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import cinebox.common.entity.BaseTimeEntity;
 import cinebox.domain.screen.entity.Screen;
 import cinebox.domain.seat.entity.Seat;
@@ -16,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,12 +35,19 @@ public class Auditorium extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String name;
 
-	private int capacity;
+	@Transient
+	public Integer getCapacity() {
+		return seats.size();
+	}
 
+	@Builder.Default
 	@OneToMany(mappedBy = "auditorium", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Seat> seats = new ArrayList<>();
 
-	//@JsonIgnoreProperties("auditorium") // 순환 참조 방지 //추가 
 	@OneToMany(mappedBy = "auditorium")
 	private List<Screen> screens = new ArrayList<>();
+
+	public void updateName(String name) {
+		this.name = name;
+	}
 }
