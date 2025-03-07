@@ -47,6 +47,7 @@ public enum ExceptionMessage {
 
 	// auditorium
 	NOT_FOUND_AUDITORIUM("유효하지 않은 AuditoriumId 입니다.", HttpStatus.NOT_FOUND, "Not Found AuditoriumId"),
+	ALREADY_EXIST_AUDITORIUM("이미 존재하는 상영관입니다.", HttpStatus.CONFLICT, "Already Exist Auditorium"),
 
 	// booking
 	SEAT_NOT_FOUND("좌석을 찾을 수 없습니다.", HttpStatus.NOT_FOUND, "Not Found Seat"),

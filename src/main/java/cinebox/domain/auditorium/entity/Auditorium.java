@@ -40,6 +40,7 @@ public class Auditorium extends BaseTimeEntity {
 		return seats.size();
 	}
 
+	@Builder.Default
 	@OneToMany(mappedBy = "auditorium", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<Seat> seats = new ArrayList<>();
 
