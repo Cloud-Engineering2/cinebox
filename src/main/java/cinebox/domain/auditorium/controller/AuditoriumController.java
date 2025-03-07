@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import cinebox.common.validation.CreateGroup;
+import cinebox.common.validation.UpdateGroup;
 import cinebox.domain.auditorium.dto.AuditoriumRequest;
 import cinebox.domain.auditorium.dto.AuditoriumResponse;
 import cinebox.domain.auditorium.service.AuditoriumService;
@@ -35,7 +37,7 @@ public class AuditoriumController {
 	// 상영관 생성
 	@PostMapping
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
-	public ResponseEntity<AuditoriumResponse> createAuditorium(@RequestBody @Validated AuditoriumRequest request) {
+	public ResponseEntity<AuditoriumResponse> createAuditorium(@RequestBody @Validated(CreateGroup.class) AuditoriumRequest request) {
 		AuditoriumResponse response = auditoriumService.createAuditorium(request);
 		return ResponseEntity.ok(response);
 	}
@@ -45,7 +47,7 @@ public class AuditoriumController {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<AuditoriumResponse> updateAuditorium(
 			@PathVariable("auditoriumId") Long auditoriumId,
-			@RequestBody @Validated AuditoriumRequest request) {
+			@RequestBody @Validated(UpdateGroup.class) AuditoriumRequest request) {
 		AuditoriumResponse response = auditoriumService.updateAuditorium(auditoriumId, request);
 		return ResponseEntity.ok(response);
 	}
