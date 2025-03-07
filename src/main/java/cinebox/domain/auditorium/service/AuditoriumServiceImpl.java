@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import cinebox.common.exception.auditorium.AlreadyExistAuditoriumException;
+import cinebox.common.exception.auditorium.NotFoundAuditoriumException;
 import cinebox.domain.auditorium.dto.AuditoriumRequest;
 import cinebox.domain.auditorium.dto.AuditoriumResponse;
 import cinebox.domain.auditorium.entity.Auditorium;
@@ -57,5 +58,17 @@ public class AuditoriumServiceImpl implements AuditoriumService {
         auditorium = auditoriumRepository.save(auditorium);
 		
 		return AuditoriumResponse.from(auditorium);
+	}
+
+	@Override
+	@Transactional
+	public AuditoriumResponse updateAuditorium(Long auditoriumId, AuditoriumRequest request) {
+		Auditorium auditorium = auditoriumRepository.findById(auditoriumId)
+				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
+
+		auditorium.updateName(request.name());
+
+		Auditorium saved = auditoriumRepository.save(auditorium);
+		return AuditoriumResponse.from(saved);
 	}
 }

@@ -13,4 +13,6 @@ public interface AuditoriumService {
 	// 상영관 생성
 	AuditoriumResponse createAuditorium(AuditoriumRequest request);
 
+	AuditoriumResponse updateAuditorium(Long auditoriumId, AuditoriumRequest request);
+
 }

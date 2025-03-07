@@ -46,4 +46,8 @@ public class Auditorium extends BaseTimeEntity {
 
 	@OneToMany(mappedBy = "auditorium")
 	private List<Screen> screens = new ArrayList<>();
+
+	public void updateName(String name) {
+		this.name = name;
+	}
 }
