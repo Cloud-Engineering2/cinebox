@@ -55,7 +55,8 @@ public enum ExceptionMessage {
 	ALREADY_REFUNDED("이미 환불된 예매입니다.", HttpStatus.BAD_REQUEST, "Already Refunded"),
 	INSUFFICIENT_AGE("관람이 불가한 영화입니다.", HttpStatus.FORBIDDEN, "Insufficient Age"),
 	AGE_VERIFICATION_FAILED("나이를 확인할 수 없습니다.", HttpStatus.BAD_REQUEST, "Age Verification Failed"),
-	
+	INSUFFICIENT_BOOKING_STATUS("예매 상태를 확인해주세요.", HttpStatus.BAD_REQUEST, "Insufficient Booking Status"),
+
 	//payment
 	SEAT_ALREADY_PAYMENT("이미 결제가 완료되었습니다", HttpStatus.BAD_REQUEST,"Payment has already been completed"),
 	NOT_FOUND_PAYMENT("결제정보를 찾지못했습니다.", HttpStatus.NOT_FOUND, "Not Found Payment information"),

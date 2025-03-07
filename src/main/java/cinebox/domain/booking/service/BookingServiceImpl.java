@@ -13,6 +13,7 @@ import cinebox.common.enums.PaymentStatus;
 import cinebox.common.exception.booking.AgeVerificationException;
 import cinebox.common.exception.booking.AlreadyBookedSeatsException;
 import cinebox.common.exception.booking.InsufficientAgeException;
+import cinebox.common.exception.booking.InsufficientBookingStatusException;
 import cinebox.common.exception.booking.NotFoundBookingException;
 import cinebox.common.exception.booking.NotFoundSeatException;
 import cinebox.common.exception.payment.AlreadyRefundedException;
@@ -161,5 +162,36 @@ public class BookingServiceImpl implements BookingService {
 		paymentRepository.save(payment);
 
 		return PaymentResponse.from(payment);
+	}
+	
+	// 예매 대기 취소
+	@Override
+	@Transactional
+	public void cancelBooking(Long bookingId) {
+		Booking booking = bookingRepository.findById(bookingId)
+				.orElseThrow(() -> NotFoundBookingException.EXCEPTION);
+
+		User currentUser = SecurityUtil.getCurrentUser();
+		User bookingUser = booking.getUser();
+
+		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
+			throw NoAuthorizedUserException.EXCEPTION;
+		}
+		
+		Payment payment = booking.getPayments().stream()
+				.max(Comparator.comparing(Payment::getCreatedAt))
+				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
+		
+		if (!payment.getStatus().equals(PaymentStatus.REQUESTED)
+				|| !booking.getStatus().equals(BookingStatus.PENDING)) {
+			throw InsufficientBookingStatusException.EXCEPTION;
+		}
+		
+		booking.getBookingSeats().clear();
+		booking.updateStatus(BookingStatus.CANCELED);
+		payment.updateStatus(PaymentStatus.FAILED);
+
+		bookingRepository.save(booking);
+		paymentRepository.save(payment);
 	}
 }

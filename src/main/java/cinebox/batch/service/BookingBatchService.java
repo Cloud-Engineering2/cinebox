@@ -42,8 +42,7 @@ public class BookingBatchService {
 					.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
 			payment.updateStatus(PaymentStatus.FAILED);
 		}
-		
-		bookingRepository.deleteAll(expiredBookings);
+
 		log.info("Canceled {} expired pending bookings", expiredBookings.size());
 	}
 }
