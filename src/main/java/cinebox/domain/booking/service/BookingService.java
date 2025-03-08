@@ -22,4 +22,7 @@ public interface BookingService {
 
 	// 예매 대기 취소
 	void cancelBooking(Long bookingId);
+
+	// 특정 사용자의 예매 목록 조회
+	List<TicketResponse> getUserBookings(Long userId);
 }
