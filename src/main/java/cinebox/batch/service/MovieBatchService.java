@@ -1,3 +1,8 @@
+/*
+ * @deprecated cinebox_batch_service 레포지토리로 이관
+ */
+
+/*
 package cinebox.batch.service;
 
 import java.io.UnsupportedEncodingException;
@@ -240,3 +245,4 @@ public class MovieBatchService {
 	    return result.rating();
 	}
 }
+*/
