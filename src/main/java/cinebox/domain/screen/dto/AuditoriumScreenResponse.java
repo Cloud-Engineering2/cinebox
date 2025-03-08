@@ -5,6 +5,7 @@ import java.util.List;
 public record AuditoriumScreenResponse(
 		Long auditoriumId,
 		String auditoriumName,
+		Integer auditoriumCapacity,
 		List<ScreenResponse> screens
 ) {
 	public static AuditoriumScreenResponse from(List<ScreenResponse> screens) {
@@ -16,6 +17,7 @@ public record AuditoriumScreenResponse(
 		return new AuditoriumScreenResponse(
 				response.auditoriumId(),
 				response.auditoriumName(),
+				response.auditoriumCapacity(),
 				screens
 		);
 	}

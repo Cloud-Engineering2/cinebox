@@ -21,6 +21,7 @@ import cinebox.common.exception.payment.NotFoundPaymentException;
 import cinebox.common.exception.payment.NotPaidBookingException;
 import cinebox.common.exception.screen.NotFoundScreenException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
+import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.booking.dto.BookingRequest;
 import cinebox.domain.booking.dto.BookingResponse;
@@ -38,6 +39,7 @@ import cinebox.domain.screen.repository.ScreenRepository;
 import cinebox.domain.seat.entity.Seat;
 import cinebox.domain.seat.repository.SeatRepository;
 import cinebox.domain.user.entity.User;
+import cinebox.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,6 +53,7 @@ public class BookingServiceImpl implements BookingService {
 	private final ScreenRepository screenRepository;
 	private final SeatRepository seatRepository;
 	private final PaymentRepository paymentRepository;
+	private final UserRepository userRepository;
 
 	@Override
 	@Transactional(readOnly = true)
@@ -110,8 +113,23 @@ public class BookingServiceImpl implements BookingService {
 		return new BookingResponse(savedBooking.getBookingId(), screen.getScreenId());
 	}
 
+	// 특정 사용자의 예매 목록 조회
+	@Override
+	@Transactional(readOnly = true)
+	public List<TicketResponse> getUserBookings(Long userId) {
+		userRepository.findById(userId).orElseThrow(() -> NotFoundUserException.EXCEPTION);
+		
+		List<Booking> bookings = bookingRepository.findByUser_UserIdAndStatusIn(userId,
+				List.of(BookingStatus.PENDING, BookingStatus.PAID, BookingStatus.REFUNDED));
+
+		return bookings.stream()
+				.filter(booking -> booking.getBookingSeats() != null && !booking.getBookingSeats().isEmpty())
+				.map(TicketResponse::from).collect(Collectors.toList());
+	}
+
 	// 특정 예매 조회
 	@Override
+	@Transactional(readOnly = true)
 	public TicketResponse getBooking(Long bookingId) {
 		Booking booking = getBookingById(bookingId);
 		
