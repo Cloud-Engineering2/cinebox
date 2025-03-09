@@ -1,5 +1,6 @@
 package cinebox.domain.auth.service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,15 +11,19 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cinebox.common.enums.PlatformType;
 import cinebox.common.enums.Role;
 import cinebox.common.exception.user.DuplicatedEmailException;
 import cinebox.common.exception.user.DuplicatedFieldException;
 import cinebox.common.exception.user.DuplicatedIdentifierException;
 import cinebox.common.exception.user.DuplicatedPhoneException;
 import cinebox.common.utils.CookieUtil;
+import cinebox.common.utils.KakaoUtil;
 import cinebox.common.utils.SecurityUtil;
 import cinebox.domain.auth.dto.AuthRequest;
 import cinebox.domain.auth.dto.AuthResponse;
+import cinebox.domain.auth.dto.KakaoProfile;
+import cinebox.domain.auth.dto.OAuthToken;
 import cinebox.domain.auth.dto.SignUpRequest;
 import cinebox.domain.auth.entity.TokenRedis;
 import cinebox.domain.auth.repository.TokenRedisRepository;
@@ -41,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
 	private final JwtTokenProvider jwtTokenProvider;
 	private final AuthenticationManager authenticationManager;
 	private final TokenRedisRepository tokenRedisRepository;
+	private final KakaoUtil kakaoUtil;
 
 	@Override
 	@Transactional
@@ -48,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
 		validateUniqueFields(request);
 
         String encodedPassword = passwordEncoder.encode(request.password());
-		User newUser = User.createUser(request, encodedPassword);
+		User newUser = User.createUser(request, encodedPassword, PlatformType.LOCAL);
 
 		// ADMIN이 생성하는 계정이 아니라면 USER로 역할 고정
 		if (!SecurityUtil.isAdmin()) {
@@ -84,6 +90,7 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
+	@Transactional(readOnly = true)
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// 블랙리스트에 액세스 토큰 등록 
 		Optional<Cookie> accessTokenCookie = CookieUtil.getCookie(request, "AT");
@@ -94,6 +101,46 @@ public class AuthServiceImpl implements AuthService {
 		
 		// 클라이언트 쿠키 삭제
 		CookieUtil.clearAuthCookies(response);
+	}
+	
+	@Override
+	@Transactional
+	public AuthResponse oAuthLogin(String accessCode, HttpServletResponse response) {
+		OAuthToken oAuthToken = kakaoUtil.requestToken(accessCode);
+		KakaoProfile kakaoProfile = kakaoUtil.requestProfile(oAuthToken);
+		String email = kakaoProfile.kakao_account().email();
+		
+		// TODO: 등록된 유저가 없을 때 회원가입 처리 로직 구현
+		User user = userRepository.findByEmailAndPlatformType(email, PlatformType.KAKAO)
+				.orElseGet(() -> registerKakaoUser(kakaoProfile));
+		
+		String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
+		String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
+		
+		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
+		tokenRedisRepository.save(tokenRedis);
+
+		jwtTokenProvider.saveAccessCookie(response, accessToken);
+		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
+		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
+	}
+
+	// 임시 카카오 회원가입
+	private User registerKakaoUser(KakaoProfile kakaoProfile) {
+		SignUpRequest newReq = new SignUpRequest(
+				kakaoProfile.kakao_account().email(),
+				null,
+				kakaoProfile.kakao_account().email(),
+				kakaoProfile.properties().nickname(),
+				"010-1234-1234",
+				LocalDate.parse("2020-02-02"),
+				cinebox.common.enums.Gender.MALE,
+				Role.USER
+		);
+
+		User newUser = User.createUser(newReq, passwordEncoder.encode("temparary"), PlatformType.KAKAO);
+
+		return userRepository.save(newUser);
 	}
 
 	private void validateUniqueFields(SignUpRequest request) {

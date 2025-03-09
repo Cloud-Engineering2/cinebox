@@ -9,6 +9,7 @@ import org.hibernate.annotations.SQLRestriction;
 
 import cinebox.common.entity.BaseTimeEntity;
 import cinebox.common.enums.Gender;
+import cinebox.common.enums.PlatformType;
 import cinebox.common.enums.Role;
 import cinebox.domain.auth.dto.SignUpRequest;
 import cinebox.domain.booking.entity.Booking;
@@ -26,13 +27,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "user")
+@Table(
+		name = "user",
+		uniqueConstraints = {
+				@UniqueConstraint(columnNames = {"email", "platform_type"}),
+				@UniqueConstraint(columnNames = {"phone", "platform_type"})
+		})
 @Getter
 @Builder
 @AllArgsConstructor
@@ -80,6 +87,10 @@ public class User extends BaseTimeEntity {
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private Role role;
+	
+	@Column(nullable = false, name = "platform_type")
+	@Enumerated(EnumType.STRING)
+	private PlatformType platformType = PlatformType.LOCAL;
 
 	@OneToMany(mappedBy = "user")
 	private List<Booking> bookings = new ArrayList<>();
@@ -115,7 +126,7 @@ public class User extends BaseTimeEntity {
 		this.isDeleted = false;
 	}
 
-	public static User createUser(SignUpRequest request, String encodedPassword) {
+	public static User createUser(SignUpRequest request, String encodedPassword, PlatformType platformType) {
 		return User.builder()
 				.identifier(request.identifier())
 				.password(encodedPassword)
@@ -125,6 +136,7 @@ public class User extends BaseTimeEntity {
 				.birthDate(request.birthDate())
 				.gender(request.gender())
 				.role(request.role())
+				.platformType(platformType)
 				.build();
 	}
 }

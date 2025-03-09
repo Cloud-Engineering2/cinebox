@@ -88,7 +88,7 @@ public class JwtTokenProvider {
 	public Authentication getAuthentication(String token) {
 		DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
 		Long userId = decodedJWT.getClaim("user_id").asLong();
-		cinebox.domain.user.entity.User user = userRepository.findByUserIdAndIsDeletedFalse(userId)
+		cinebox.domain.user.entity.User user = userRepository.findById(userId)
 				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
 		PrincipalDetails principalDetails = new PrincipalDetails(user);
 		return new UsernamePasswordAuthenticationToken(principalDetails, "", principalDetails.getAuthorities());

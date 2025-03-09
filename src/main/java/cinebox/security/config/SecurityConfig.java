@@ -47,13 +47,7 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable()).addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
 				.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 				.authorizeHttpRequests(auth -> auth
-
-						.requestMatchers("/images/**", "/css/**", "/js/**").permitAll()
-						.requestMatchers("/api/auth/**", "/api/bookings/**", "/api/payments", "/bookings/payment-test")
-						.permitAll().requestMatchers("/", "/signup/**", "/mypage/**").permitAll()
-						.requestMatchers("/admin").hasAuthority("ROLE_ADMIN")
-
-						.anyRequest().authenticated())
+						.requestMatchers("/**").permitAll())
 				.addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
 						UsernamePasswordAuthenticationFilter.class);
 		return http.build();

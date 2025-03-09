@@ -2,9 +2,11 @@ package cinebox.domain.auth.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.domain.auth.dto.AuthRequest;
@@ -40,5 +42,13 @@ public class AuthController {
 	public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
 		authService.logout(request, response);
 		return ResponseEntity.noContent().build();
+	}
+	
+	@GetMapping("/callback")
+	public ResponseEntity<AuthResponse> kakaoLogin(
+			@RequestParam("code") String accessCode,
+			HttpServletResponse httpServletResponse) {
+		AuthResponse response = authService.oAuthLogin(accessCode, httpServletResponse);
+		return ResponseEntity.ok(response);
 	}
 }
