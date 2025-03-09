@@ -144,13 +144,13 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	private void validateUniqueFields(SignUpRequest request) {
-		if (userRepository.existsByIdentifier(request.identifier())) {
+		if (userRepository.existsByIdentifierAndPlatformType(request.identifier(), PlatformType.LOCAL)) {
 			throw DuplicatedIdentifierException.EXCEPTION;
 		}
-		if (userRepository.existsByEmail(request.email())) {
+		if (userRepository.existsByEmailAndPlatformType(request.email(), PlatformType.LOCAL)) {
 			throw DuplicatedEmailException.EXCEPTION;
 		}
-		if (userRepository.existsByPhone(request.phone())) {
+		if (userRepository.existsByPhoneAndPlatformType(request.phone(), PlatformType.LOCAL)) {
 			throw DuplicatedPhoneException.EXCEPTION;
 		}
 	}

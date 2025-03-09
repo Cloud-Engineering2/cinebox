@@ -37,6 +37,7 @@ import lombok.NoArgsConstructor;
 @Table(
 		name = "user",
 		uniqueConstraints = {
+				@UniqueConstraint(columnNames = {"identifier", "platform_type"}),
 				@UniqueConstraint(columnNames = {"email", "platform_type"}),
 				@UniqueConstraint(columnNames = {"phone", "platform_type"})
 		})
@@ -52,10 +53,10 @@ public class User extends BaseTimeEntity {
 	@Column(name = "user_id")
 	private Long userId;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String identifier;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String email;
 
 	@Column(nullable = false)
@@ -64,7 +65,7 @@ public class User extends BaseTimeEntity {
 	@Column(nullable = false)
 	private String name;
 
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String phone;
 
 	@Column(name = "birth_date")
