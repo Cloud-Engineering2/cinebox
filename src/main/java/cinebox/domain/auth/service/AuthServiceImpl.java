@@ -72,7 +72,7 @@ public class AuthServiceImpl implements AuthService {
 	@Override
 	@Transactional
 	public AuthResponse login(AuthRequest request, HttpServletResponse response) {
-		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.getIdentifier(), request.getPassword());
+		UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(request.identifier(), request.password());
 		Authentication authentication = authenticationManager.authenticate(token);
 		
 		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();

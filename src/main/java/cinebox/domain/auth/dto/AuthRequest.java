@@ -1,15 +1,8 @@
 package cinebox.domain.auth.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class AuthRequest {
-    private String identifier;
-    private String password;
+public record AuthRequest(
+		String identifier,
+		String password
+) {
+	
 }
