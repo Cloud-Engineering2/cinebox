@@ -52,12 +52,16 @@ public class AuthServiceImpl implements AuthService {
 	public UserResponse signup(SignUpRequest request) {
 		validateUniqueFields(request);
 
-        String encodedPassword = passwordEncoder.encode(request.password());
-        PlatformType platformType = request.platformType();
-        
-        if (request.platformType() == null) {
-        	platformType = PlatformType.LOCAL;
-        }
+		String encodedPassword = null;
+		PlatformType platformType = request.platformType();
+
+		if (request.platformType().equals(PlatformType.KAKAO)) {
+			encodedPassword = passwordEncoder.encode(java.util.UUID.randomUUID().toString());
+		} else {
+			platformType = PlatformType.LOCAL;
+			encodedPassword = passwordEncoder.encode(request.password());
+		}
+
 		User newUser = User.createUser(request, encodedPassword, platformType);
 
 		// ADMIN이 생성하는 계정이 아니라면 USER로 역할 고정
