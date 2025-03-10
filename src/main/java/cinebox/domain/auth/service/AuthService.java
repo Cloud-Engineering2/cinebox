@@ -18,5 +18,5 @@ public interface AuthService {
 	// 로그아웃
 	void logout(HttpServletRequest request, HttpServletResponse response);
 
-	AuthResponse oAuthLogin(String accessCode, HttpServletResponse httpServletResponse);
+	Object oAuthLogin(String accessCode, HttpServletResponse httpServletResponse);
 }

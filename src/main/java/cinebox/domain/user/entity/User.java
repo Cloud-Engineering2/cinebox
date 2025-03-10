@@ -136,7 +136,7 @@ public class User extends BaseTimeEntity {
 				.phone(request.phone())
 				.birthDate(request.birthDate())
 				.gender(request.gender())
-				.role(request.role())
+				.role(request.role() != null ? request.role() : Role.USER)
 				.platformType(platformType)
 				.build();
 	}

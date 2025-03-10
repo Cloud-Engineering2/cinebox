@@ -1,5 +1,6 @@
 package cinebox.domain.auth.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import cinebox.domain.auth.dto.AuthRequest;
 import cinebox.domain.auth.dto.AuthResponse;
+import cinebox.domain.auth.dto.KakaoProfile;
 import cinebox.domain.auth.dto.SignUpRequest;
 import cinebox.domain.auth.service.AuthService;
 import cinebox.domain.user.dto.UserResponse;
@@ -45,10 +47,14 @@ public class AuthController {
 	}
 	
 	@GetMapping("/callback")
-	public ResponseEntity<AuthResponse> kakaoLogin(
+	public ResponseEntity<?> kakaoLogin(
 			@RequestParam("code") String accessCode,
 			HttpServletResponse httpServletResponse) {
-		AuthResponse response = authService.oAuthLogin(accessCode, httpServletResponse);
+		Object response = authService.oAuthLogin(accessCode, httpServletResponse);
+		
+		if (response instanceof KakaoProfile) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+		}
 		return ResponseEntity.ok(response);
 	}
 }

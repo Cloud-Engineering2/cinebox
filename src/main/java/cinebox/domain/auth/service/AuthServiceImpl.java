@@ -105,24 +105,40 @@ public class AuthServiceImpl implements AuthService {
 	
 	@Override
 	@Transactional
-	public AuthResponse oAuthLogin(String accessCode, HttpServletResponse response) {
+	public Object oAuthLogin(String accessCode, HttpServletResponse response) {
 		OAuthToken oAuthToken = kakaoUtil.requestToken(accessCode);
 		KakaoProfile kakaoProfile = kakaoUtil.requestProfile(oAuthToken);
 		String email = kakaoProfile.kakao_account().email();
 		
-		// TODO: 등록된 유저가 없을 때 회원가입 처리 로직 구현
-		User user = userRepository.findByEmailAndPlatformType(email, PlatformType.KAKAO)
-				.orElseGet(() -> registerKakaoUser(kakaoProfile));
-		
-		String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
-		String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
-		
-		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
-		tokenRedisRepository.save(tokenRedis);
+		Optional<User> optionalUser = userRepository.findByEmailAndPlatformType(email, PlatformType.KAKAO);
+		if (optionalUser.isPresent()) {
+			User user = optionalUser.get();
+			
+			String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
+			String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
+			
+			TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
+			tokenRedisRepository.save(tokenRedis);
 
-		jwtTokenProvider.saveAccessCookie(response, accessToken);
-		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
-		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
+			jwtTokenProvider.saveAccessCookie(response, accessToken);
+			jwtTokenProvider.saveRefreshCookie(response, refreshToken);
+			return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
+		} else {
+			return kakaoProfile;
+		}
+		
+//		User user = userRepository.findByEmailAndPlatformType(email, PlatformType.KAKAO)
+//				.orElseGet(() -> registerKakaoUser(kakaoProfile));
+//		
+//		String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
+//		String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
+//		
+//		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
+//		tokenRedisRepository.save(tokenRedis);
+//
+//		jwtTokenProvider.saveAccessCookie(response, accessToken);
+//		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
+//		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
 	}
 
 	// 임시 카카오 회원가입
