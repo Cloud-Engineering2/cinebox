@@ -47,24 +47,37 @@ public class AuthServiceImpl implements AuthService {
 	private final TokenRedisRepository tokenRedisRepository;
 	private final KakaoUtil kakaoUtil;
 
+	// 회원가입
 	@Override
 	@Transactional
 	public UserResponse signup(SignUpRequest request) {
 		validateUniqueFields(request);
 
-		String encodedPassword = null;
-		PlatformType platformType = request.platformType();
-
-		if (request.platformType().equals(PlatformType.KAKAO)) {
-			encodedPassword = passwordEncoder.encode(java.util.UUID.randomUUID().toString());
-		} else {
-			platformType = PlatformType.LOCAL;
-			encodedPassword = passwordEncoder.encode(request.password());
-		}
-
-		User newUser = User.createUser(request, encodedPassword, platformType);
+		String encodedPassword = passwordEncoder.encode(request.password());
+		User newUser = User.createUser(request, encodedPassword, PlatformType.LOCAL);
 
 		// ADMIN이 생성하는 계정이 아니라면 USER로 역할 고정
+		if (!SecurityUtil.isAdmin()) {
+			newUser.updateUserRole(Role.USER);
+		}
+
+		try {
+			User savedUser = userRepository.save(newUser);
+			return UserResponse.from(savedUser);
+		} catch(DataIntegrityViolationException e) {
+			throw DuplicatedFieldException.EXCEPTION;
+		}
+	}
+
+	// 카카오 회원가입
+	@Override
+	@Transactional
+	public UserResponse kakaoSignup(SignUpRequest request) {
+		validateUniqueFields(request);
+		
+		String encodedPassword = passwordEncoder.encode(java.util.UUID.randomUUID().toString());
+		User newUser = User.createUser(request, encodedPassword, PlatformType.KAKAO);
+		
 		if (!SecurityUtil.isAdmin()) {
 			newUser.updateUserRole(Role.USER);
 		}

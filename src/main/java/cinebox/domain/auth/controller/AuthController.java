@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import cinebox.common.validation.CreateGroup;
 import cinebox.domain.auth.dto.AuthRequest;
 import cinebox.domain.auth.dto.AuthResponse;
 import cinebox.domain.auth.dto.KakaoProfile;
@@ -26,10 +27,18 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 	private final AuthService authService;
 
+	// 회원가입
 	@PostMapping("/signup")
-	public ResponseEntity<UserResponse> signup(@RequestBody @Validated SignUpRequest user) {
-		UserResponse newUser = authService.signup(user);
-		return ResponseEntity.ok().body(newUser);
+	public ResponseEntity<UserResponse> signup(@RequestBody @Validated SignUpRequest request) {
+		UserResponse response = authService.signup(request);
+		return ResponseEntity.ok(response);
+	}
+
+	// 카카오 회원가입
+	@PostMapping("/signup/kakao")
+	public ResponseEntity<UserResponse> kakaoSignup(@RequestBody @Validated(CreateGroup.class) SignUpRequest request) {
+		UserResponse response = authService.kakaoSignup(request);
+		return ResponseEntity.ok(response);
 	}
 
 	@PostMapping("/login")
