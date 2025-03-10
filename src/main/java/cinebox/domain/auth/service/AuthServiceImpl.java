@@ -99,8 +99,18 @@ public class AuthServiceImpl implements AuthService {
 		PrincipalDetails principal = (PrincipalDetails) authentication.getPrincipal();
 		User user = principal.getUser();
 		
-		String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
-		String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
+		String accessToken = jwtTokenProvider.createAccessToken(
+				user.getUserId(),
+				user.getRole().name(),
+				user.getPlatformType(),
+				user.getIdentifier()
+		);
+		String refreshToken = jwtTokenProvider.createRefreshToken(
+				user.getUserId(),
+				user.getRole().name(),
+				user.getPlatformType(),
+				user.getIdentifier()
+		);
 		
 		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
 		tokenRedisRepository.save(tokenRedis);
@@ -135,8 +145,18 @@ public class AuthServiceImpl implements AuthService {
 		if (optionalUser.isPresent()) {
 			User user = optionalUser.get();
 			
-			String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
-			String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
+			String accessToken = jwtTokenProvider.createAccessToken(
+					user.getUserId(),
+					user.getRole().name(),
+					user.getPlatformType(),
+					user.getIdentifier()
+			);
+			String refreshToken = jwtTokenProvider.createRefreshToken(
+					user.getUserId(),
+					user.getRole().name(),
+					user.getPlatformType(),
+					user.getIdentifier()
+			);
 			
 			TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
 			tokenRedisRepository.save(tokenRedis);

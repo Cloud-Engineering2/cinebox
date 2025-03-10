@@ -17,9 +17,15 @@ public class PrincipalDetailsService implements UserDetailsService {
 
     @Override
     public PrincipalDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-
-    	User user = userRepository.findByIdentifierAndPlatformType(username, PlatformType.LOCAL).orElseThrow(() -> NotFoundUserException.EXCEPTION);
+    	User user = userRepository.findByIdentifierAndPlatformType(username, PlatformType.LOCAL)
+    			.orElseThrow(() -> NotFoundUserException.EXCEPTION);
         return new PrincipalDetails (user);
+    }
+
+    public PrincipalDetails loadUserByUsernameAndPlatform(String identifier, PlatformType platformType) throws UsernameNotFoundException {
+        User user = userRepository.findByIdentifierAndPlatformType(identifier, platformType)
+                .orElseThrow(() -> NotFoundUserException.EXCEPTION);
+        return new PrincipalDetails(user);
     }
 
 }

@@ -66,4 +66,9 @@ public class AuthController {
 		}
 		return ResponseEntity.ok(response);
 	}
+	
+	@GetMapping("/callback/test")
+	public ResponseEntity<?> test() {
+		return ResponseEntity.ok().build();
+	}
 }

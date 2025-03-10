@@ -20,6 +20,7 @@ import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 
+import cinebox.common.enums.PlatformType;
 import cinebox.common.exception.auth.InvalidTokenException;
 import cinebox.common.exception.auth.NotFoundTokenException;
 import cinebox.common.exception.auth.RedisServerException;
@@ -54,18 +55,30 @@ public class JwtTokenProvider {
 	@Value("${security.jwt.refreshTokenValidityInMilliseconds}")
 	public long refreshTokenValidityInMilliseconds;
 
-	public String createAccessToken(Long userId, String role) {
+	public String createAccessToken(Long userId, String role, PlatformType platformType, String identifier) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + accessTokenValidityInMilliseconds);
-		return JWT.create().withClaim("user_id", userId).withClaim("role", role).withIssuedAt(now)
-				.withExpiresAt(validity).sign(Algorithm.HMAC256(secretKey));
+		return JWT.create()
+				.withClaim("user_id", userId)
+				.withClaim("role", role)
+				.withClaim("platform", platformType.name())
+				.withClaim("identifier", identifier)
+				.withIssuedAt(now)
+				.withExpiresAt(validity)
+				.sign(Algorithm.HMAC256(secretKey));
 	}
 
-	public String createRefreshToken(Long userId, String role) {
+	public String createRefreshToken(Long userId, String role, PlatformType platformType, String identifier) {
 		Date now = new Date();
 		Date validity = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
-		return JWT.create().withClaim("user_id", userId).withClaim("role", role).withIssuedAt(now)
-				.withExpiresAt(validity).sign(Algorithm.HMAC256(secretKey));
+		return JWT.create()
+				.withClaim("user_id", userId)
+				.withClaim("role", role)
+				.withClaim("platform", platformType.name())
+				.withClaim("identifier", identifier)
+				.withIssuedAt(now)
+				.withExpiresAt(validity)
+				.sign(Algorithm.HMAC256(secretKey));
 	}
 
 	public boolean validateToken(String token) {
@@ -87,17 +100,22 @@ public class JwtTokenProvider {
 
 	public Authentication getAuthentication(String token) {
 		DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
-		Long userId = decodedJWT.getClaim("user_id").asLong();
-		cinebox.domain.user.entity.User user = userRepository.findById(userId)
-				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
-		PrincipalDetails principalDetails = new PrincipalDetails(user);
+//		Long userId = decodedJWT.getClaim("user_id").asLong();
+//		cinebox.domain.user.entity.User user = userRepository.findById(userId)
+//				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+//		PrincipalDetails principalDetails = new PrincipalDetails(user);
+		String identifier = decodedJWT.getClaim("identifier").asString();
+		String platformStr = decodedJWT.getClaim("platform").asString();
+		PlatformType platformType = PlatformType.valueOf(platformStr);
+		PrincipalDetails principalDetails = principalDetailsService.loadUserByUsernameAndPlatform(identifier, platformType);
 		return new UsernamePasswordAuthenticationToken(principalDetails, "", principalDetails.getAuthorities());
 	}
 
 	public UsernamePasswordAuthenticationToken createAuthenticationFromToken(String token) {
-		Authentication authentication = getAuthentication(token);
-		UserDetails userDetails = principalDetailsService.loadUserByUsername(authentication.getName());
-		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//		Authentication authentication = getAuthentication(token);
+//		UserDetails userDetails = principalDetailsService.loadUserByUsername(authentication.getName());
+//		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		return (UsernamePasswordAuthenticationToken) getAuthentication(token);
 	}
 
 	/**
@@ -132,6 +150,8 @@ public class JwtTokenProvider {
 			DecodedJWT decodedRefresh = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(refreshToken);
 			Long userId = decodedRefresh.getClaim("user_id").asLong();
 			String role = decodedRefresh.getClaim("role").asString();
+			PlatformType platformType = PlatformType.valueOf(decodedRefresh.getClaim("platform").asString());
+			String identifier = decodedRefresh.getClaim("identifier").asString();
 
 			// Redis 엔티티 조회 및 리프레시 토큰 일치 여부 확인
 			TokenRedis tokenRedis = tokenRedisRepository.findById(String.valueOf(userId))
@@ -146,7 +166,7 @@ public class JwtTokenProvider {
 
 			UsernamePasswordAuthenticationToken authentication = createAuthenticationFromToken(refreshToken);
 			// 새 액세스 토큰 발급
-			String newAccessToken = createAccessToken(userId, role);
+			String newAccessToken = createAccessToken(userId, role, platformType, identifier);
 
 			// 쿠키에 새 액세스 토큰 저장
 			saveAccessCookie(response, newAccessToken);
