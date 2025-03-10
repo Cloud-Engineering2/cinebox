@@ -3,6 +3,7 @@ package cinebox.domain.auth.dto;
 import java.time.LocalDate;
 
 import cinebox.common.enums.Gender;
+import cinebox.common.enums.PlatformType;
 import cinebox.common.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -34,7 +35,8 @@ public record SignUpRequest(
 		LocalDate birthDate,
 		
 		Gender gender,
-		Role role
+		Role role,
+		PlatformType platformType
 ) {
 
 }

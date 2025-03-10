@@ -1,6 +1,5 @@
 package cinebox.domain.auth.service;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.dao.DataIntegrityViolationException;
@@ -54,7 +53,12 @@ public class AuthServiceImpl implements AuthService {
 		validateUniqueFields(request);
 
         String encodedPassword = passwordEncoder.encode(request.password());
-		User newUser = User.createUser(request, encodedPassword, PlatformType.LOCAL);
+        PlatformType platformType = request.platformType();
+        
+        if (request.platformType() == null) {
+        	platformType = PlatformType.LOCAL;
+        }
+		User newUser = User.createUser(request, encodedPassword, platformType);
 
 		// ADMIN이 생성하는 계정이 아니라면 USER로 역할 고정
 		if (!SecurityUtil.isAdmin()) {
@@ -126,37 +130,6 @@ public class AuthServiceImpl implements AuthService {
 		} else {
 			return kakaoProfile;
 		}
-		
-//		User user = userRepository.findByEmailAndPlatformType(email, PlatformType.KAKAO)
-//				.orElseGet(() -> registerKakaoUser(kakaoProfile));
-//		
-//		String accessToken = jwtTokenProvider.createAccessToken(user.getUserId(), user.getRole().name());
-//		String refreshToken = jwtTokenProvider.createRefreshToken(user.getUserId(), user.getRole().name());
-//		
-//		TokenRedis tokenRedis = new TokenRedis(String.valueOf(user.getUserId()), accessToken, refreshToken);
-//		tokenRedisRepository.save(tokenRedis);
-//
-//		jwtTokenProvider.saveAccessCookie(response, accessToken);
-//		jwtTokenProvider.saveRefreshCookie(response, refreshToken);
-//		return new AuthResponse(user.getUserId(), user.getRole().toString(), user.getIdentifier());
-	}
-
-	// 임시 카카오 회원가입
-	private User registerKakaoUser(KakaoProfile kakaoProfile) {
-		SignUpRequest newReq = new SignUpRequest(
-				kakaoProfile.kakao_account().email(),
-				null,
-				kakaoProfile.kakao_account().email(),
-				kakaoProfile.properties().nickname(),
-				"010-1234-1234",
-				LocalDate.parse("2020-02-02"),
-				cinebox.common.enums.Gender.MALE,
-				Role.USER
-		);
-
-		User newUser = User.createUser(newReq, passwordEncoder.encode("temparary"), PlatformType.KAKAO);
-
-		return userRepository.save(newUser);
 	}
 
 	private void validateUniqueFields(SignUpRequest request) {
