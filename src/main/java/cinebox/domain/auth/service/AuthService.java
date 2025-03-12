@@ -12,9 +12,16 @@ public interface AuthService {
 	// 회원가입
 	UserResponse signup(SignUpRequest request);
 
+	// 카카오 회원가입
+	UserResponse kakaoSignup(SignUpRequest request);
+
 	// 로그인
 	AuthResponse login(AuthRequest request, HttpServletResponse response);
 
 	// 로그아웃
 	void logout(HttpServletRequest request, HttpServletResponse response);
+
+	// 카카오 로그인
+	Object oAuthLogin(String accessCode, HttpServletResponse httpServletResponse);
+
 }

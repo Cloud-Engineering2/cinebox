@@ -3,18 +3,20 @@ package cinebox.domain.auth.dto;
 import java.time.LocalDate;
 
 import cinebox.common.enums.Gender;
+import cinebox.common.enums.PlatformType;
 import cinebox.common.enums.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.groups.Default;
 
 public record SignUpRequest(
 		@NotNull(message = "아이디는 4자 이상 20자 이하여야 합니다.")
 		@Size(min = 4, max = 20, message = "아이디는 4자 이상 20자 이하여야 합니다.")
 		String identifier,
 		
-		@NotNull(message = "비밀번호는 8자 이상 20자 이하이어야 합니다.")
+		@NotNull(groups = Default.class, message = "비밀번호는 8자 이상 20자 이하이어야 합니다.")
 		@Size(min = 8, max = 20, message = "비밀번호는 8자 이상 20자 이하이어야 합니다.")
 		String password,
 		
@@ -34,7 +36,8 @@ public record SignUpRequest(
 		LocalDate birthDate,
 		
 		Gender gender,
-		Role role
+		Role role,
+		PlatformType platformType
 ) {
 
 }

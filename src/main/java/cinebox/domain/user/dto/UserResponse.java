@@ -3,6 +3,7 @@ package cinebox.domain.user.dto;
 import java.time.LocalDate;
 
 import cinebox.common.enums.Gender;
+import cinebox.common.enums.PlatformType;
 import cinebox.common.enums.Role;
 import cinebox.domain.user.entity.User;
 
@@ -15,7 +16,8 @@ public record UserResponse(
 	    Integer age,
 	    LocalDate birthDate,
 	    Gender gender,
-	    Role role
+	    Role role,
+	    PlatformType platform
 ) {
 	public static UserResponse from(User user) {
         return new UserResponse(
@@ -27,7 +29,8 @@ public record UserResponse(
                 user.getAge(),
                 user.getBirthDate(),
                 user.getGender(),
-                user.getRole()
+                user.getRole(),
+                user.getPlatformType()
         );
 	}
 }

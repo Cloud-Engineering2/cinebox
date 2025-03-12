@@ -1,9 +1,12 @@
 package cinebox.common.runner;
 
+import java.time.LocalDate;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import cinebox.common.enums.PlatformType;
 import cinebox.common.enums.Role;
 import cinebox.domain.user.entity.User;
 import cinebox.domain.user.repository.UserRepository;
@@ -33,6 +36,8 @@ public class UserInitializer implements CommandLineRunner {
 					.name("관리자")
 					.phone("010-1234-5678")
 					.role(Role.ADMIN)
+					.birthDate(LocalDate.parse("1900-01-01"))
+					.platformType(PlatformType.LOCAL)
 					.build();
 
 			userRepository.save(adminUser);
