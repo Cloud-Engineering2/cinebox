@@ -17,7 +17,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import cinebox.domain.auth.entity.TokenRedis;
 
 @Configuration
-@EnableRedisRepositories(enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP)
+@EnableRedisRepositories(
+		enableKeyspaceEvents = RedisKeyValueAdapter.EnableKeyspaceEvents.ON_STARTUP,
+		keyspaceNotificationsConfigParameter = "")
 public class RedisRepositoryConfig {
 	@Value("${spring.data.redis.host}")
 	private String host;
