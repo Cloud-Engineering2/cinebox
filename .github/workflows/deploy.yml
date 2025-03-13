@@ -48,10 +48,16 @@ jobs:
       - name: Build and Push Docker Image
         env:
           ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
+          LATEST_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+          # latest 태그 생성
+          docker tag $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$LATEST_TAG
 
+          # 두 개의 태그 푸시
+          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$LATEST_TAG
+         
       - name: Notify Success
         run: echo "Docker image pushed to AWS ECR successfully!"
