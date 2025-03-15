@@ -12,7 +12,7 @@ import jakarta.validation.constraints.Size;
 public record AuditoriumRequest(
 		@NotNull(groups = {CreateGroup.class, UpdateGroup.class}, message = "상영관 이름을 입력해주세요.")
 		@NotEmpty(groups = {CreateGroup.class, UpdateGroup.class}, message = "상영관 이름은 빈 값을 가질 수 없습니다.")
-		String name,
+		String auditoriumName,
 		
 		@NotNull(groups = CreateGroup.class, message = "A부터 Z까지의 한 글자를 입력해주세요.")
 		@Size(groups = CreateGroup.class, min = 1, max = 1, message = "A부터 Z까지의 한 글자만 허용됩니다.")
