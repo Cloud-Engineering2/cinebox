@@ -43,7 +43,7 @@ public class AuditoriumController {
 	}
 
 	// 상영관 이름 수정
-	@PutMapping
+	@PutMapping("/{auditoriumId}")
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<AuditoriumResponse> updateAuditorium(
 			@PathVariable("auditoriumId") Long auditoriumId,

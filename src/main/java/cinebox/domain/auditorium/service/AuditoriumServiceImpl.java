@@ -38,11 +38,11 @@ public class AuditoriumServiceImpl implements AuditoriumService {
 	@Override
 	@Transactional
 	public AuditoriumResponse createAuditorium(AuditoriumRequest request) {
-		if (auditoriumRepository.existsByName(request.name())) {
+		if (auditoriumRepository.existsByName(request.auditoriumName())) {
 			throw AlreadyExistAuditoriumException.EXCEPTION;
 		}
 		
-		Auditorium auditorium = Auditorium.builder().name(request.name()).build();
+		Auditorium auditorium = Auditorium.builder().name(request.auditoriumName()).build();
 		
 		char rowChar = request.row().charAt(0);
         List<Seat> seats = new ArrayList<>();
@@ -66,7 +66,7 @@ public class AuditoriumServiceImpl implements AuditoriumService {
 		Auditorium auditorium = auditoriumRepository.findById(auditoriumId)
 				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
 
-		auditorium.updateName(request.name());
+		auditorium.updateName(request.auditoriumName());
 
 		Auditorium saved = auditoriumRepository.save(auditorium);
 		return AuditoriumResponse.from(saved);
