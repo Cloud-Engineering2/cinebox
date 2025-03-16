@@ -12,7 +12,9 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import cinebox.common.exception.movie.S3ServerException;
 import cinebox.domain.movie.dto.MovieRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class S3ServiceImpl implements S3Service {
@@ -24,10 +26,12 @@ public class S3ServiceImpl implements S3Service {
 	@Override
 	public String uploadFile(MovieRequest request, MultipartFile image) {
 		if (image == null) {
+			log.info("이미지가 첨부되지 않음");
 			return null;
 		}
 		
 		String fileName = generateFileName(request);
+		log.info("S3 파일 업로드 시작: fileName={}", fileName);
 		
 		try {
 			ObjectMetadata metadata = new ObjectMetadata();
@@ -36,8 +40,11 @@ public class S3ServiceImpl implements S3Service {
 			
 			amazonS3.putObject(bucketName, fileName, image.getInputStream(), metadata);
 			
-			return amazonS3.getUrl(bucketName, fileName).toString();
+			String url = amazonS3.getUrl(bucketName, fileName).toString();
+			log.info("S3 파일 업로드 완료: url={}", url);
+			return url;
 		} catch (IOException e) {
+			log.error("S3 파일 업로드 실패: {}", e.getMessage());
 			throw S3ServerException.EXCEPTION;
 		}
 	}
