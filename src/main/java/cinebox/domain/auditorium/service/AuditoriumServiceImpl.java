@@ -16,7 +16,9 @@ import cinebox.domain.auditorium.entity.Auditorium;
 import cinebox.domain.auditorium.repository.AuditoriumRepository;
 import cinebox.domain.seat.entity.Seat;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuditoriumServiceImpl implements AuditoriumService {
@@ -26,6 +28,7 @@ public class AuditoriumServiceImpl implements AuditoriumService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<AuditoriumResponse> getAuditoriums() {
+		log.info("서비스: 상영관 목록 조회 시작");
 		List<Auditorium> auditoriums = auditoriumRepository.findAll();
 		
 		return auditoriums.stream()
@@ -38,7 +41,9 @@ public class AuditoriumServiceImpl implements AuditoriumService {
 	@Override
 	@Transactional
 	public AuditoriumResponse createAuditorium(AuditoriumRequest request) {
+		log.info("서비스: 상영관 생성 시작: auditoriumName={}", request.auditoriumName());
 		if (auditoriumRepository.existsByName(request.auditoriumName())) {
+			log.error("서비스: 이미 존재하는 상영관: {}", request.auditoriumName());
 			throw AlreadyExistAuditoriumException.EXCEPTION;
 		}
 		
@@ -57,18 +62,24 @@ public class AuditoriumServiceImpl implements AuditoriumService {
         auditorium.getSeats().addAll(seats);
         auditorium = auditoriumRepository.save(auditorium);
 		
+        log.info("서비스: 상영관 생성 완료, auditoriumId={}", auditorium.getAuditoriumId());
 		return AuditoriumResponse.from(auditorium);
 	}
 
 	@Override
 	@Transactional
 	public AuditoriumResponse updateAuditorium(Long auditoriumId, AuditoriumRequest request) {
+		log.info("서비스: 상영관 수정 시작: auditoriumId={}, 새이름={}", auditoriumId, request.auditoriumName());
 		Auditorium auditorium = auditoriumRepository.findById(auditoriumId)
-				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
+				.orElseThrow(() -> {
+					log.error("서비스: 상영관을 찾을 수 없음: auditoriumId={}", auditoriumId);
+					return NotFoundAuditoriumException.EXCEPTION;
+				});
 
 		auditorium.updateName(request.auditoriumName());
 
 		Auditorium saved = auditoriumRepository.save(auditorium);
+		log.info("서비스: 상영관 수정 완료: auditoriumId={}", auditoriumId);
 		return AuditoriumResponse.from(saved);
 	}
 }
