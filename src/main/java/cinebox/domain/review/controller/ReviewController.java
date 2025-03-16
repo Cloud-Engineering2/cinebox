@@ -19,7 +19,9 @@ import cinebox.domain.review.dto.ReviewRequest;
 import cinebox.domain.review.dto.ReviewResponse;
 import cinebox.domain.review.service.ReviewService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
@@ -31,7 +33,9 @@ public class ReviewController {
 	public ResponseEntity<ReviewResponse> createReview(
 			@PathVariable("movieId") Long movieId,
 			@Validated(CreateGroup.class) @RequestBody ReviewRequest request) {
+		log.info("리뷰 생성 요청: movieId={}, 내용={}", movieId, request.content());
 		ReviewResponse response = reviewService.createReview(movieId, request);
+		log.info("리뷰 생성 완료: reviewId={}", response.reviewId());
 		return ResponseEntity.ok(response);
 	}
 	
@@ -40,7 +44,9 @@ public class ReviewController {
 	public ResponseEntity<ReviewResponse> updateReview(
 			@PathVariable("reviewId") Long reviewId,
 			@Validated(UpdateGroup.class) @RequestBody ReviewRequest request) {
+		log.info("리뷰 수정 요청: reviewId={}", reviewId);
 		ReviewResponse response = reviewService.updateReview(reviewId, request);
+		log.info("리뷰 수정 완료: reviewId={}", reviewId);
 		return ResponseEntity.ok(response);
 	}
 	
@@ -48,7 +54,9 @@ public class ReviewController {
 	@GetMapping("/movies/{movieId}/reviews")
 	public ResponseEntity<List<ReviewResponse>> getReviewsByMovieId(
 			@PathVariable("movieId") Long movieId) {
+		log.info("영화 리뷰 목록 조회 요청: movieId={}", movieId);
 		List<ReviewResponse> responses = reviewService.getReviewsByMovieId(movieId);
+		log.info("영화 리뷰 목록 조회 완료: movieId={}, 결과 수={}", movieId, responses.size());
 		return ResponseEntity.ok(responses);
 	}
 	
@@ -56,14 +64,18 @@ public class ReviewController {
 	@GetMapping("/reviews/{reviewId}")
 	public ResponseEntity<Void> deleteReviewById(
 			@PathVariable("reviewId") Long reviewId) {
+		log.info("리뷰 삭제 요청: reviewId={}", reviewId);
 		reviewService.deleteReview(reviewId);
+		log.info("리뷰 삭제 완료: reviewId={}", reviewId);
 		return ResponseEntity.noContent().build();
 	}
 	
 	// 본인 리뷰 목록 조회
 	@GetMapping("/reviews/my")
 	public ResponseEntity<List<ReviewResponse>> getMyReviews() {
+		log.info("내 리뷰 목록 조회 요청");
 		List<ReviewResponse> responses = reviewService.getMyReviews();
+		log.info("내 리뷰 목록 조회 완료, 결과 수={}", responses.size());
 		return ResponseEntity.ok(responses);
 	}
 	
@@ -72,7 +84,9 @@ public class ReviewController {
 	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	public ResponseEntity<List<ReviewResponse>> getReviewsByUser(
 			@PathVariable("userId") Long userId) {
+		log.info("관리자: 사용자 리뷰 목록 조회 요청: userId={}", userId);
 		List<ReviewResponse> responses = reviewService.getReviewsByUser(userId);
+		log.info("관리자: 사용자 리뷰 목록 조회 완료: userId={}, 결과 수={}", userId, responses.size());
 		return ResponseEntity.ok(responses);
 	}
 }
