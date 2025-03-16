@@ -1,6 +1,5 @@
 package cinebox.domain.payment.service;
 
-import java.time.LocalDateTime;
 import java.util.Comparator;
 
 import org.springframework.stereotype.Service;
@@ -25,9 +24,9 @@ import cinebox.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class PaymentServiceImpl implements PaymentService {
 
 	private final PaymentRepository paymentRepository;
@@ -44,9 +43,10 @@ public class PaymentServiceImpl implements PaymentService {
 		User bookingUser = booking.getUser();
 
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(bookingUser.getUserId())) {
+			log.error("결제 권한 없음: currentUserId={}, bookingUserId={}", currentUser.getUserId(), bookingUser.getUserId());
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
-		
+
 		Payment payment = booking.getPayments().stream()
 				.max(Comparator.comparing(Payment::getCreatedAt))
 				.orElseThrow(() -> NotFoundPaymentException.EXCEPTION);
@@ -67,10 +67,11 @@ public class PaymentServiceImpl implements PaymentService {
 
 		payment.processPayment(request);
 		paymentRepository.save(payment);
-		
+
 		booking.updateStatus(BookingStatus.PAID);
 		bookingRepository.save(booking);
 
+		log.info("결제 프로세스 완료: bookingId={}, paymentId={}", booking.getBookingId(), payment.getPaymentId());
 		return PaymentResponse.from(payment);
 	}
 

@@ -22,7 +22,9 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -35,17 +37,23 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<UserResponse> getAllActiveUser() {
-		return userRepository.findAll().stream()
+		log.info("전체 활성 사용자 조회 서비스 시작");
+		List<UserResponse> responses = userRepository.findAll().stream()
 				.map(UserResponse::from)
 				.collect(Collectors.toList());
+
+		log.info("전체 활성 사용자 조회 서비스 완료, 결과 수: {}", responses.size());
+		return responses;
 	}
 
 	// 특정 사용자 조회
 	@Override
 	@Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
+		log.info("특정 사용자 조회 서비스 시작: userId={}", userId);
     	User user = userRepository.findByIdIncludingDeleted(userId)
     			.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+    	log.info("특정 사용자 조회 서비스 완료: userId={}", userId);
         return UserResponse.from(user);
     }
 
@@ -53,7 +61,9 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional(readOnly = true)
 	public UserResponse getMyInform() {
+		log.info("본인 사용자 정보 조회 서비스 시작");
 		User currentUser = SecurityUtil.getCurrentUser();
+		log.info("본인 사용자 정보 조회 서비스 완료: userId={}", currentUser.getUserId());
 		return UserResponse.from(currentUser);
 	}
 
@@ -61,11 +71,16 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public UserResponse updateUser(Long userId, UserUpdateRequest request) {
+		log.info("사용자 정보 수정 서비스 시작: userId={}", userId);
 		User reqUser = userRepository.findById(userId)
-				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+				.orElseThrow(() -> {
+					log.error("사용자 정보 수정 실패: userId={} 조회 결과 없음", userId);
+					return NotFoundUserException.EXCEPTION;
+				});
 		User currentUser = SecurityUtil.getCurrentUser();
 		
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(reqUser.getUserId())) {
+			log.error("사용자 정보 수정 권한 없음: currentUserId={}, targetUserId={}", currentUser.getUserId(), reqUser.getUserId());
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
 		
@@ -80,6 +95,7 @@ public class UserServiceImpl implements UserService {
 		}
 		
 		User updatedUser = userRepository.save(reqUser);
+		log.info("사용자 정보 수정 완료: userId={}", updatedUser.getUserId());
 		return UserResponse.from(updatedUser);
 	}
 
@@ -87,37 +103,49 @@ public class UserServiceImpl implements UserService {
 	@Override
 	@Transactional
 	public void withdrawUser(Long userId, HttpServletRequest request, HttpServletResponse response) {
+		log.info("회원 탈퇴 서비스 시작: userId={}", userId);
 		User reqUser = userRepository.findById(userId)
-				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+				.orElseThrow(() -> {
+					log.error("회원 탈퇴 실패: userId={} 조회 결과 없음", userId);
+					return NotFoundUserException.EXCEPTION;
+				});
 		User currentUser = SecurityUtil.getCurrentUser();
-		
+
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(reqUser.getUserId())) {
+			log.error("회원 탈퇴 권한 없음: currentUserId={}, targetUserId={}", currentUser.getUserId(), reqUser.getUserId());
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
-		
+
 		userRepository.delete(reqUser);
-		
+		log.info("회원 탈퇴 DB 처리 완료: userId={}", userId);
+
 		Optional<Cookie> accessTokenCookie = CookieUtil.getCookie(request, "AT");
 		if (accessTokenCookie.isPresent()) {
 			String accessToken = accessTokenCookie.get().getValue();
 			jwtTokenProvider.addAccessTokenToBlacklist(accessToken);
+			log.info("JWT 블랙리스트 등록 완료: userId={}", userId);
 		}
-		
+
 		CookieUtil.clearAuthCookies(response);
-		
 		tokenRedisRepository.deleteById(String.valueOf(reqUser.getUserId()));
+		log.info("회원 탈퇴 쿠키 및 레디스 정리 완료: userId={}", userId);
 	}
 
 	// 사용자 복구
 	@Override
 	@Transactional
 	public UserResponse restoreUser(Long userId) {
+		log.info("사용자 복구 서비스 시작: userId={}", userId);
 		User user = userRepository.findDeletedByUserId(userId)
-    			.orElseThrow(() -> NotFoundUserException.EXCEPTION);
+    			.orElseThrow(() -> {
+    				log.error("사용자 복구 실패: userId={} 조회 결과 없음", userId);
+    				return NotFoundUserException.EXCEPTION;
+    			});
 
 		user.restoreUser();
 		User saved = userRepository.save(user);
 
+		log.info("사용자 복구 완료: userId={}", saved.getUserId());
 		return UserResponse.from(saved);
 	}
 }

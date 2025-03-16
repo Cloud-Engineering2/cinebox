@@ -12,7 +12,9 @@ import cinebox.domain.seat.dto.SeatResponse;
 import cinebox.domain.seat.entity.Seat;
 import cinebox.domain.seat.repository.SeatRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SeatServiceImpl implements SeatService {
@@ -22,20 +24,24 @@ public class SeatServiceImpl implements SeatService {
 	// 좌석 조회
 	@Override
 	public List<SeatResponse> getSeats(Long screenId) {
+		log.info("좌석 조회 서비스 시작: screenId={}", screenId);
 		Screen screen = screenRepository.findById(screenId)
-				.orElseThrow(() -> NotFoundScreenException.EXCEPTION);
+				.orElseThrow(() -> {
+					log.error("좌석 조회 실패: screenId={} 조회 결과 없음", screenId);
+					return NotFoundScreenException.EXCEPTION;
+				});
 		
 		Long auditoriumId = screen.getAuditorium().getAuditoriumId();
-//		Auditorium auditorium = auditoriumRepository.findById(auditoriumId)
-//				.orElseThrow(() -> NotFoundAuditoriumException.EXCEPTION);
-//		List<Seat> seats = auditorium.getSeats();
 		List<Seat> seats = seatRepository.findByAuditorium_AuditoriumId(auditoriumId);
 
-		return seats.stream().map(seat -> {
+		List<SeatResponse> responses = seats.stream().map(seat -> {
 			boolean reserved = seat.getBookingSeats().stream()
 					.anyMatch(bookingSeat -> bookingSeat.getScreen().getScreenId().equals(screenId));
 			return new SeatResponse(seat.getSeatId(), seat.getSeatNumber(), reserved);
 		}).collect(Collectors.toList());
+		
+		log.info("좌석 조회 서비스 완료: screenId={}, 좌석 수={}", screenId, responses.size());
+		return responses;
 	}
 
 }

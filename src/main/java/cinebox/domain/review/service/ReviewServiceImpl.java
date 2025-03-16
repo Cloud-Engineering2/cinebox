@@ -20,7 +20,9 @@ import cinebox.domain.review.repository.ReviewRepository;
 import cinebox.domain.user.entity.User;
 import cinebox.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ReviewServiceImpl implements ReviewService {
@@ -31,49 +33,58 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	@Transactional
 	public ReviewResponse createReview(Long movieId, ReviewRequest request) {
+		log.info("리뷰 생성 서비스 시작: movieId={}", movieId);
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		User currentUser = SecurityUtil.getCurrentUser();
-		
+
 		Review review = Review.createReview(movie, currentUser, request);
 		reviewRepository.save(review);
-		
+
+		log.info("리뷰 생성 완료: reviewId={}", review.getReviewId());
 		return ReviewResponse.from(review);
 	}
 
 	@Override
 	@Transactional
 	public ReviewResponse updateReview(Long reviewId, ReviewRequest request) {
+		log.info("리뷰 수정 서비스 시작: reviewId={}", reviewId);
 		Review review = reviewRepository.findById(reviewId)
 				.orElseThrow(() -> NotFoundReviewException.EXCEPTION);
 		User currentUser = SecurityUtil.getCurrentUser();
 		User reviewUser = review.getUser();
-		
+
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(reviewUser.getUserId())) {
+			log.error("리뷰 수정 권한 없음: currentUserId={}, reviewUserId={}", currentUser.getUserId(), reviewUser.getUserId());
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
-		
+
 		review.updateReview(request);
 		Review savedReview = reviewRepository.save(review);
-		
+
+		log.info("리뷰 수정 완료: reviewId={}", savedReview.getReviewId());
 		return ReviewResponse.from(savedReview);
 	}
 
 	@Override
 	@Transactional(readOnly = true)
 	public List<ReviewResponse> getReviewsByMovieId(Long movieId) {
+		log.info("영화 리뷰 목록 조회 서비스 시작: movieId={}", movieId);
 		Movie movie = movieRepository.findById(movieId)
 				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
 		List<Review> reviews = movie.getReviews();
 		
-		return reviews.stream()
+		List<ReviewResponse> responses = reviews.stream()
 				.map(ReviewResponse::from)
 				.collect(Collectors.toList());
+		log.info("영화 리뷰 목록 조회 서비스 완료: movieId={}, 결과 수={}", movieId, responses.size());
+		return responses;
 	}
 
 	@Override
 	@Transactional
 	public void deleteReview(Long reviewId) {
+		log.info("리뷰 삭제 서비스 시작: reviewId={}", reviewId);
 		Review review = reviewRepository.findById(reviewId)
 				.orElseThrow(() -> NotFoundReviewException.EXCEPTION);
 		
@@ -81,17 +92,19 @@ public class ReviewServiceImpl implements ReviewService {
 		User reviewUser = review.getUser();
 		
 		if (!SecurityUtil.isAdmin() && !currentUser.getUserId().equals(reviewUser.getUserId())) {
+			log.error("리뷰 삭제 권한 없음: currentUserId={}, reviewUserId={}", currentUser.getUserId(), reviewUser.getUserId());
 			throw NoAuthorizedUserException.EXCEPTION;
 		}
 		reviewRepository.delete(review);
+		log.info("리뷰 삭제 완료: reviewId={}", reviewId);
 	}
 
 	// 본인 리뷰 조회
 	@Override
 	@Transactional(readOnly = true)
 	public List<ReviewResponse> getMyReviews() {
+		log.info("내 리뷰 목록 조회 서비스 시작");
 		User currentUser = SecurityUtil.getCurrentUser();
-		
 		return getReviewsByUserId(currentUser.getUserId());
 	}
 
@@ -99,6 +112,7 @@ public class ReviewServiceImpl implements ReviewService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<ReviewResponse> getReviewsByUser(Long userId) {
+		log.info("사용자 리뷰 목록 조회 서비스 시작: userId={}", userId);
 		User user = userRepository.findById(userId)
 				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
 		return getReviewsByUserId(user.getUserId());
@@ -106,8 +120,10 @@ public class ReviewServiceImpl implements ReviewService {
 
 	private List<ReviewResponse> getReviewsByUserId(Long userId) {
 		List<Review> reviews = reviewRepository.findByUserUserId(userId);
-		return reviews.stream()
+		List<ReviewResponse> responses = reviews.stream()
 				.map(ReviewResponse::from)
 				.collect(Collectors.toList());
+		log.info("사용자 리뷰 목록 조회 완료: userId={}, 결과 수={}", userId, responses.size());
+		return responses;
 	}
 }
