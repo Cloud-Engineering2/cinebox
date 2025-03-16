@@ -24,7 +24,9 @@ public class PaymentController {
 	// 결제하기
 	@PostMapping
 	public ResponseEntity<PaymentResponse> processPayment(@RequestBody PaymentRequest request) {
+		log.info("결제 요청: bookingId={}", request.bookingId());
 		PaymentResponse paymentResponse = paymentService.processPayment(request);
+		log.info("결제 처리 완료: paymentId={}", paymentResponse.paymentId());
 		return ResponseEntity.ok(paymentResponse);
 	}
 
