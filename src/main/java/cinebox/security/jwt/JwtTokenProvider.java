@@ -213,4 +213,9 @@ public class JwtTokenProvider {
 		String blacklistKey = "blacklist:" + token;
 		return redisStringTemplate.hasKey(blacklistKey);
 	}
+
+	public Long getUserIdFromToken(String token) {
+		DecodedJWT decoded = JWT.decode(token);
+		return decoded.getClaim("user_id").asLong();
+	}
 }

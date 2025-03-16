@@ -121,12 +121,18 @@ public class AuthServiceImpl implements AuthService {
 	}
 
 	@Override
-	@Transactional(readOnly = true)
+	@Transactional
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		// 블랙리스트에 액세스 토큰 등록 
 		Optional<Cookie> accessTokenCookie = CookieUtil.getCookie(request, "AT");
 		if (accessTokenCookie.isPresent()) {
 			String accessToken = accessTokenCookie.get().getValue();
+			
+			Long userId = jwtTokenProvider.getUserIdFromToken(accessToken);
+			tokenRedisRepository.findById(String.valueOf(userId)).ifPresent(token -> {
+				tokenRedisRepository.delete(token);
+			});
+
 			jwtTokenProvider.addAccessTokenToBlacklist(accessToken);
 		}
 		
