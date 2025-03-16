@@ -17,9 +17,9 @@ import cinebox.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class MovieLikeServiceImpl implements MovieLikeService {
 	
 	private final MovieRepository movieRepository;
@@ -31,7 +31,10 @@ public class MovieLikeServiceImpl implements MovieLikeService {
 	public void toggleLike(Long movieId) {
 		User currentUser = SecurityUtil.getCurrentUser();
 		Movie movie = movieRepository.findById(movieId)
-				.orElseThrow(() -> NotFoundMovieException.EXCEPTION);
+				.orElseThrow(() -> {
+					log.error("서비스: 영화를 찾을 수 없음: movieId={}", movieId);
+					return NotFoundMovieException.EXCEPTION;
+				});
 		
 		MovieLike existingLike = movieLikeRepository.findByMovieAndUser(movie, currentUser);
 		if (existingLike != null) {
@@ -50,14 +53,17 @@ public class MovieLikeServiceImpl implements MovieLikeService {
 	@Override
 	@Transactional(readOnly = true)
 	public List<MovieResponse> getLikedMovies() {
+		log.info("서비스: 좋아요 영화 목록 조회 시작");
 		User currentUser = SecurityUtil.getCurrentUser();
 		List<MovieLike> likes = movieLikeRepository.findByUser(currentUser);
 		
-		return likes.stream()
+		List<MovieResponse> responses = likes.stream()
 				.map(MovieLike::getMovie)
 				.distinct()
 				.map(MovieResponse::from)
 				.collect(Collectors.toList());
+		log.info("서비스: 좋아요 영화 목록 조회 완료, 결과 수: {}", responses.size());
+		return responses;
 	}
 
 }
