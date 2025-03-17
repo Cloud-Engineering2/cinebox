@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
+  # CI: Docker 빌드 및 ECR 푸시
   deploy:
     name: Build & Push Docker Image to AWS ECR
     runs-on: ubuntu-latest
@@ -61,3 +62,28 @@ jobs:
          
       - name: Notify Success
         run: echo "Docker image pushed to AWS ECR successfully!"
+
+  # CD: 매니페스트 파일 업데이트
+  cd:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout manifest repository
+        uses: actions/checkout@v4
+        with:
+          repository: Cloud-Engineering2/cinebox-manifest
+          ref: main
+          token: ${{ secrets.GIT_TOKEN }}
+
+      - name: Update image tag in deployment manifest
+        run: |
+          sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' backend/deployment/cinebox-deployment.yaml
+
+      - name: Commit and push changes
+        run: |
+          git config --local user.email "${{ secrets.EMAIL }}"
+          git config --local user.name "CI Bot"
+          git add backend/deployment/cinebox-deployment.yaml
+          git commit -m "Update backend image to ${{ github.sha }}"
+          git push
