@@ -70,24 +70,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout manifest repository
-        uses: actions/checkout@v4
-        with:
-          repository: Cloud-Engineering2/cinebox-manifest
-          ref: main
-          token: ${{ secrets.GIT_TOKEN }}
+    - name: Checkout manifest repository
+      uses: actions/checkout@v4
+      with:
+        repository: Cloud-Engineering2/cinebox-manifest
+        ref: main
+        token: ${{ secrets.GIT_TOKEN }}
 
-      - name: Update image tag in deployment manifest
-        run: |
-          IMAGE_TAG=${{ github.sha }}
-          sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./backend/deployment/cinebox-deployment.yaml
+    - name: Update image tag in deployment manifest
+      run: |
+        IMAGE_TAG=${{ github.sha }}
+        sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./backend/deployment/cinebox-deployment.yaml
 
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "${{ secrets.GIT_EMAIL }}"
-          git config --local user.name "CI Bot"
-          git add ./backend/deployment/cinebox-deployment.yaml
-          git commit -m "Update backend image to new commit hash"
-          git push
+    - name: Force commit changes (if no changes detected)
+      run: |
+        git add -A
+        git commit -m "Force commit: Update backend image tag"
+        git push
 
          
