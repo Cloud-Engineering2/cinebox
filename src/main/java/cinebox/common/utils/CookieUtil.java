@@ -29,7 +29,7 @@ public class CookieUtil {
 				"AT=;"
 				+ "Path=/;"
 				+ "Domain=%s;"
-				+ "Max-Age=0;"
+				+ "Max-Age=10000;"
 				+ "HttpOnly;"
 				+ "Secure;"
 				+ "SameSite=Lax",
@@ -39,7 +39,7 @@ public class CookieUtil {
 		String refreshCookie = String.format("RT=;"
 				+ "Path=/;"
 				+ "Domain=%s;"
-				+ "Max-Age=0;"
+				+ "Max-Age=10000;"
 				+ "HttpOnly;"
 				+ "Secure;"
 				+ "SameSite=Lax",
