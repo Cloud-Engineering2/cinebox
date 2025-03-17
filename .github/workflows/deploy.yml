@@ -65,11 +65,11 @@ jobs:
 
   # CD: 매니페스트 파일 업데이트
   cd:
-    name: Update Deployment with New Image Tag
-    needs: ci  # ci job이 성공적으로 끝난 후에 cd가 실행됨
-    runs-on: ubuntu-latest
+  name: Update Deployment with New Image Tag
+  needs: ci
+  runs-on: ubuntu-latest
 
-    steps:
+  steps:
     - name: Checkout manifest repository
       uses: actions/checkout@v4
       with:
@@ -82,10 +82,11 @@ jobs:
         IMAGE_TAG=${{ github.sha }}
         sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./backend/deployment/cinebox-deployment.yaml
 
-    - name: Force commit changes (if no changes detected)
+    - name: Commit and push changes if necessary
       run: |
+        git config --local user.email "${{ secrets.GIT_EMAIL }}"
+        git config --local user.name "CI Bot"
         git add -A
-        git commit -m "Force commit: Update backend image tag"
-        git push
+        git commit -m "Update backend image to new commit hash"
+        git push || git push --force
 
-         
