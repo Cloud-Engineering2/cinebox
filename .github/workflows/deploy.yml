@@ -1,4 +1,4 @@
-name: Deploy to AWS ECR
+name: Deploy to AWS ECR & ArgoCD
 
 on:
   workflow_dispatch:
@@ -52,12 +52,29 @@ jobs:
           LATEST_TAG: latest
         run: |
           docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
-          # latest 태그 생성
           docker tag $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$LATEST_TAG
-
-          # 두 개의 태그 푸시
+          
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$LATEST_TAG
-         
+
+      - name: Checkout ArgoCD Repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ secrets.G_USER }}/${{ secrets.G_REPOSITORY }}
+          ref: main
+          token: ${{ secrets.G_TOKEN }}
+
+      - name: Update ArgoCD Image Tag
+        run: |
+          sed -i "s%image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:[a-zA-Z0-9]*%image: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}%" ./manifest/eks-app.yaml
+
+      - name: Commit and Push Changes
+        run: |
+          git config --local user.email "${{ secrets.G_USER_EMAIL }}"
+          git config --local user.name "${{ secrets.G_USER }}"
+          git add ./manifest/eks-app.yaml
+          git commit -m "Update application image version for ArgoCD [skip ci]"
+          git push
+
       - name: Notify Success
-        run: echo "Docker image pushed to AWS ECR successfully!"
+        run: echo "Docker image pushed to AWS ECR and ArgoCD updated successfully!"
