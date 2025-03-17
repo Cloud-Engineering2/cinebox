@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.PartialUpdate;
 import org.springframework.data.redis.core.RedisKeyValueTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -116,14 +117,15 @@ public class JwtTokenProvider {
 	public void saveAccessCookie(HttpServletResponse response, String accessToken) {
 		int maxAge = (int) (accessTokenValidityInMilliseconds / 1000);
 		
-		Cookie cookie = new Cookie("AT", accessToken);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge(maxAge);
-		cookie.setSecure(true);
-		cookie.setDomain(cookieDomain);
+		ResponseCookie cookie = ResponseCookie.from("AT", accessToken)
+				.path("/")
+				.sameSite("None")
+				.httpOnly(true)
+				.secure(true)
+				.maxAge(maxAge)
+				.build();
 		
-		response.addCookie(cookie);
+//		response.addCookie(cookie);
 		
 //		String cookieValue = String.format(
 //				"AT=%s;"
@@ -136,7 +138,7 @@ public class JwtTokenProvider {
 //                accessToken,
 //                cookieDomain,
 //                maxAge);
-//		response.addHeader("Set-Cookie", cookieValue);
+		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
 	/**
@@ -145,14 +147,15 @@ public class JwtTokenProvider {
 	public void saveRefreshCookie(HttpServletResponse response, String refreshToken) {
 		int maxAge = (int) (refreshTokenValidityInMilliseconds / 1000);
 		
-		Cookie cookie = new Cookie("AT", refreshToken);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge(maxAge);
-		cookie.setSecure(true);
-		cookie.setDomain(cookieDomain);
+		ResponseCookie cookie = ResponseCookie.from("RT", refreshToken)
+				.path("/")
+				.sameSite("None")
+				.httpOnly(true)
+				.secure(true)
+				.maxAge(maxAge)
+				.build();
 		
-		response.addCookie(cookie);
+//		response.addCookie(cookie);
 		
 //		String cookieValue = String.format(
 //				"RT=%s;"
@@ -165,7 +168,7 @@ public class JwtTokenProvider {
 //				refreshToken,
 //				cookieDomain,
 //				maxAge);
-//		response.addHeader("Set-Cookie", cookieValue);
+		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
 	/**

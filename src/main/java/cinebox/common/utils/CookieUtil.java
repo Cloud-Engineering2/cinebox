@@ -2,6 +2,8 @@ package cinebox.common.utils;
 
 import java.util.Optional;
 
+import org.springframework.http.ResponseCookie;
+
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -23,18 +25,26 @@ public class CookieUtil {
 		return Optional.empty();
 	}
 	
-	public static void clearAuthCookies(HttpServletRequest request, HttpServletResponse response) {
+	public static void clearAuthCookies(HttpServletResponse response) {
 		log.info("Domain= {}", DOMAIN);
 		
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null && cookies.length > 0) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("AT") || cookie.getName().equals("RT")) {
-					cookie.setMaxAge(0);
-					response.addCookie(cookie);
-				}
-			}
-		}
+		ResponseCookie accessCookie = ResponseCookie.from("AT", null)
+				.path("/")
+				.sameSite("None")
+				.httpOnly(true)
+				.secure(true)
+				.maxAge(0)
+				.build();
+		response.addHeader("Set-Cookie", accessCookie.toString());
+		
+		ResponseCookie refreshCookie = ResponseCookie.from("RT", null)
+				.path("/")
+				.sameSite("None")
+				.httpOnly(true)
+				.secure(true)
+				.maxAge(0)
+				.build();
+		response.addHeader("Set-Cookie", refreshCookie.toString());
 		
 //		String accessCookie = String.format(
 //				"AT=;"
