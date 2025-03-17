@@ -80,7 +80,7 @@ jobs:
       - name: Update image tag in deployment manifest
         run: |
           IMAGE_TAG=${{ github.sha }}
-          sed -i 's|image: .*$|image: 061039804626.dkr.ecr.ap-northeast-2.amazonaws.com/cinebox-repo:'$IMAGE_TAG'|g' ./backend/deployment/cinebox-deployment.yaml
+          sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./backend/deployment/cinebox-deployment.yaml
 
       - name: Commit and push changes
         run: |
