@@ -86,5 +86,8 @@ jobs:
           git config --local user.email "ci.bot@example.com"
           git config --local user.name "CI Bot"
           git add backend/deployment/cinebox-deployment.yaml
+          git status  # 스테이징된 파일 확인
           git commit -m "Update backend image to ${{ github.sha }}"
           git push
+
+  
