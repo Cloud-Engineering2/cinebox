@@ -148,7 +148,7 @@ public class AuthServiceImpl implements AuthService {
 		}
 		
 		// 클라이언트 쿠키 삭제
-		CookieUtil.clearAuthCookies(response);
+		CookieUtil.clearAuthCookies(request, response);
 		log.info("클라이언트 쿠키 삭제 완료");
 	}
 	

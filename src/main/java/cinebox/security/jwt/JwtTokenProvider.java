@@ -115,18 +115,28 @@ public class JwtTokenProvider {
 	 */
 	public void saveAccessCookie(HttpServletResponse response, String accessToken) {
 		int maxAge = (int) (accessTokenValidityInMilliseconds / 1000);
-		String cookieValue = String.format(
-				"AT=%s;"
-				+ "Path=/;"
-				+ "Domain=%s;"
-				+ "Max-Age=%d;"
-				+ "HttpOnly;"
-				+ "Secure;"
-				+ "SameSite=Lax",
-                accessToken,
-                cookieDomain,
-                maxAge);
-		response.addHeader("Set-Cookie", cookieValue);
+		
+		Cookie cookie = new Cookie("AT", accessToken);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(maxAge);
+		cookie.setSecure(true);
+		cookie.setDomain(cookieDomain);
+		
+		response.addCookie(cookie);
+		
+//		String cookieValue = String.format(
+//				"AT=%s;"
+//				+ "Path=/;"
+//				+ "Domain=%s;"
+//				+ "Max-Age=%d;"
+//				+ "HttpOnly;"
+//				+ "Secure;"
+//				+ "SameSite=Lax",
+//                accessToken,
+//                cookieDomain,
+//                maxAge);
+//		response.addHeader("Set-Cookie", cookieValue);
 	}
 
 	/**
@@ -134,18 +144,28 @@ public class JwtTokenProvider {
 	 */
 	public void saveRefreshCookie(HttpServletResponse response, String refreshToken) {
 		int maxAge = (int) (refreshTokenValidityInMilliseconds / 1000);
-		String cookieValue = String.format(
-				"RT=%s;"
-				+ "Path=/;"
-				+ "Domain=%s;"
-				+ "Max-Age=%d;"
-				+ "HttpOnly;"
-				+ "Secure;"
-				+ "SameSite=Lax",
-				refreshToken,
-				cookieDomain,
-				maxAge);
-		response.addHeader("Set-Cookie", cookieValue);
+		
+		Cookie cookie = new Cookie("AT", refreshToken);
+		cookie.setHttpOnly(true);
+		cookie.setPath("/");
+		cookie.setMaxAge(maxAge);
+		cookie.setSecure(true);
+		cookie.setDomain(cookieDomain);
+		
+		response.addCookie(cookie);
+		
+//		String cookieValue = String.format(
+//				"RT=%s;"
+//				+ "Path=/;"
+//				+ "Domain=%s;"
+//				+ "Max-Age=%d;"
+//				+ "HttpOnly;"
+//				+ "Secure;"
+//				+ "SameSite=Lax",
+//				refreshToken,
+//				cookieDomain,
+//				maxAge);
+//		response.addHeader("Set-Cookie", cookieValue);
 	}
 
 	/**

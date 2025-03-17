@@ -23,27 +23,38 @@ public class CookieUtil {
 		return Optional.empty();
 	}
 	
-	public static void clearAuthCookies(HttpServletResponse response) {
+	public static void clearAuthCookies(HttpServletRequest request, HttpServletResponse response) {
 		log.info("Domain= {}", DOMAIN);
-		String accessCookie = String.format(
-				"AT=;"
-				+ "Path=/;"
-				+ "Domain=%s;"
-				+ "Max-Age=10000;"
-				+ "HttpOnly;"
-				+ "Secure;"
-				+ "SameSite=Lax",
-				DOMAIN);
-		response.addHeader("Set-Cookie", accessCookie);
 		
-		String refreshCookie = String.format("RT=;"
-				+ "Path=/;"
-				+ "Domain=%s;"
-				+ "Max-Age=10000;"
-				+ "HttpOnly;"
-				+ "Secure;"
-				+ "SameSite=Lax",
-				DOMAIN);
-        response.addHeader("Set-Cookie", refreshCookie);
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null && cookies.length > 0) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals("AT") || cookie.getName().equals("RT")) {
+					cookie.setMaxAge(0);
+					response.addCookie(cookie);
+				}
+			}
+		}
+		
+//		String accessCookie = String.format(
+//				"AT=;"
+//				+ "Path=/;"
+//				+ "Domain=%s;"
+//				+ "Max-Age=10000;"
+//				+ "HttpOnly;"
+//				+ "Secure;"
+//				+ "SameSite=Lax",
+//				DOMAIN);
+//		response.addHeader("Set-Cookie", accessCookie);
+//		
+//		String refreshCookie = String.format("RT=;"
+//				+ "Path=/;"
+//				+ "Domain=%s;"
+//				+ "Max-Age=10000;"
+//				+ "HttpOnly;"
+//				+ "Secure;"
+//				+ "SameSite=Lax",
+//				DOMAIN);
+//        response.addHeader("Set-Cookie", refreshCookie);
 	}
 }

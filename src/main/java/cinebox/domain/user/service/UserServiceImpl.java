@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
 			log.info("JWT 블랙리스트 등록 완료: userId={}", userId);
 		}
 
-		CookieUtil.clearAuthCookies(response);
+		CookieUtil.clearAuthCookies(request, response);
 		tokenRedisRepository.deleteById(String.valueOf(reqUser.getUserId()));
 		log.info("회원 탈퇴 쿠키 및 레디스 정리 완료: userId={}", userId);
 	}
