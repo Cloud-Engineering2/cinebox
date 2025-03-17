@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class CookieUtil {
 	private static String DOMAIN;
 	
@@ -29,6 +31,7 @@ public class CookieUtil {
 	}
 	
 	public static void clearAuthCookies(HttpServletResponse response) {
+		log.info("Domain= {}", DOMAIN);
 		String accessCookie = String.format(
 				"AT=;"
 				+ "Path=/;"
