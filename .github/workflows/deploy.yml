@@ -66,7 +66,7 @@ jobs:
   # CD: 매니페스트 파일 업데이트
   cd:
     name: Update Deployment with New Image Tag
-    needs: ci
+    needs: ci  # ci job이 성공적으로 끝난 후에 cd가 실행됨
     runs-on: ubuntu-latest
 
     steps:
