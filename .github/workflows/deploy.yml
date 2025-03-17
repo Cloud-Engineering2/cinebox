@@ -86,5 +86,7 @@ jobs:
           git config --local user.email "${{ secrets.GIT_EMAIL }}"
           git config --local user.name "CI Bot"
           git add ./backend/deployment/cinebox-deployment.yaml
-          git commit -m "Update backend image to ${{ github.sha }}"
+          git commit -m "Update backend image to new commit hash"
           git push
+
+         
