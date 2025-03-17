@@ -10,7 +10,6 @@ import org.springframework.data.redis.core.RedisKeyValueTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import com.auth0.jwt.JWT;
@@ -24,10 +23,8 @@ import cinebox.common.enums.PlatformType;
 import cinebox.common.exception.auth.InvalidTokenException;
 import cinebox.common.exception.auth.NotFoundTokenException;
 import cinebox.common.exception.auth.RedisServerException;
-import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.domain.auth.entity.TokenRedis;
 import cinebox.domain.auth.repository.TokenRedisRepository;
-import cinebox.domain.user.repository.UserRepository;
 import cinebox.security.service.PrincipalDetails;
 import cinebox.security.service.PrincipalDetailsService;
 import io.lettuce.core.RedisException;
@@ -40,7 +37,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtTokenProvider {
-	private final UserRepository userRepository;
 	private final PrincipalDetailsService principalDetailsService;
 	private final TokenRedisRepository tokenRedisRepository;
 	private final RedisKeyValueTemplate redisKeyValueTemplate;
@@ -54,6 +50,9 @@ public class JwtTokenProvider {
 
 	@Value("${security.jwt.refreshTokenValidityInMilliseconds}")
 	public long refreshTokenValidityInMilliseconds;
+
+	@Value("${domain}")
+	public String cookieDomain;
 
 	public String createAccessToken(Long userId, String role, PlatformType platformType, String identifier) {
 		Date now = new Date();
@@ -100,10 +99,6 @@ public class JwtTokenProvider {
 
 	public Authentication getAuthentication(String token) {
 		DecodedJWT decodedJWT = JWT.require(Algorithm.HMAC256(secretKey)).build().verify(token);
-//		Long userId = decodedJWT.getClaim("user_id").asLong();
-//		cinebox.domain.user.entity.User user = userRepository.findById(userId)
-//				.orElseThrow(() -> NotFoundUserException.EXCEPTION);
-//		PrincipalDetails principalDetails = new PrincipalDetails(user);
 		String identifier = decodedJWT.getClaim("identifier").asString();
 		String platformStr = decodedJWT.getClaim("platform").asString();
 		PlatformType platformType = PlatformType.valueOf(platformStr);
@@ -112,9 +107,6 @@ public class JwtTokenProvider {
 	}
 
 	public UsernamePasswordAuthenticationToken createAuthenticationFromToken(String token) {
-//		Authentication authentication = getAuthentication(token);
-//		UserDetails userDetails = principalDetailsService.loadUserByUsername(authentication.getName());
-//		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 		return (UsernamePasswordAuthenticationToken) getAuthentication(token);
 	}
 
@@ -122,22 +114,38 @@ public class JwtTokenProvider {
 	 * 액세스 토큰을 쿠키에 저장합니다.
 	 */
 	public void saveAccessCookie(HttpServletResponse response, String accessToken) {
-		Cookie cookie = new Cookie("AT", accessToken);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge((int) (accessTokenValidityInMilliseconds / 1000));
-		response.addCookie(cookie);
+		int maxAge = (int) (accessTokenValidityInMilliseconds / 1000);
+		String cookieValue = String.format(
+				"AT=%s;"
+				+ "Path=/;"
+				+ "Domain=%s;"
+				+ "Max-Age=%d;"
+				+ "HttpOnly;"
+				+ "Secure;"
+				+ "SameSite=Lax",
+                accessToken,
+                cookieDomain,
+                maxAge);
+		response.addHeader("Set-Cookie", cookieValue);
 	}
 
 	/**
 	 * 리프레시 토큰을 쿠키에 저장합니다.
 	 */
 	public void saveRefreshCookie(HttpServletResponse response, String refreshToken) {
-		Cookie cookie = new Cookie("RT", refreshToken);
-		cookie.setHttpOnly(true);
-		cookie.setPath("/");
-		cookie.setMaxAge((int) (refreshTokenValidityInMilliseconds / 1000));
-		response.addCookie(cookie);
+		int maxAge = (int) (refreshTokenValidityInMilliseconds / 1000);
+		String cookieValue = String.format(
+				"RT=%s;"
+				+ "Path=/;"
+				+ "Domain=%s;"
+				+ "Max-Age=%d;"
+				+ "HttpOnly;"
+				+ "Secure;"
+				+ "SameSite=Lax",
+				refreshToken,
+				cookieDomain,
+				maxAge);
+		response.addHeader("Set-Cookie", cookieValue);
 	}
 
 	/**
