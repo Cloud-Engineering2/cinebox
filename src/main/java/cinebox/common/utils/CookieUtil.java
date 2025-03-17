@@ -2,8 +2,6 @@ package cinebox.common.utils;
 
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,12 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class CookieUtil {
-	private static String DOMAIN;
-	
-	@Value("${domain}")
-	public void setDomain(String domain) {
-		CookieUtil.DOMAIN = domain;
-	}
+	public static String DOMAIN;
 	
 	public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
 		Cookie[] cookies = request.getCookies();
