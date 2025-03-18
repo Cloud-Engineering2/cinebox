@@ -119,26 +119,12 @@ public class JwtTokenProvider {
 		
 		ResponseCookie cookie = ResponseCookie.from("AT", accessToken)
 				.path("/")
-				.domain(cookieDomain)
+				.domain("cine-box.store")
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
 				.maxAge(maxAge)
 				.build();
-		
-//		response.addCookie(cookie);
-		
-//		String cookieValue = String.format(
-//				"AT=%s;"
-//				+ "Path=/;"
-//				+ "Domain=%s;"
-//				+ "Max-Age=%d;"
-//				+ "HttpOnly;"
-//				+ "Secure;"
-//				+ "SameSite=Lax",
-//                accessToken,
-//                cookieDomain,
-//                maxAge);
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
@@ -150,26 +136,12 @@ public class JwtTokenProvider {
 		
 		ResponseCookie cookie = ResponseCookie.from("RT", refreshToken)
 				.path("/")
-				.domain(cookieDomain)
+				.domain("cine-box.store")
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
 				.maxAge(maxAge)
 				.build();
-		
-//		response.addCookie(cookie);
-		
-//		String cookieValue = String.format(
-//				"RT=%s;"
-//				+ "Path=/;"
-//				+ "Domain=%s;"
-//				+ "Max-Age=%d;"
-//				+ "HttpOnly;"
-//				+ "Secure;"
-//				+ "SameSite=Lax",
-//				refreshToken,
-//				cookieDomain,
-//				maxAge);
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
 

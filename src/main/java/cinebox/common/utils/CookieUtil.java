@@ -30,17 +30,18 @@ public class CookieUtil {
 		
 		ResponseCookie accessCookie = ResponseCookie.from("AT", "")
 				.path("/")
-				.domain(DOMAIN)
+				.domain("cine-box.store")
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
 				.maxAge(0)
 				.build();
 		response.addHeader("Set-Cookie", accessCookie.toString());
+		log.info(accessCookie.toString());
 		
 		ResponseCookie refreshCookie = ResponseCookie.from("RT", "")
 				.path("/")
-				.domain(DOMAIN)
+				.domain("cine-box.store")
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
