@@ -54,7 +54,7 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional
 	public UserResponse signup(SignUpRequest request) {
 		log.info("회원가입 프로세스 시작: identifier={}", request.identifier());
-		validateUniqueFields(request);
+		validateUniqueFields(request, PlatformType.LOCAL);
 
 		String encodedPassword = passwordEncoder.encode(request.password());
 		User newUser = User.createUser(request, encodedPassword, PlatformType.LOCAL);
@@ -78,7 +78,7 @@ public class AuthServiceImpl implements AuthService {
 	@Transactional
 	public UserResponse kakaoSignup(SignUpRequest request) {
 		log.info("카카오 회원가입 프로세스 시작: identifier={}", request.identifier());
-		validateUniqueFields(request);
+		validateUniqueFields(request, PlatformType.KAKAO);
 		
 		String encodedPassword = passwordEncoder.encode(java.util.UUID.randomUUID().toString());
 		User newUser = User.createUser(request, encodedPassword, PlatformType.KAKAO);
@@ -191,16 +191,16 @@ public class AuthServiceImpl implements AuthService {
 		}
 	}
 
-	private void validateUniqueFields(SignUpRequest request) {
-		if (userRepository.existsByIdentifierAndPlatformType(request.identifier(), PlatformType.LOCAL)) {
+	private void validateUniqueFields(SignUpRequest request, PlatformType platformType) {
+		if (userRepository.existsByIdentifierAndPlatformType(request.identifier(), platformType)) {
 			log.error("중복 identifier 감지: {}", request.identifier());
 			throw DuplicatedIdentifierException.EXCEPTION;
 		}
-		if (userRepository.existsByEmailAndPlatformType(request.email(), PlatformType.LOCAL)) {
+		if (userRepository.existsByEmailAndPlatformType(request.email(), platformType)) {
 			log.error("중복 email 감지: {}", request.email());
 			throw DuplicatedEmailException.EXCEPTION;
 		}
-		if (userRepository.existsByPhoneAndPlatformType(request.phone(), PlatformType.LOCAL)) {
+		if (userRepository.existsByPhoneAndPlatformType(request.phone(), platformType)) {
 			log.error("중복 phone 감지: {}", request.phone());
 			throw DuplicatedPhoneException.EXCEPTION;
 		}

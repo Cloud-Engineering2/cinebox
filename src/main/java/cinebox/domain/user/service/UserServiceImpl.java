@@ -8,6 +8,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import cinebox.common.enums.PlatformType;
+import cinebox.common.exception.user.DuplicatedEmailException;
+import cinebox.common.exception.user.DuplicatedPhoneException;
 import cinebox.common.exception.user.NoAuthorizedUserException;
 import cinebox.common.exception.user.NotFoundUserException;
 import cinebox.common.utils.CookieUtil;
@@ -89,6 +92,8 @@ public class UserServiceImpl implements UserService {
 			encodedPassword = passwordEncoder.encode(request.password());
 		}
 		
+		validateUniqueFields(request, userId, currentUser.getPlatformType());
+		
 		reqUser.updateUser(request, encodedPassword);
 		if (SecurityUtil.isAdmin()) {
 			reqUser.updateUserRole(request.role());
@@ -147,5 +152,16 @@ public class UserServiceImpl implements UserService {
 
 		log.info("사용자 복구 완료: userId={}", saved.getUserId());
 		return UserResponse.from(saved);
+	}
+	
+	private void validateUniqueFields(UserUpdateRequest request, Long userId, PlatformType platformType) {
+		if (userRepository.existsByEmailAndUserIdNotAndPlatformType(request.email(), userId, platformType)) {
+			log.error("중복 email 감지: {}", request.email());
+			throw DuplicatedEmailException.EXCEPTION;
+		}
+		if (userRepository.existsByPhoneAndUserIdAndPlatformType(request.phone(), userId, platformType)) {
+			log.error("중복 phone 감지: {}", request.phone());
+			throw DuplicatedPhoneException.EXCEPTION;
+		}
 	}
 }
