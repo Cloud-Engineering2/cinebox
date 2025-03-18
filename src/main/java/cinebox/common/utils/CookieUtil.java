@@ -30,6 +30,7 @@ public class CookieUtil {
 		
 		ResponseCookie accessCookie = ResponseCookie.from("AT", null)
 				.path("/")
+				.domain(DOMAIN)
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
@@ -39,6 +40,7 @@ public class CookieUtil {
 		
 		ResponseCookie refreshCookie = ResponseCookie.from("RT", null)
 				.path("/")
+				.domain(DOMAIN)
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)

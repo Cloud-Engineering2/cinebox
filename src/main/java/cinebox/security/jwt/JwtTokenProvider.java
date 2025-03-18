@@ -119,6 +119,7 @@ public class JwtTokenProvider {
 		
 		ResponseCookie cookie = ResponseCookie.from("AT", accessToken)
 				.path("/")
+				.domain(cookieDomain)
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
@@ -149,6 +150,7 @@ public class JwtTokenProvider {
 		
 		ResponseCookie cookie = ResponseCookie.from("RT", refreshToken)
 				.path("/")
+				.domain(cookieDomain)
 				.sameSite("None")
 				.httpOnly(true)
 				.secure(true)
