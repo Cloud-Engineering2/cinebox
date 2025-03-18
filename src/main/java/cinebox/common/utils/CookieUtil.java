@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CookieUtil {
 	public static String DOMAIN;
-	
+
 	public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null && cookies.length > 0) {
@@ -24,10 +24,8 @@ public class CookieUtil {
 		}
 		return Optional.empty();
 	}
-	
+
 	public static void clearAuthCookies(HttpServletResponse response) {
-		log.info("Domain= {}", DOMAIN);
-		
 		ResponseCookie accessCookie = ResponseCookie.from("AT", "")
 				.path("/")
 				.domain(DOMAIN)
@@ -37,7 +35,7 @@ public class CookieUtil {
 				.maxAge(0)
 				.build();
 		response.addHeader("Set-Cookie", accessCookie.toString());
-		
+
 		ResponseCookie refreshCookie = ResponseCookie.from("RT", "")
 				.path("/")
 				.domain(DOMAIN)
@@ -47,26 +45,5 @@ public class CookieUtil {
 				.maxAge(0)
 				.build();
 		response.addHeader("Set-Cookie", refreshCookie.toString());
-		
-//		String accessCookie = String.format(
-//				"AT=;"
-//				+ "Path=/;"
-//				+ "Domain=%s;"
-//				+ "Max-Age=10000;"
-//				+ "HttpOnly;"
-//				+ "Secure;"
-//				+ "SameSite=Lax",
-//				DOMAIN);
-//		response.addHeader("Set-Cookie", accessCookie);
-//		
-//		String refreshCookie = String.format("RT=;"
-//				+ "Path=/;"
-//				+ "Domain=%s;"
-//				+ "Max-Age=10000;"
-//				+ "HttpOnly;"
-//				+ "Secure;"
-//				+ "SameSite=Lax",
-//				DOMAIN);
-//        response.addHeader("Set-Cookie", refreshCookie);
 	}
 }

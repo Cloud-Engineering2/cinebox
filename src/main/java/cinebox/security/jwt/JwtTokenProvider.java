@@ -116,7 +116,7 @@ public class JwtTokenProvider {
 	 */
 	public void saveAccessCookie(HttpServletResponse response, String accessToken) {
 		int maxAge = (int) (accessTokenValidityInMilliseconds / 1000);
-		
+
 		ResponseCookie cookie = ResponseCookie.from("AT", accessToken)
 				.path("/")
 				.domain(cookieDomain)
@@ -125,20 +125,6 @@ public class JwtTokenProvider {
 				.secure(true)
 				.maxAge(maxAge)
 				.build();
-		
-//		response.addCookie(cookie);
-		
-//		String cookieValue = String.format(
-//				"AT=%s;"
-//				+ "Path=/;"
-//				+ "Domain=%s;"
-//				+ "Max-Age=%d;"
-//				+ "HttpOnly;"
-//				+ "Secure;"
-//				+ "SameSite=Lax",
-//                accessToken,
-//                cookieDomain,
-//                maxAge);
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
@@ -147,7 +133,7 @@ public class JwtTokenProvider {
 	 */
 	public void saveRefreshCookie(HttpServletResponse response, String refreshToken) {
 		int maxAge = (int) (refreshTokenValidityInMilliseconds / 1000);
-		
+
 		ResponseCookie cookie = ResponseCookie.from("RT", refreshToken)
 				.path("/")
 				.domain(cookieDomain)
@@ -156,20 +142,6 @@ public class JwtTokenProvider {
 				.secure(true)
 				.maxAge(maxAge)
 				.build();
-		
-//		response.addCookie(cookie);
-		
-//		String cookieValue = String.format(
-//				"RT=%s;"
-//				+ "Path=/;"
-//				+ "Domain=%s;"
-//				+ "Max-Age=%d;"
-//				+ "HttpOnly;"
-//				+ "Secure;"
-//				+ "SameSite=Lax",
-//				refreshToken,
-//				cookieDomain,
-//				maxAge);
 		response.addHeader("Set-Cookie", cookie.toString());
 	}
 
