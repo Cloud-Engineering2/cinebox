@@ -28,7 +28,7 @@ public class CookieUtil {
 	public static void clearAuthCookies(HttpServletResponse response) {
 		log.info("Domain= {}", DOMAIN);
 		
-		ResponseCookie accessCookie = ResponseCookie.from("AT", null)
+		ResponseCookie accessCookie = ResponseCookie.from("AT", "")
 				.path("/")
 				.domain(DOMAIN)
 				.sameSite("None")
@@ -38,7 +38,7 @@ public class CookieUtil {
 				.build();
 		response.addHeader("Set-Cookie", accessCookie.toString());
 		
-		ResponseCookie refreshCookie = ResponseCookie.from("RT", null)
+		ResponseCookie refreshCookie = ResponseCookie.from("RT", "")
 				.path("/")
 				.domain(DOMAIN)
 				.sameSite("None")
