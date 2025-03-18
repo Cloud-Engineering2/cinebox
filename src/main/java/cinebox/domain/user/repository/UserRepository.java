@@ -33,4 +33,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	boolean existsByPhoneAndPlatformType(String phone, PlatformType local);
 
 	Optional<User> findByIdentifierAndPlatformType(String username, PlatformType local);
+
+	// 수정 시 본인의 값은 제외하고 중복값 조회
+	boolean existsByEmailAndUserIdNotAndPlatformType(String email, Long userId, PlatformType platformType);
+	boolean existsByPhoneAndUserIdAndPlatformType(String phone, Long userId, PlatformType platformType);
 }
