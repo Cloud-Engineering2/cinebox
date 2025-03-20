@@ -93,6 +93,7 @@ jobs:
             IMAGE_TAG=dev-${{ github.sha }}
             echo "Updating development manifest..."
             sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./overlays/dev/patch-app-deployment.yaml
+          fi
 
       - name: Commit and push changes if necessary
         run: |
