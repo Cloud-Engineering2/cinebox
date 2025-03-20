@@ -1,6 +1,12 @@
 name: Deploy to AWS CI/CD
 
 on:
+  push:
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - .github/**
   workflow_dispatch:
 
 jobs:
@@ -79,8 +85,14 @@ jobs:
 
       - name: Update image tag in deployment manifest
         run: |
-          IMAGE_TAG=${{ github.sha }}
-          sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./backend/deployment/cinebox-deployment.yaml
+          if [ "$GITHUB_REF" == "refs/heads/main" ]; then
+            IMAGE_TAG=${{ github.sha }}
+            echo "Updating production manifest..."
+            sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./overlays/prod/patch-app-deployment.yaml
+          else
+            IMAGE_TAG=dev-${{ github.sha }}
+            echo "Updating development manifest..."
+            sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./overlays/dev/patch-app-deployment.yaml
 
       - name: Commit and push changes if necessary
         run: |
