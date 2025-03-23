@@ -1,4 +1,4 @@
-package cinebox.security.config;
+package cinebox.common.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

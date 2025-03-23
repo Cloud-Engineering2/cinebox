@@ -1,4 +1,4 @@
-package cinebox.security.config;
+package cinebox.common.config;
 
 import java.util.ArrayList;
 import java.util.List;
