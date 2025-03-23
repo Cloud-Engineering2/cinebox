@@ -5,10 +5,27 @@
     <appender name="JSON" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>{"app":"cinebox","env":"prod"}</customFields>
+            <appendLineSeparator>true</appendLineSeparator>
+        </encoder>
+        <async>true</async>
+        <queueSize>1024</queueSize>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./log/cinebox/app.log</file>
+        <createParentDirectory>true</createParentDirectory>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/var/log/cinebox/app-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{ISO8601} [%thread] [%mdc{requestMethod}] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <root level="INFO">
         <appender-ref ref="JSON"/>
+        <appender-ref ref="FILE"/>
     </root>
 </configuration>
