@@ -88,11 +88,11 @@ jobs:
           if [ "$GITHUB_REF" == "refs/heads/main" ]; then
             IMAGE_TAG=${{ github.sha }}
             echo "Updating production manifest..."
-            sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./overlays/prod/patch-app-deployment.yaml
+            sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:'"${IMAGE_TAG}"'|g' ./overlays/prod/patch-app-deployment.yaml
           else
             IMAGE_TAG=dev-${{ github.sha }}
             echo "Updating development manifest..."
-            sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}"'|g' ./overlays/dev/patch-app-deployment.yaml
+            sed -i 's|image: .*$|image: '"${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com/${{ secrets.ECR_REPOSITORY }}:'"${IMAGE_TAG}"'|g' ./overlays/dev/patch-app-deployment.yaml
           fi
 
       - name: Commit and push changes if necessary
