@@ -36,6 +36,14 @@ AWS 기반 클라우드 인프라 위에서 자동화된 배포 환경을 갖추
 
 ---
 
+## 인프라 설계
+![image](https://github.com/user-attachments/assets/6cddcde4-b900-410e-a724-e2da8e2257e2)
+
+## ERD 설계
+![image](https://github.com/user-attachments/assets/39dacdf7-0757-490a-964d-62732a621b1d)
+
+---
+
 ## 기술 스택
 
 | 분류 | 기술 |
@@ -58,31 +66,16 @@ AWS 기반 클라우드 인프라 위에서 자동화된 배포 환경을 갖추
 
 ---
 
-### 방법 2: 로컬 백엔드 서버 실행 (Spring Boot)
+### 방법 2: 로컬에서 직접 실행하기
 
-```bash
-# 1. 레포지토리 클론
-git clone [레포지토리 주소]
-cd backend
+#### 1. 설정 파일 생성 (필수)
 
-# 2. 빌드 및 실행
-./mvnw spring-boot:run
-```
-
-## ERD 설계
-![image](https://github.com/user-attachments/assets/39dacdf7-0757-490a-964d-62732a621b1d)
-
-## 인프라 설계
-![image](https://github.com/user-attachments/assets/4154f749-444f-48e3-9a1c-1a1691f140dd)
+먼저 `src/main/resources/application.properties` 파일을 아래 예시를 참고하여 작성해야 합니다.  
+→ 민감한 정보(API 키, DB 비밀번호 등)는 실제 값으로 교체해주세요.  
+→ 해당 파일은 `.gitignore`에 포함되어야 하며, Git에 커밋되지 않도록 주의하세요.
 
 
-
-### application.properties 예시
-
-다음은 로컬 실행을 위한 설정 예시입니다.  
-**모든 `{ ... }` 값은 실제 환경 변수 또는 민감 정보로 교체해주세요.**  
-실제 파일은 `src/main/resources/application.properties` 또는 `application.yml`로 구성되며,  
-`.gitignore`에 반드시 추가해 커밋되지 않도록 관리해야 합니다.
+[application.properties 예시](#applicationproperties-예시)
 
 ```properties
 spring.application.name={ YOUR_APPLICATION_NAME }
@@ -151,4 +144,17 @@ management.endpoints.web.exposure.include=prometheus,health,metrics,info
 
 # Logback
 logging.config=classpath:logback-spring.xml
+```
+
+---
+
+#### 2. 백엔드 실행 (Spring Boot)
+
+```bash
+# 레포지토리 클론
+git clone [레포지토리 주소]
+cd backend
+
+# 빌드 및 실행
+./mvnw spring-boot:run
 ```
