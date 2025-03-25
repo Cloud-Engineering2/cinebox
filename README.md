@@ -11,7 +11,7 @@
 
 이 프로젝트는 **영화 예매 서비스**를 위한 웹 애플리케이션으로,  
 사용자(고객)와 관리자(운영자)의 기능을 모두 포함하며,  
-**AWS 기반 클라우드 인프라** 위에서 자동화된 배포 환경을 갖추고 있습니다.
+AWS 기반 클라우드 인프라 위에서 자동화된 배포 환경을 갖추고 있습니다.
 
 ### 주요 목표
 - 실제 상영 서비스처럼 영화 등록, 상영 시간 설정, 예매/결제 기능 제공
@@ -40,38 +40,33 @@
 
 | 분류 | 기술 |
 |------|------|
-| **Frontend** | React, React Router, MUI, Axios, React Calendar, React Toastify |
-| **Backend** | Spring Boot 3.4.2, **JDK 17**, **JPA (ORM)**, **MySQL**, **Redis**, Maven |
-| **API 연동** | 영화진흥위원회 API (KOBIS), KMDB |
-| **인증/보안** | OAuth2.0, JWT (Access/Refresh Token) |
-| **Infra & DevOps** | AWS (EKS, RDS, S3, Route 53, ELB, IAM, VPC), Docker, GitHub Actions, Terraform, ArgoCD, Prometheus, Grafana |
+| Frontend | React, React Router, MUI, Axios, React Calendar, React Toastify |
+| Backend | Spring Boot 3.4.2, JDK 17, JPA (ORM), MySQL, Redis, Maven |
+| API 연동 | 영화진흥위원회 API (KOBIS), KMDB |
+| 인증/보안 | OAuth2.0, JWT (Access/Refresh Token) |
+| Infra & DevOps | AWS (EKS, RDS, S3, Route 53, ELB, IAM, VPC), Docker, GitHub Actions, Terraform, ArgoCD, Prometheus, Grafana |
 
 ---
 
 ## 프로젝트 실행 방법
 
-### 방법 1: 웹에서 바로 접속하기
+### 방법 1: 배포된 웹 접속
 
-> 배포된 프로젝트는 아래 주소에서 바로 확인할 수 있습니다.
+서비스는 다음 도메인을 통해 확인할 수 있습니다:
 
-🔗 [https://cine-box.store](https://cine-box.store)
+[https://cine-box.store](https://cine-box.store)
 
 ---
 
-### 방법 2: 로컬에서 직접 실행하기
-
-#### 프론트엔드 (React)
+### 방법 2: 로컬 백엔드 서버 실행 (Spring Boot)
 
 ```bash
 # 1. 레포지토리 클론
 git clone [레포지토리 주소]
-cd frontend
+cd backend
 
-# 2. 패키지 설치
-npm install
-
-# 3. 개발 서버 실행
-npm start
+# 2. 빌드 및 실행
+./mvnw spring-boot:run
 ```
 
 ## ERD 설계
@@ -81,3 +76,79 @@ npm start
 ![image](https://github.com/user-attachments/assets/4154f749-444f-48e3-9a1c-1a1691f140dd)
 
 
+
+### application.properties 예시
+
+다음은 로컬 실행을 위한 설정 예시입니다.  
+**모든 `{ ... }` 값은 실제 환경 변수 또는 민감 정보로 교체해주세요.**  
+실제 파일은 `src/main/resources/application.properties` 또는 `application.yml`로 구성되며,  
+`.gitignore`에 반드시 추가해 커밋되지 않도록 관리해야 합니다.
+
+```properties
+spring.application.name={ YOUR_APPLICATION_NAME }
+
+# Primary DataSource
+spring.datasource.primary.hikari.type=com.zaxxer.hikari.HikariDataSource
+spring.datasource.primary.hikari.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.primary.hikari.username={ YOUR_DB_USERNAME }
+spring.datasource.primary.hikari.password={ YOUR_DB_PASSWORD }
+spring.datasource.primary.hikari.jdbc-url=jdbc:mysql://{YOUR_DB_HOST}:{YOUR_DB_PORT}/{YOUR_DB_NAME}
+
+# Secondary DataSource
+spring.datasource.secondary.hikari.type=com.zaxxer.hikari.HikariDataSource
+spring.datasource.secondary.hikari.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.secondary.hikari.username={ YOUR_DB_USERNAME }
+spring.datasource.secondary.hikari.password={ YOUR_DB_PASSWORD }
+spring.datasource.secondary.hikari.jdbc-url=jdbc:mysql://{YOUR_DB_HOST}:{YOUR_DB_PORT}/{YOUR_DB_NAME}
+
+# 공통 Hikari 설정
+spring.datasource.hikari.pool-name=Hikari
+spring.datasource.hikari.auto-commit=false
+
+# Redis
+spring.data.redis.host={ YOUR_REDIS_HOST }
+spring.data.redis.port={ YOUR_REDIS_PORT }
+
+# JPA
+spring.jpa.generate-ddl=false
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.show-sql=false
+
+# Multipart 설정
+spring.servlet.multipart.max-file-size=20MB
+spring.servlet.multipart.max-request-size=20MB
+
+# AWS S3 설정
+cloud.aws.credentials.access-key={ YOUR_AWS_CREDENTIALS_KEY }
+cloud.aws.credentials.secret-key={ YOUR_AWS_SECRET_KEY }
+cloud.aws.s3.bucket={ YOUR_S3_BUCKET_NAME }
+cloud.aws.region.static={ YOUR_S3_REGION }
+cloud.aws.stack.auto=false
+
+# JWT 설정
+security.jwt.secretkey=your-secret-key
+security.jwt.accessTokenValidityInMilliseconds=3600000
+security.jwt.refreshTokenValidityInMilliseconds=604800000
+
+# 외부 API 연동 - 영화진흥위원회 & KMDB
+kobis.api.key={ YOUR_API_SECRET_KEY }
+kobis.api.url=http://kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json
+
+kmdb.api.key={ YOUR_API_SECRET_KEY }
+kmdb.api.url=https://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2&detail=Y
+
+# Kakao 로그인 연동
+spring.kakao.auth.client={ YOUR_KAKAO_AUTH_KEY }
+spring.kakao.auth.redirect={ YOUR_REDIRECT_URL }
+
+# Cookie Domain 설정
+## If your env is localhost, it would be empty.
+domain={ YOUR_DOMAIN }
+
+# Spring Boot Actuator
+management.endpoints.web.exposure.include=prometheus,health,metrics,info
+
+# Logback
+logging.config=classpath:logback-spring.xml
+```
