@@ -153,7 +153,7 @@ logging.config=classpath:logback-spring.xml
 ```bash
 # 레포지토리 클론
 git clone [레포지토리 주소]
-cd backend
+cd cinebox
 
 # 빌드 및 실행
 ./mvnw spring-boot:run
