@@ -44,36 +44,29 @@ AWS 기반 클라우드 인프라 위에서 자동화된 배포 환경을 갖추
 
 ---
 
-## 기술 스택
+## 기술 스펙
 
-| 분류 | 기술 |
-|------|------|
-| Frontend | React, React Router, MUI, Axios, React Calendar, React Toastify |
-| Backend | Spring Boot 3.4.2, JDK 17, JPA (ORM), MySQL, Redis, Maven |
-| API 연동 | 영화진흥위원회 API (KOBIS), KMDB |
-| 인증/보안 | OAuth2.0, JWT (Access/Refresh Token) |
-| Infra & DevOps | AWS (EKS, RDS, S3, Route 53, ELB, IAM, VPC), Docker, GitHub Actions, Terraform, ArgoCD, Prometheus, Grafana |
+- **Framework**: Spring Boot 3.4.2
+- **Runtime**: JDK 17
+- **ORM**: JPA
+- **Library**: Maven
+- **Database**: MySQL 8.0.4, Redis 7.1
+- **API**: 영화진흥위원회(KOBIS), KMDB
 
 ---
 
 ## 프로젝트 실행 방법
 
-### 방법 1: 배포된 웹 접속
+해당 프로젝트를 추가로 개발 혹은 실행시켜보고 싶으신 경우 아래의 절차에 따라 진행해주세요
 
-서비스는 다음 도메인을 통해 확인할 수 있습니다:
+#### 1. 설정 파일 생성
 
-[https://cine-box.store](https://cine-box.store)
-
----
-
-### 방법 2: 로컬에서 직접 실행하기
-
-#### 1. 설정 파일 생성 (필수)
+```bash
+touch ./src/main/resources/application.properties
+```
 
 먼저 `src/main/resources/application.properties` 파일을 아래 예시를 참고하여 작성해야 합니다.  
 → 민감한 정보(API 키, DB 비밀번호 등)는 실제 값으로 교체해주세요.  
-→ 해당 파일은 `.gitignore`에 포함되어야 하며, Git에 커밋되지 않도록 주의하세요.
-
 
 [application.properties 예시](#applicationproperties-예시)
 
@@ -124,13 +117,6 @@ security.jwt.secretkey=your-secret-key
 security.jwt.accessTokenValidityInMilliseconds=3600000
 security.jwt.refreshTokenValidityInMilliseconds=604800000
 
-# 외부 API 연동 - 영화진흥위원회 & KMDB
-kobis.api.key={ YOUR_API_SECRET_KEY }
-kobis.api.url=http://kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieList.json
-
-kmdb.api.key={ YOUR_API_SECRET_KEY }
-kmdb.api.url=https://api.koreafilm.or.kr/openapi-data2/wisenut/search_api/search_json2.jsp?collection=kmdb_new2&detail=Y
-
 # Kakao 로그인 연동
 spring.kakao.auth.client={ YOUR_KAKAO_AUTH_KEY }
 spring.kakao.auth.redirect={ YOUR_REDIRECT_URL }
@@ -148,13 +134,8 @@ logging.config=classpath:logback-spring.xml
 
 ---
 
-#### 2. 백엔드 실행 (Spring Boot)
+#### 2. 프로젝트 실행
 
 ```bash
-# 레포지토리 클론
-git clone [레포지토리 주소]
-cd cinebox
-
-# 빌드 및 실행
 ./mvnw spring-boot:run
 ```
